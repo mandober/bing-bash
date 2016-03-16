@@ -61,7 +61,10 @@ local bbnfo="[bing-bash] $bbapp v.0.27"
 local usage="USAGE: $bbapp --PROPERTY NAME"
 
 ### DEPENDENCIES
-bb_load bb_err bb_get
+# bb_load bb_err bb_get
+[[ -z "$(declare -F bb_err 2>/dev/null)" ]] && . $BING/func/err
+[[ -z "$(declare -F bb_explode 2>/dev/null)" ]] && . $BING/func/get.bash
+
 
 ### PRECHECK
 [[ $# -eq 0 ]] && { bb_err 51; printf "${usage}\n" 1>&2; return 51; }

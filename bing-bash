@@ -48,14 +48,6 @@ shopt -s extquote		# enables $'' and $"" quoting
 shopt -u nocasematch 	# case sensitivity with regexp
 shopt -u nocaseglob     # case sensitivity when globbing
 
-#
-#   FUNCTIONS
-#
-# always load on startup
-. "$BING_FUNC/err"
-. "$BING_FUNC/sys/load"
-. "$BING_FUNC/explode.bash"
-# . "$BING_FUNC/typeof.bash"
 
 #
 #   FUNCTIONS LIST
@@ -63,24 +55,31 @@ shopt -u nocaseglob     # case sensitivity when globbing
 set +o noglob
 declare -a FUNCS
 FUNCS=( $BING_FUNC/*.bash )
-export FUNCTIONS
-
-#
-#   INSERT IN DB - one time noly
-#
-# bb_sql --insert "${FUNCS[@]}"
 
 
 #
 #   AUTOLOAD
 #
-bb_load --auto "${FUNCS[@]}"
+if [[ -r "$BING_FUNC/load" ]]; then
+	. "$BING_FUNC/load"
+	bb_load --auto "${FUNCS[@]}"
+fi
+
+
+#
+#   INSERT IN DB (one time only)
+#
+# if [[ -r "$BING_FUNC/sql" ]]; then
+# 	. "$BING_FUNC/sql"
+# 	bb_sql --insert "${FUNCS[@]}"
+# fi
 
 
 #
 #   FUNCTION ALIASES
 #
-. $BING_FUNC/bing_aliases
+[[ -r "$BING_FUNC/bing_aliases" ]] && . "$BING_FUNC/bing_aliases"
+
 
 #
 #   FUNCTIONS COMPLETIONS
@@ -91,4 +90,4 @@ complete -o default -o bashdefault -o nospace -A variable -A function echo
 #
 #   DATA SAMPLE
 #
-. $BING_FUNC/bing_samples
+[[ -r "$BING_FUNC/bing_samples" ]] && . "$BING_FUNC/bing_samples"

@@ -8,7 +8,12 @@ Tested with bash 4.3 and 4.4-beta.
 Portability disregarded, bashisms preferred.   
 Collection of bash functions.
    
-  
+
+## Initialization
+Configure and source bing-bash file
+
+
+
 ## List of functions/subroutines:  
   
 
