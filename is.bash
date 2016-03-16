@@ -159,7 +159,7 @@ case $bbOpt in
   [[ "$1" =~ ^[[:alnum:]]+$ ]] && return 0
  ;;
 
- --int?(eger))
+ --integer)
   #
   #  USAGE: 
   #      bb_is --integer STRING
