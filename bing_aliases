@@ -1,0 +1,26 @@
+#!/bin/bash bingmsg
+#==================================================================
+#: FILE: bing_aliases
+#: PATH: $BING_FUNC/bing_aliases
+#: TYPE: alias
+#:
+#: AUTHOR:
+#:      bing-bash by mandober <zgag@yahoo.com>
+#:      https://github.com/mandober/bing-bash
+#:      za Ǆ - Use freely at owns risk
+#:      11-Mar-2016 (last revision)
+#:
+#: DESCRIPTION:
+#:      Aliases for bing-bash functions
+#:
+#==================================================================
+
+alias typeof='bb_typeof'
+alias get='bb_get'
+alias is='bb_is'
+
+alias @='bb_array'
+alias array='bb_array'
+alias array_convert='bb_array_convert'
+alias array_sort='bb_array_sort'
+alias array_unique='bb_array_sort -u'

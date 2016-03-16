@@ -1,0 +1,94 @@
+#!/bin/bash bingmsg
+#==================================================================
+#: FILE: bing-bash
+#: PATH: $BING/func/bing-bash
+#: TYPE: environment
+#: DESCRIPTION:configuration, initializer
+#:
+#: AUTHOR:
+#:      [bing-bash] by mandober <zgag@yahoo.com>
+#:      https://github.com/mandober/bing-bash
+#:      za Ǆ - Use freely at owns risk
+#:      10-Mar-2016 (last revision)
+#==================================================================
+
+#
+#   BASE VARS
+#
+export BING="$HOME/bing"
+export BING_FUNC="$BING/func"
+export BING_TEMP="$BING/temp"
+
+# FPATH: paths to functions
+export FPATH=$BING_FUNC:$BING_FUNC/strings:$BING_FUNC/sys
+
+# BING_DB: database (sqlite)
+export BING_DB="$BING_FUNC/sys/bb.db"
+export BING_TBL=funcs
+
+#   DEBUG
+export BING_DEBUG=1
+# If enabled bb_err function will print debugging messages.
+# Temporary, until integrated into BING_BASH as letter d:
+# @TODO: make BING var with letters, e.g. BING=vdc (where d is for 
+# debug, c for color, etc.)
+
+
+#
+#   SHELL OPTIONS
+#
+
+## save current shell options
+# set +o >| "$BING_TEMP/env_set"
+# shopt -p >| "$BING_TEMP/env_shopt"
+
+## set shell options
+shopt -s extglob 		# enable extended regular expressions
+shopt -s extquote		# enables $'' and $"" quoting
+shopt -u nocasematch 	# case sensitivity with regexp
+shopt -u nocaseglob     # case sensitivity when globbing
+
+#
+#   FUNCTIONS
+#
+# always load on startup
+. "$BING_FUNC/err"
+. "$BING_FUNC/sys/load"
+. "$BING_FUNC/explode.bash"
+# . "$BING_FUNC/typeof.bash"
+
+#
+#   FUNCTIONS LIST
+#
+set +o noglob
+declare -a FUNCS
+FUNCS=( $BING_FUNC/*.bash )
+export FUNCTIONS
+
+#
+#   INSERT IN DB - one time noly
+#
+# bb_sql --insert "${FUNCS[@]}"
+
+
+#
+#   AUTOLOAD
+#
+bb_load --auto "${FUNCS[@]}"
+
+
+#
+#   FUNCTION ALIASES
+#
+. $BING_FUNC/bing_aliases
+
+#
+#   FUNCTIONS COMPLETIONS
+#
+complete -o default -o bashdefault -o nospace -A variable -A function echo
+
+
+#
+#   DATA SAMPLE
+#
+. $BING_FUNC/bing_samples
