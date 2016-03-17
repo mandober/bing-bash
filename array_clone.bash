@@ -7,7 +7,7 @@
 #: AUTHOR:
 #:      bing-bash by mandober <zgag@yahoo.com>
 #:      https://github.com/mandober/bing-bash
-#:      za Ǆ - Use freely at own's risk
+#:      za Ǆ - Use freely at owns risk
 #:      10-Mar-2016 (last revision)
 #:
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -20,12 +20,16 @@
 #: DESCRIPTION:
 #:      Pass array's name, ARRAY, to clone it as array named NAME,
 #:      which must be a valid identifier. If NAME is not given, it 
-#:      defaults to BING_CLONED. If -p option is given the resulting
-#:      array is reindexed, if it was a sparse indexed array.
-#:      Associative arrays are not touched.
+#:      defaults to BING_CLONED. Array is cloned without additional
+#:      attributes (if any) but indices/keys are preserved. An
+#:      indexed array has -a attribute and associative array has -A
+#:      attribute; these attributes are of course preserved, but
+#:      an array can have other attributes. For example -i which would
+#:      make its values integers, or -l which would make its values
+#:      lowercasing. These additional attributes are not preserved.
 #:
 #: DEPENDENCIES:
-#:      bb_err, bb_is, bb_get
+#:      bb_err, bb_is
 #:
 #: EXAMPLE:
 #:      bb_array_clone array1 newArray
@@ -64,7 +68,7 @@ bb_array_clone() {
 ### ABOUT
 local bbapp="${FUNCNAME[0]}"
 local bbnfo="[bing-bash] $bbapp v.0.18"
-local usage="USAGE: $bbapp ARRAY [-p] [NAME]"
+local usage="USAGE: $bbapp ARRAY [NAME]"
 
 ### CHECK
 [[ $# -eq 0 ]] && { bb_err 51; echo "$usage" >&2; return 51; }
@@ -80,11 +84,8 @@ local usage="USAGE: $bbapp ARRAY [-p] [NAME]"
 	$usage
 	  Pass array's name, ARRAY, to clone it as NAME, which must
 	  be a valid identifier, but if not given, it defaults to
-	  BING_CLONED. If -p option is given the resulting array
-	  is reindexed, if it was a sparse indexed array (and
-	  associative arrays are not touched).
+	  BING_CLONED.
 	OPTIONS:
-	   -p, --pack        Pack array.
 	   -h, --help        Show program help.
 	   -u, --usage       Show program usage.
 	   -v, --version     Show program version.
@@ -100,67 +101,50 @@ local usage="USAGE: $bbapp ARRAY [-p] [NAME]"
  trap "set +o noglob" RETURN ERR SIGHUP SIGINT SIGTERM
 
 
-### PARAMS
+#
+## PARAMS
 local bbArray bbNewArray bbDeclare bbTempArray bbFlag bbPattern
 
 #1 ARRAY
 bbArray="$1"
+# check if it is indeed an array
 ! bb_is --array "$bbArray" && { bb_err 63; return 63; }
 
 #2 NAME
 bbNewArray="${2:-BING_CLONED}"
 if [[ "$bbNewArray" != "BING_CLONED" ]]; then
+	# check if user supplied name is a valid identifier
 	! bb_is --id "$bbNewArray" && { bb_err 61; return 61; }
 fi
 
-### PROCESS
+
+#
+## PROCESS
+
+# if array is set, get his definition with `declare -p ARRAY'
 if ! bbDeclare="$(declare -p "$bbArray" 2>/dev/null)"; then
 	return 60
 fi
+# bbDeclare now contains array's definition, for example:
+# `declare -p BASH_VERSINFO' outputs the statement:
+# declare -ar BASH_VERSINFO='([0]="4" [1]="3" [2]="42" [3]="4")'
 
-echo "${bbDeclare//$bbArray=/$bbNewArray=}"
-return 0
-
-# Array is cloned by replacing original array name with user defined one
-# and then evaluating such declaration. Namely, `declare -p ARRAY' outputs:
-# declare -a ARRAY='(...)' and in order to clone it, ARRAY is replaced with
-# NAME, an user supplied name, so it becomes declare -a NAME='(...)' and
-# then this statement is evaluated.
+# Next, this statement is exploded, by space, into temporary array
+# which will contain [0]="declare" [1]="-ar" [2]=BASH_VERSINFO=...
 bbTempArray=( $bbDeclare )
+
+# To identify the type of array, examine element1 (without the leading
+# dash). If it is indexed (has `a' attribute ), a new global indexed
+# array is declared (and same for associative array).
 bbFlag="${bbTempArray[1]/#?}"
 [[ "$bbFlag" =~ ^a[[:alpha:]]*$ ]] && bbPattern="declare -ag $bbNewArray="
 [[ "$bbFlag" =~ ^A[[:alpha:]]*$ ]] && bbPattern="declare -Ag $bbNewArray="
+
+# Finally, the original statement `bbDeclare' is searched for
+# `declare -ar BASH_VERSINFO=' and this part is replaced with
+# `declare -ag NAME=' and then the statement is evaluated.
 eval "${bbDeclare/#declare*$bbArray=/$bbPattern}"
+
 return 0
 
-
-
-
-
 }
-
-
-
-
-## SWITCH - pack array
-# [[ "$2" =~ ^(-p|--pack)$ ]] && { 
-# 	local pack=1
-# 	shift
-# }
-
-
-#	====================== CLONE AND PACK ARRAY ========================
-# if [[ "$pack" == 1 ]]; then
-# 	local j=0
-# 	for bbTemp in "${!bbArrayRef[@]}"; do
-# 		BING_ARRAY[$j]="${bbArrayRef[$bbTemp]}"
-# 		(( j++ ))
-# 	done
-
-# 	eval "declare -ag $bbNewArray=( \"\${$BING_ARRAY[@]}\" )"
-# 	return 0
-# fi
-
-
-#	=============== CLONE ARRAY AS IS (WITHOUT ATTRIBUTES) =============
-#					attributes like -r for readonly, etc
