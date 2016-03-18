@@ -1,4 +1,3 @@
-#!/bin/bash bingmsg
 #==================================================================
 #: FILE: array_clone.bash
 #: PATH: $BING_FUNC/array_clone.bash
@@ -39,7 +38,7 @@
 #:      bb_array_clone ARRAY [NAME]
 #:
 #: OPTIONS: 
-#:      
+#:      (no options)
 #:
 #: PARAMETERS:
 #:    * ARRAY <array>
@@ -53,7 +52,7 @@
 #:      New array named NAME is created in the environment.
 #:
 #: STDOUT:
-#:      
+#:      void
 #:
 #: STDERR:
 #:      Error messages
@@ -70,13 +69,17 @@ local bbapp="${FUNCNAME[0]}"
 local bbnfo="[bing-bash] $bbapp v.0.18"
 local usage="USAGE: $bbapp ARRAY [NAME]"
 
+### DEPENDENCIES
+[[ -z "$(declare -F bb_err 2>/dev/null)" ]] && . $BING/func/err.bash
+[[ -z "$(declare -F bb_is 2>/dev/null)" ]] && . $BING/func/is.bash
+
 ### CHECK
-[[ $# -eq 0 ]] && { bb_err 51; echo "$usage" >&2; return 51; }
-[[ $# -gt 3 ]] && { bb_err 52; echo "$usage" >&2; return 52; }
+[[ $# -eq 0 ]] && { bb_err 51; printf "%s" "$usage\n" >&2; return 51; }
+[[ $# -gt 3 ]] && { bb_err 52; printf "%s" "$usage\n" >&2; return 52; }
 
 ### HELP
-[[ $1 =~ ^(--usage)$ ]] && { echo "$usage"; return 0; }
-[[ $1 =~ ^(--version)$ ]] && { echo "$bbnfo"; return 0; }
+[[ $1 =~ ^(--usage)$ ]] && { printf "%s" "$usage\n"; return 0; }
+[[ $1 =~ ^(--version)$ ]] && { printf "%s" "$bbnfo\n"; return 0; }
 [[ $1 =~ ^(--help)$ ]] && {
 	cat <<-EOFF
 	$bbnfo
@@ -121,12 +124,12 @@ fi
 #
 ## PROCESS
 
-# if array is set, get his definition with `declare -p ARRAY'
+# if array is set, get its definition with `declare -p ARRAY'
 if ! bbDeclare="$(declare -p "$bbArray" 2>/dev/null)"; then
 	return 60
 fi
 # bbDeclare now contains array's definition, for example:
-# `declare -p BASH_VERSINFO' outputs the statement:
+# declare -p BASH_VERSINFO  outputs the statement:
 # declare -ar BASH_VERSINFO='([0]="4" [1]="3" [2]="42" [3]="4")'
 
 # Next, this statement is exploded, by space, into temporary array
@@ -141,7 +144,7 @@ bbFlag="${bbTempArray[1]/#?}"
 [[ "$bbFlag" =~ ^A[[:alpha:]]*$ ]] && bbPattern="declare -Ag $bbNewArray="
 
 # Finally, the original statement `bbDeclare' is searched for
-# `declare -ar BASH_VERSINFO=' and this part is replaced with
+# `declare -xx BASH_VERSINFO=' and this part is replaced with
 # `declare -ag NAME=' and then the statement is evaluated.
 eval "${bbDeclare/#declare*$bbArray=/$bbPattern}"
 
