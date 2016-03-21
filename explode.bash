@@ -1,7 +1,7 @@
 #!/bin/bash bingmsg
 #==================================================================
-#: FILE: bb_explode
-#: PATH: $BING/func/bb_explode
+#: FILE: explode.bash
+#: PATH: $BING_FUNC/explode.bash
 #: TYPE: function
 #:
 #: AUTHOR:
@@ -83,31 +83,27 @@
 #:      Error messages.
 #:
 #: RETURN CODE:
-#:		0   success
-#:	        see err file:
-#:		51  Positional parameter absent
-#:		52  Wrong number of positional parameters
-#:		61  Invalid identifier
-#:		244 Not a valid option
+#:      0 - success
+#:	    non 0 - see err.bash file
 #==================================================================
 
 bb_explode() {
 
 ### ABOUT
-local bbapp="${FUNCNAME[0]}"
-local bbnfo="[bing-bash] $bbapp v.0.19"
-local usage="USAGE: $bbapp STRING [-c|-d DELIM] [NAME]"
+local -r bbapp="${FUNCNAME[0]}"
+local -r bbnfo="[bing-bash] $bbapp v.0.19"
+local -r usage="USAGE: $bbapp STRING [-c|-d DELIM] [NAME]"
 
 ### DEPENDENCIES
-[[ -z "$(declare -F bb_err 2>/dev/null)" ]] && . $BING/func/err
+[[ -z "$(declare -F bb_err 2>/dev/null)" ]] && . $BING_FUNC/err.bash
 
 ### PRECHECK
-[[ $# -eq 0 ]] && { bb_err 51; printf "${usage}\n" >&2; return 51; }
-[[ $# -gt 4 ]] && { bb_err 52; printf "${usage}\n" >&2; return 52; }
+[[ $# -eq 0 ]] && { bb_err 51; printf "%s" "${usage}\n" >&2; return 51; }
+[[ $# -gt 4 ]] && { bb_err 52; printf "%s" "${usage}\n" >&2; return 52; }
 
 ### HELP
-[[ $1 =~ ^(-u|--usage)$ ]] && { printf "${usage}\n"; return 0; }
-[[ $1 =~ ^(-v|--version)$ ]] && { printf "${bbnfo}\n"; return 0; }
+[[ $1 =~ ^(-u|--usage)$ ]] && { printf "%s" "${usage}\n"; return 0; }
+[[ $1 =~ ^(-v|--version)$ ]] && { printf "%s" "${bbnfo}\n"; return 0; }
 [[ $1 =~ ^(-h|--help)$ ]] && {
 	cat <<-EOFF
 	$bbnfo
@@ -147,21 +143,19 @@ local usage="USAGE: $bbapp STRING [-c|-d DELIM] [NAME]"
 }
 
 ### SET
-shopt -s extglob 		# Enable extended regular expressions
-shopt -s extquote		# Enables $'' and $"" quoting
-shopt -u nocasematch 	# regexp case-sensitivity
-set -o noglob			# Disable globbing. Enable it upon return:
-trap "set +o noglob" RETURN ERR SIGHUP SIGINT SIGTERM
+ shopt -s extglob 		# Enable extended regular expressions
+ shopt -s extquote		# Enables $'' and $"" quoting
+ shopt -u nocasematch 	# regexp case-sensitivity
+ set -o noglob			# Disable globbing. Enable it upon return:
+ trap "set +o noglob" RETURN ERR SIGHUP SIGINT SIGTERM
 
 
 ### PARAMS
-# First param is the STRING to bb_explode, but is it passed by name or by value?
+# First param is the STRING to explode, see if it's passed by name or by value?
 # Check the former, see if there's a var by that name. If there is, then
 # bb_explode its value, otherwise assume the latter.
-local bbString
-local bbFlag
+local bbString bbFlag bbTNT bbArrayName
 
-# check to see if there's a set var by that name...
 if bbFlag=$(declare -p "$1" 2>/dev/null); then
 	# ...that is not an array
 	bbFlag=( $bbFlag )
@@ -173,14 +167,13 @@ else
 fi
 shift
 
-## other params
-# defaults
-local bbTNT="default"
-local bbArrayName="BING_EXPLODED"
+## other params, defaults
+bbTNT="default"
+bbArrayName="BING_EXPLODED"
 
 # bb_explode STRING -c | bb_explode STRING -d=', '
 if [[ $# -gt 0 ]]; then
-	while [[ "$1" ]]; do
+	while [[ "${1+def}" ]]; do
 		case $1 in
 		 -c|--char|--chars)
 			bbTNT="nill"
@@ -208,49 +201,33 @@ if [[ $# -gt 0 ]]; then
 	done
 fi
 
+# echo "bbString: $bbString"
+# echo "bbTNT: $bbTNT"
+# echo "bbArrayName: $bbArrayName"
 
 
 #   ====================== DEFAULT DELIMITER ===================
-if [[ "$bbTNT" = "default" ]]; then
+if [[ "$bbTNT" == "default" ]]; then
 
-	# string is alnum only, so null delim
-	[[ "$bbString" =~ [[:alnum:]]+ ]] && bbTNT="nill"
+  # string is alnum only, so null delim
+  # [[ "$bbString" =~ [[:alnum:]]+ ]] && bbTNT="nill"
 
-	case "$bbString" in
-	    *:*)  bbTNT=':';;
-	   *\/*)  bbTNT='/';;
-	    *,*)  bbTNT=',';;
-	    *.*)  bbTNT='.';;
-	    *-*)  bbTNT='-';;
-	   *\;*)  bbTNT=';';;
-	    *|*)  bbTNT='|';;
-	      # *)  bbTNT=' ';;
-	esac
-	
-	IFS="$bbTNT" read -a "$bbArrayName" <<< "$bbString"
-	
+  case "$bbString" in
+    *:*)  bbTNT=':';;
+    *\/*)  bbTNT='/';;
+    *,*)  bbTNT=',';;
+    *.*)  bbTNT='.';;
+    *-*)  bbTNT='-';;
+    *\;*)  bbTNT=';';;
+    *|*)  bbTNT='|';;
+    *)  bbTNT=' ';;
+  esac
 
-	return 0
+  IFS="$bbTNT" read -a "$bbArrayName" <<< "$bbString"
 
-	# *\\t*)  
-			# echo "tab"
-			# bbString="${bbString//$'\\t'/$'\x1f'}"
-			# IFS=  mapfile -t "$bbArrayName" <<< "$bbString"
-	# ;;
-
-	# multi-char delimiter
-	# echo "multi-char delimiter"
-	# case "$bbString" in
-	#   *\\t*)  
-	# 		bbString="${bbString//$'\\t'/$'\x1f'}"
-	# 		# IFS=  mapfile -t "$bbArrayName" <<< "$bbString"
-	#   ;;
-	#   *)  bbTNT=' ';;
-	# esac
-	# IFS=$'\x1f' read -r -a "$bbArrayName" <<< "$bbString"
+  return 0
 
 fi
-
 
 
 # 	====================== CHAR DELIMITER =======================
@@ -269,14 +246,12 @@ if [[ "$bbTNT" == "nill" ]]; then
 fi
 
 
-
 #   ================== USER/COMPOUND DELIMITER ===================
 if [[ "$delim" == "user" ]]; then
 	# If user DELIMITER has more than 1 char
 	# replace that group of chars with a Unit Separator ($'\x1f')
 	[[ "${bbTNT}" = "\\n" ]] && bbString="${bbString//$'\\n'/$'\x1f'}"
 	[[ "${bbTNT}" = "\\t" ]] && bbString="${bbString//$'\\t'/$'\x1f'}"
-	
 
 	if [[ "${#bbTNT}" -gt 1 ]]; then
 		bbString="${bbString//$bbTNT/$'\x1f'}"
@@ -289,5 +264,3 @@ if [[ "$delim" == "user" ]]; then
 fi
 
 }
-
-
