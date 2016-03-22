@@ -1,8 +1,7 @@
-#!/bin/bash
 #==================================================================
 #: FILE: typeof.bash
 #: PATH: $BING_FUNC/typeof.bash
-#: TYPE: function or (limited usability) executable
+#: TYPE: function
 #:
 #: AUTHOR:
 #:      bing-bash by mandober <zgag@yahoo.com>
@@ -30,7 +29,7 @@
 #:      to exported shell variables only).
 #:
 #: DEPENDENCIES:
-#:      bb_err
+#:      builtins: type
 #:
 #: EXAMPLE:
 #:      typeof -t BASH_ALIASES   # outputs: `associative'
@@ -39,49 +38,46 @@
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 #: SYNOPSIS:
 #:      typeof [-t] NAME
+#:      typeof NAME [-t]   # works too
 #:
 #: OPTIONS: 
 #:      -t, --type
-#:      Return the type, as a single word
+#:      Return the type, as a single word. 
 #:
 #: PARAMETERS:
 #:      NAME <string>
-#:      bare word, name, identifier, variable, array, shell word... 
+#:      bare word, name, identifier, variable, array, anything.
 #:
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 #: STDOUT:
-#:      - outputs only the type of the parameter (with -t option )
-#:      - type, value and attributes of the parameter (if variable)
-#:      - help, usage, version (if explicitly requested)
+#:    * Outputs only the type of the parameter (with -t option )
+#:    * Type, value and attributes of the parameter (if variable)
+#:    * Help, usage, version (if explicitly requested)
 #:
 #: STDERR:
-#:      Error messages
+#:      Error messages.
 #:
 #: RETURN CODES:
-#:      0  OK
-#:     51  Positional parameter absent
-#:     52  Wrong number of positional parameters
-#:     61  Invalid identifier
-#:    244  Not a valid option
+#:      0  success
+#:      2  Positional parameters error
 #==================================================================
 
 bb_typeof() {
 
 ### ABOUT
-local bbapp="${FUNCNAME[0]}"
-local bbnfo="[bing-bash] $bbapp v.0.46"
-local usage="USAGE: $bbapp [-t] NAME"
-
-### DEPENDENCIES
-[[ -z "$(declare -F bb_err 2>/dev/null)" ]] && . $BING_FUNC/err.bash
+local -r bbapp="${FUNCNAME[0]}"
+local -r bbnfo="[bing-bash] $bbapp v.0.47"
+local -r usage="USAGE: $bbapp [-t] NAME"
 
 ### PRECHECK
-[[ $# -eq 0 ]] && { bb_err 51; printf "${usage}\n" >&2; return 51; }
-[[ $# -gt 2 ]] && { bb_err 52; printf "${usage}\n" >&2; return 52; }
+if [[ $# -eq 0 || $# -gt 2 ]]; then
+  printf "\e[2m%s: %s\e[0m\n" "$bbapp" "Positional parameters error" >&2
+  return 2
+fi
 
 ### HELP
-[[ $1 =~ ^(-u|--usage)$ ]] && { printf "${usage}\n"; return 0; }
-[[ $1 =~ ^(-v|--version)$ ]] && { printf "${bbnfo}\n"; return 0; }
+[[ $1 =~ ^(-u|--usage)$ ]] && { printf "%s\n" "$usage"; return 0; }
+[[ $1 =~ ^(-v|--version)$ ]] && { printf "%s\n" "$bbnfo"; return 0; }
 [[ $1 =~ ^(-h|--help)$ ]] && {
 	cat <<-EOFF
 	$bbnfo
@@ -109,12 +105,11 @@ local usage="USAGE: $bbapp [-t] NAME"
 }
 
 ### SET
-shopt -s extglob 		# Enable extended regular expressions
-shopt -s extquote		# Enables $'' and $"" quoting
-shopt -u nocasematch 	# regexp case-sensitivity
-set -o noglob   		# Disable globbing (set -f).
-# re-enable:
-trap "set +o noglob" RETURN ERR SIGHUP SIGINT SIGTERM
+ shopt -s extglob 		# Enable extended regular expressions
+ shopt -s extquote		# Enables $'' and $"" quoting
+ shopt -u nocasematch 	# regexp case-sensitivity
+ set -o noglob   		# Disable globbing (set -f). re-enable:
+ trap "set +o noglob" RETURN ERR SIGHUP SIGINT SIGTERM
 
 
 ### PARAMS
@@ -122,18 +117,11 @@ local bbParamName
 local type=0
 
 while [[ -n "${1}" ]]; do
-    case $1 in
-     -t|--type)
-        [[ ! "$1" =~ ^(-t|--type)$ ]] && {
-            bb_err 244; printf "${usage}\n" >&2; return 244
-        }
-        type=1
-     ;;
-     # [[:alpha:]_]*[[:alnum:]_:] ) bbParamName="$1";;
-     # *) bb_err 55; printf "${usage}\n" >&2; return 55;;
+  case $1 in
+   -t|--type) type=1;;
 	 *) bbParamName="$1";;
-    esac
-    shift
+  esac
+  shift
 done
 
 
@@ -174,8 +162,6 @@ fi
 # Anyway, it must be listed in symbols table as `declare xx NAME ...'
 # where xx are its attributes - get them from element1 after exploding
 # this statement. 
-
-[[ ! "$bbDeclare" =~ ^declare ]] && { bb_err 61; return 61; }
 bbDeclare=($bbDeclare)
 
 ## Scrutinize attributes
@@ -186,7 +172,6 @@ bbDeclare=($bbDeclare)
 # read-only, trace
 
 case ${bbDeclare[1]} in
-
 #	=========================== INDEXED ARRAY =============================
 
  *a*)
@@ -194,7 +179,7 @@ case ${bbDeclare[1]} in
 
 	local -n bbArrayRef="$bbParamName"
 	local -i bbNum=1
-	local i
+	local bbK
 	local bbKey bbCurr bbMax=0
 
 	# max (in chars) value
@@ -210,9 +195,9 @@ case ${bbDeclare[1]} in
 	printf "\e[2m%s. %7s %-*s %5s\e[0m\n" " no" "key " $bbMax "value" "len"
 
 	# value
-	for i in "${!bbArrayRef[@]}"; do
+	for bbK in "${!bbArrayRef[@]}"; do
 	  printf "\e[2m%2d.\e[0m %7s: %-*s \e[2m%5s\e[0m\n" \
-	         "${bbNum}" "[${i}]" $bbMax "${bbArrayRef[$i]}" "${#bbArrayRef[$i]}"
+	  "${bbNum}" "[${bbK}]" $bbMax "${bbArrayRef[$bbK]}" "${#bbArrayRef[$bbK]}"
 	  (( bbNum++ ))
 	done
 
