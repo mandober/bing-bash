@@ -10,7 +10,7 @@
 #:      bing-bash by mandober <zgag@yahoo.com>
 #:      https://github.com/mandober/bing-bash
 #:      za Ǆ - Use freely at own's risk
-#:      3-Mar-2016 (last revision)
+#:      25-Mar-2016 (last revision)
 #:
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 #: NAME: 
@@ -176,16 +176,14 @@ return 0
 # $BING_FUNC/bin/range
 
 if [ "${BASH_SOURCE[0]}" != $0 ]; then
-  # export -f typeof
+  export -f bb_range
   echo '$0: '$0
   echo 'BASH_SOURCE != $0'
-  # typeof BASH_SOURCE
   printf "%s\n" "${BASH_SOURCE[@]}"
   echo "App: $0"
 else
   echo '$0: '$0
   echo 'BASH_SOURCE == $0'
-  # typeof BASH_SOURCE
   printf "%s\n" "${BASH_SOURCE[@]}"
   echo "App: $0"
   bb_range "$@"
