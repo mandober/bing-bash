@@ -30,17 +30,20 @@
 #:
 #: EXAMPLE:
 #:      bb_range 1,3-7,9,12-16
+#:      # let range="1,3-7,9,12-16" than call it as:
+#:      bb_range "$range"
+#:      # or (by name):
+#:      bb_range range
 #:
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 #: SYNOPSIS:
 #:      bb_range [-s SEP] LIST
 #:
 #: OPTIONS:
-#:      -s|--sep|--separator SEP
-#:      SEP <char>
-#:      Substring composed of single or muliple characters by which
-#:      to separate the resulting numbers. Specify separator after 
-#:      equal sign or as the next argument.
+#:      -s|--sep|--separator SEP <char>
+#:      SEP is substring composed of single or muliple characters by
+#:      which to separate the resulting numbers. Specify separator 
+#:      after equal sign or as the next argument.
 #:
 #: PARAMETERS:
 #:      LIST <string>
@@ -57,7 +60,7 @@
 #:      0 - success
 #:      1 - failure
 #:      2 - Positional parameters empty
-#:      3 - Wrong number of parameters
+#:      3 - Invalid input
 #:      4 - Not an integer
 #========================================================================
 
@@ -117,12 +120,18 @@ while [[ "${1+def}" ]]; do
    -s=*|--sep=*|--separator=*)
       bbSep="${1#*=}"
     ;;
+
    -s|--sep|--separator)
       bbSep="${2?}"
       shift
    ;;
+
    *)
-    bbRange="$1"
+      # passed by value
+      bbRange="$1"
+      # passed by name
+      [[ ! "$bbRange" =~ [[:digit:]]+[,-]? ]] && bbRange="${!1}"
+      [[ ! "$bbRange" =~ [[:digit:]]+[,-]? ]] && return 3
    ;;
   esac
 shift
