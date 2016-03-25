@@ -1,63 +1,65 @@
-# bing-bash   
-   
-## `bing-bash` - bash functions library   
-   
-
-No forks, no external tools - single process bash shell.   
-Tested with bash 4.3 and 4.4-beta.
-Portability disregarded, bashisms preferred.   
-Collection of bash functions.
-   
-
-## Initialization
-Configure and source bing-bash file
-
+# bing-bash  
+  
+## `bing-bash` - bash functions library  
+  
+This library is composed using native bash's (4.3) abilities, without  
+unnecessary forking or usage of external tools if possible or faster.  
+Single process bash shell was in high regard as well as bash specific  
+functionality, disregarding portability. All was made and tested with  
+bash 4.3 and 4.4-beta.  
+  
+bing-bash is a collection of bash functions, meant to be sourced, but  
+some of them can be directly executed as well.  All functions are now  
+(or going to be soon) standalone - they won't need any other function  
+or file in this library to work (possibly only the main initialization  
+`bing-bash' file, file with common aliases, etc.).
+  
+  
+## Quick start
+Configure and source `bing-bash' file, or just source the  
+functions/files of interest.  
 
 
 ## List of functions/subroutines:  
   
 
-### Strings, variables, functions:  
+### Strings, variables:  
 
-`bb_typeof`
+`bb_typeof`  
 - Identify given string as set or unset variable, array, shell keyword, etc.
-- Dump variables (pretty print arrays) and their attributes   
+- Dump variables (pretty print arrays) and their attributes.   
 
-`bb_explode`   
-- Convert a string to array
-- Convert a string to array of chars
+`bb_explode`  
+- Convert a string to array by splitting it by substring which can be a  
+  single or multi character substring
+- Convert a string to array of individual characters
+- IN PROGRESS: guess the most probable delimiter
 
 `bb_implode`
 - Convert an array to string
 
 `bb_venn`
-- Venn diagrams related functions: find union, intersection, difference, complement) 
+- Venn diagrams related functions: find union, intersection, difference,  
+  complement).
 
 `bb_trim`
 - Trim leading, trailing and intermediate whitespace.
 
 `bb_range`
 - Generate sequences (e.g. 1,4-8,10,12-22,30-35,50)
+* Can be used as function or executable
 
-`bb_load`
-- Check and source functions
-- Mark functions for autoloading
-- Resolve function's full path
-
-`bb_sql`
-- Routines dealing with sqlite database
-
-`bb_err`
-- Display error and debug messages
+`bb_to`
+- Conversions: e.g. ascii to hex, octal, decimal...and similar
 
 
 ### Arrays:  
 
+`bb_array_clone`
+- Clone an array  
+
 `in_array`
 - Checks if a value (variable or array) exists in an array
-
-`bb_array_clone`
-- Clone (and optionally re-index) an array  
 
 `bb_array_convert`
 - Convert indexed to associative array or vice versa
@@ -87,10 +89,10 @@ Configure and source bing-bash file
 - Re-index an indexed sparse array
 - Remove unset elements from array
 - Pack and squeeze an array
-
-
-### Match pattern, identify, qualify:  
-
+* TODO: sort it out
+  
+### Match patterns, identify, qualify:  
+  
 `bb_is`
 IS functions
 
@@ -100,8 +102,19 @@ GET functions
 `bb_do`
 DO functions
   
+
+### MISC
+
+`bb_load`
+- Check and source functions
+- Mark functions for autoloading
+- Resolve function's full path
+
+`bb_sql`
+- Routines dealing with sqlite database
+
+`bb_err`
+- Display error and debug messages
   
   
-  
-Each function declares a list of dependencies (other function from this package they need) and although they all count on `bb_err` function in order to display meaningful error messages, they will still work without it (in which case you can look up the error code in `err.bash` file manually). All other dependencies are absolutely required (at least for the time being).
-Namely, there's a dilemma whether to make each function dependencies free on account of code repetition and bigger memory footprint. In this case there would be a significant gain in execution speed, and m4 macro processor would be used to deal with code repetition.
+ 
