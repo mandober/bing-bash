@@ -33,11 +33,11 @@
 #:        valid identifier. If not provided it defaults to BING_EXPLODED.
 #:
 #: DEPENDENCIES:
-#:      bb_err
+#:      
 #:
 #: EXAMPLE:
-#:      bb_explode var # variable passed by name
-#:      bb_explode "$var"
+#:      bb_explode var      # passed by name
+#:      bb_explode "$var"   # passed by value
 #:      bb_explode var -c newArray  
 #:      bb_explode var -d=':' newArray
 #:      bb_explode var -d ', ' newArray
@@ -50,8 +50,8 @@
 #:      -c, --char, --chars
 #:      Delimiter is a character boundary.
 #:
-#:      -d, --delim, --delimiter
-#:      specify delimiter after equal sign (e.g. -d=':')
+#:      -d, --delim, --delimiter DELIM
+#:      Specify delimiter after equal sign (e.g. -d=':')
 #:      or as a following argument (e.g. -d ', ').
 #:
 #: PARAMETERS:
@@ -84,33 +84,37 @@
 #:
 #: RETURN CODE:
 #:      0 - success
-#:	    non 0 - see err.bash file
+#:      1 - failure
+#:      3 - Wrong number of parameters
+#:      4 - Parameter is an array
+#:      6 - Invalid identifier
 #==================================================================
 
 bb_explode() {
 
-### ABOUT
-local -r bbapp="${FUNCNAME[0]}"
-local -r bbnfo="[bing-bash] $bbapp v.0.19"
-local -r usage="USAGE: $bbapp STRING [-c|-d DELIM] [NAME]"
+#                                                                   ABOUT
+#                                                                   =====
+ local -r bbapp="${FUNCNAME[0]}"
+ local -r bbnfo="[bing-bash] $bbapp v.0.21"
+ local -r usage="USAGE: $bbapp STRING [-c|-d DELIM] [NAME]"
 
-### DEPENDENCIES
-[[ -z "$(declare -F bb_err 2>/dev/null)" ]] && . $BING_FUNC/err.bash
+#                                                                PRECHECK
+#                                                                ========
+  if [[ $# -eq 0 ]]; then
+    printf "\e[2m%s: %s\e[0m\n" "$bbapp" "Wrong number of parameters" >&2
+    printf "%s\n" "$usage" >&2
+    return 3
+  fi
 
-### PRECHECK
-[[ $# -eq 0 ]] && { bb_err 51; printf "%s" "${usage}\n" >&2; return 51; }
-[[ $# -gt 4 ]] && { bb_err 52; printf "%s" "${usage}\n" >&2; return 52; }
-
-### HELP
-[[ $1 =~ ^(-u|--usage)$ ]] && { printf "%s" "${usage}\n"; return 0; }
-[[ $1 =~ ^(-v|--version)$ ]] && { printf "%s" "${bbnfo}\n"; return 0; }
-[[ $1 =~ ^(-h|--help)$ ]] && {
+#                                                                    HELP
+#                                                                    ====
+	[[ $1 =~ ^(-u|--usage)$ ]] && { printf "%s" "${usage}\n"; return 0; }
+	[[ $1 =~ ^(-v|--version)$ ]] && { printf "%s" "${bbnfo}\n"; return 0; }
+	[[ $1 =~ ^(-h|--help)$ ]] && {
 	cat <<-EOFF
 	$bbnfo
 	  Convert a string to array by splitting it by substring.
-
 	$usage
-
 	DESCRIPTION:
 	  Creates NAME, an indexed array of strings, each of which is a 
 	  substring of STRING, formed by splitting it on boundaries
@@ -140,66 +144,75 @@ local -r usage="USAGE: $bbapp STRING [-c|-d DELIM] [NAME]"
 	printf "   $bbapp USER -c \e[2m%s\e[0m\n\n" \
 	"# default array name is BING_EXPLODED"
 	return 0
-}
+  }
 
-### SET
- shopt -s extglob 		# Enable extended regular expressions
- shopt -s extquote		# Enables $'' and $"" quoting
- shopt -u nocasematch 	# regexp case-sensitivity
- set -o noglob			# Disable globbing. Enable it upon return:
+#                                                                     SET
+#                                                                     ===
+ shopt -s extglob extquote; shopt -u nocasematch; set -o noglob
  trap "set +o noglob" RETURN ERR SIGHUP SIGINT SIGTERM
 
-
-### PARAMS
-# First param is the STRING to explode, see if it's passed by name or by value?
-# Check the former, see if there's a var by that name. If there is, then
-# bb_explode its value, otherwise assume the latter.
-local bbString bbFlag bbTNT bbArrayName
-
+#                                                                  PARAMS
+#                                                                  ======
+ local bbString bbFlag bbTNT bbArrayName
+ 
+ # First param is the STRING to explode
+ # Is it passed by name or by value?
 if bbFlag=$(declare -p "$1" 2>/dev/null); then
-	# ...that is not an array
-	bbFlag=( $bbFlag )
-	bbFlag="${bbFlag[1]#?}"
-	[[ "$bbFlag" =~ ^[aA][[:alpha:]]*$ ]] && { bb_err 62 && return 62; }
-	bbString="${!1}" # bb_explode var
+
+  # can't explode an array
+  bbFlag=( $bbFlag )
+  if [[ "${bbFlag[1]}" =~ ^-[aA] ]]; then
+    printf "\e[2m%s: %s\e[0m\n" "$bbapp" "Parameter is an array" >&2
+    return 4
+  fi
+
+  # passed by name: bb_explode var
+  bbString="${!1}"
+
 else
-	bbString="$1" # bb_explode $var
+  # passed by value: bb_explode $var
+  bbString="$1"
+
 fi
+# remove param 1
 shift
 
-## other params, defaults
+
+## defaults for other params
 bbTNT="default"
 bbArrayName="BING_EXPLODED"
 
-# bb_explode STRING -c | bb_explode STRING -d=', '
-if [[ $# -gt 0 ]]; then
-	while [[ "${1+def}" ]]; do
-		case $1 in
-		 -c|--char|--chars)
-			bbTNT="nill"
-		 ;;
 
-		 -d|--delim|--delimiter)
-			delim="user"
-			bbTNT="${2?}"
-			shift
-		 ;;
+# assign params
+while [[ "${1+def}" ]]; do
+  case $1 in
+    -c|--char|--chars)
+      bbTNT="nill"
+    ;;
 
-		 -d=*|--delim=*|--delimiter=*)
-			delim="user"
-			bbTNT="${1#*=}"
-		 ;;
+    -d|--delim|--delimiter)
+      delim="user"
+      bbTNT="${2?}"
+      shift
+    ;;
 
-		 *)
-			bbArrayName="$1"
-			[[ ! "$bbArrayName" =~ ^[[:alpha:]_][[:alnum:]_]*$ ]] && { 
-				bb_err 61 && return 61;
-			}
-		 ;;
-		esac
-	shift
-	done
-fi
+    -d=*|--delim=*|--delimiter=*)
+      delim="user"
+      bbTNT="${1#*=}"
+    ;;
+
+    *)
+      # user provided name for resulting array
+      bbArrayName="$1"
+      # check it is a valid identifier
+      if [[ ! "$bbArrayName" =~ ^[[:alpha:]_][[:alnum:]_]*$ ]]; then
+        printf "\e[2m%s: %s\e[0m\n" "$bbapp" "Invalid identifier" >&2
+        return 6
+      fi
+    ;;
+  esac
+shift
+done
 
 # echo "bbString: $bbString"
 # echo "bbTNT: $bbTNT"
@@ -208,24 +221,27 @@ fi
 
 #   ====================== DEFAULT DELIMITER ===================
 if [[ "$bbTNT" == "default" ]]; then
-
-  # string is alnum only, so null delim
-  # [[ "$bbString" =~ [[:alnum:]]+ ]] && bbTNT="nill"
-
-  case "$bbString" in
-    *:*)  bbTNT=':';;
-    *\/*)  bbTNT='/';;
-    *,*)  bbTNT=',';;
-    *.*)  bbTNT='.';;
-    *-*)  bbTNT='-';;
-    *\;*)  bbTNT=';';;
-    *|*)  bbTNT='|';;
-    *)  bbTNT=' ';;
-  esac
-
-  IFS="$bbTNT" read -a "$bbArrayName" <<< "$bbString"
-
-  return 0
+	if [[ ! "$bbString" =~ ^[[:alpha:]]+$ ]]; then
+	  case "$bbString" in
+	     *:*) bbTNT=':';;
+	    *\/*) bbTNT='/';;
+	     *,*) bbTNT=',';;
+	     *.*) bbTNT='.';;
+	     *-*) bbTNT='-';;
+	    *\;*) bbTNT=';';;
+	     *|*) bbTNT='|';;
+	   *\\t*) bbTNT='\\t';;
+	   *\\v*) bbTNT='\\v';;
+	   *\\n*) bbTNT='\\n';;
+	   *\\r*) bbTNT='\\r';;
+	       *) bbTNT=' ';;
+	  esac
+	  IFS="$bbTNT" read -a "$bbArrayName" <<< "$bbString"
+	  return 0
+	else
+    # if string is all alpha, split by character
+    bbTNT="nill"
+	fi
 
 fi
 
@@ -242,6 +258,7 @@ if [[ "$bbTNT" == "nill" ]]; then
 	done
 	bbTNT=' '
 	IFS="$bbTNT" read -a "$bbArrayName" <<< "$bbString"
+
 	return 0
 fi
 
