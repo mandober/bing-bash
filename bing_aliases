@@ -16,11 +16,24 @@
 #==================================================================
 
 alias typeof='bb_typeof'
-alias get='bb_get'
-alias is='bb_is'
+alias explode='bb_explode'
+# alias range='bb_range' # FUNC:bb_range, EXE:range
 
+
+
+alias implode='bb_implode'
+alias is='bb_is'
+alias get='bb_get'
+alias load='bb_load'
+alias in_array='bb_in_array'
 alias @='bb_array'
 alias array='bb_array'
+alias array_clone="bb_array_clone"
 alias array_convert='bb_array_convert'
-alias array_sort='bb_array_sort'
+alias array_merge='bb_array_merge'
+alias array_remove='bb_array_remove'
+alias array_shift='bb_array_shift'
 alias array_unique='bb_array_sort -u'
+alias array_sort='bb_array_sort'
+alias trim='bb_trim'
+alias venn='bb_venn'
