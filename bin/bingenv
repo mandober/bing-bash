@@ -1,0 +1,15 @@
+#!/bin/bash
+
+printf "[\e[33;1m%s\e[0m] ENVIRONMENT\n\n" "bing-bash"
+
+printf "[\e[32;1m%s\e[0m] VARIABLES\n" "bing-bash"
+# echo -en '\e[32;1m'
+printf "%s\n" ${!BING*}
+# echo -e '\e[0m'
+
+printf "\n[\e[34;1m%s\e[0m] ALIASES\n" "bing-bash"
+. "$BING_FUNC/bing_aliases"
+alias | grep bb_
+
+printf "\n[\e[36;1m%s\e[0m] FUNCTIONS\n" "bing-bash"
+declare -F
