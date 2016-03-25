@@ -1,77 +1,162 @@
 #!/bin/bash bingmsg
-#==================================================================
-#:Name:  range
-#:Path:  $BING/func/strings/range
-#:Type:  function
-#:Deps:  bb_err, bbis
+#========================================================================
+#: FILE: range.bash
+#: PATH: $BING_FUNC/range.bash
+#: TYPE: function
 #:
-#:Author:
-#:    [bing-bash] by mandober <zgag@yahoo.com>
-#:    https://github.com/mandober/bing-bash
-#:    za Ǆ - Use freely at own's risk
-#:    Last revision: 3-Mar-2016
+#: AUTHOR:
+#:      bing-bash by mandober <zgag@yahoo.com>
+#:      https://github.com/mandober/bing-bash
+#:      za Ǆ - Use freely at own's risk
+#:      3-Mar-2016 (last revision)
 #:
-#:Description:
-#:	  Generate sequences from given ranges list. List can be
-#:	  a single range (5-10) or a comma-separated list of ranges
-#:	  (12-22,30-35). Ranges are inclusive. Single values (2,5)
-#:	  will not generate anything, but they will be included in
-#:	  the final sequence.
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+#: NAME: 
+#:      bb_range
 #:
-#:Examples:
-#:    bb_range 10-20
-#:    bb_range 1,3-7,9,12-16
+#: BRIEF:
+#:      Generate number sequences from ranges list.
 #:
-#:Usage:
-#:    bb_range LIST
+#: DESCRIPTION:
+#:      Generate sequences from given ranges list. List can be
+#:      a single range (5-10) or a comma-separated list of ranges
+#:      (12-22,30-35). Ranges are inclusive. Single values (2,5)
+#:      will not generate anything, but they will be included in
+#:      the final sequence. Final number sequence will be separated
+#:      by provided substring SEP or by <space> if no SEP given.
 #:
-#:Options:
-#:    no options
+#: DEPENDENCIES:
+#:      (none)
+#:
+#: EXAMPLE:
+#:      bb_range 1,3-7,9,12-16
+#:
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+#: SYNOPSIS:
+#:      bb_range [-s SEP] LIST
+#:
+#: OPTIONS:
+#:      -s|--sep|--separator SEP
+#:      SEP <char>
+#:      Substring composed of single or muliple characters by which
+#:      to separate the resulting numbers. Specify separator after 
+#:      equal sign or as the next argument.
+#:
+#: PARAMETERS:
+#:      LIST <string>
+#:      Comma-separated list of integers or ranges.
 #:    
-#:Params:
-#:    <string> LIST - comma-separated ranges [\d,-]
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+#: STDOUT:
+#:      Range of numbers.
+#:
+#: STDERR:
+#:      Error messages.
 #:    
-#:Returns:
-#:    void
-#:    
-#:Return Codes: 
-#:    0 success
-#:    
-#:    
-#==================================================================
+#: RETURN CODE:
+#:      0 - success
+#:      1 - failure
+#:      2 - Positional parameters empty
+#:      3 - Wrong number of parameters
+#:      4 - Not an integer
+#========================================================================
 
 bb_range() {
+#                                                                   ABOUT
+#                                                                   =====
+ local -r bbapp="${FUNCNAME[0]}"
+ local -r bbnfo="[bing-bash] $bbapp v.0.11"
+ local -r usage="USAGE: $bbapp LIST"
 
-local bbMIN bbMAX
-local bbSequence=
-local bbTempArray bbNum
+#                                                                PRECHECK
+#                                                                ========
+  if [[ $# -eq 0 ]]; then
+    printf "\e[2m%s: %s\e[0m\n" "$bbapp" "Wrong number of parameters" >&2
+    printf "%s\n" "$usage" >&2
+    return 3
+  fi
 
+#                                                                    HELP
+#                                                                    ====
+  [[ $1 =~ ^(-u|--usage)$ ]] && { printf "%s\n" "$usage"; return 0; }
+  [[ $1 =~ ^(-v|--version)$ ]] && { printf "%s\n" "$bbnfo"; return 0; }
+  [[ $1 =~ ^(-h|--help)$ ]] && {
+	cat <<-EOFF
+	$bbnfo
+	  Generate number sequences from ranges list.
+	$usage
+  DESCRIPTION:
+  	Generate sequences from given ranges list. List can be
+    a single range (5-10) or a comma-separated list of ranges
+    (12-22,30-35). Ranges are inclusive. Single values (2,5)
+    will not generate anything, but they will be included in
+    the final sequence. Final number sequence will be separated
+    by provided substring SEP or by <space> if no SEP given.
+	OPTIONS:
+    -s, --sep       String by which to separate resulting numbers
+	  -h, --help      Show program help.
+	  -u, --usage     Show program usage.
+	  -v, --version   Show program version.
+	EOFF
+	return 0
+ }
 
-# bb_explode list by comma
-bb_explode "$1" -d=',' bbTempArray
+#                                                                     SET
+#                                                                     ===
+ shopt -s extglob extquote; shopt -u nocasematch; set -o noglob
+ trap "set +o noglob" RETURN ERR SIGHUP SIGINT SIGTERM
 
-for bbNum in "${!bbTempArray[@]}"; do
+#                                                                  PARAMS
+#                                                                  ======
+local bbMIN bbMAX bbArray bbNum bbSep bbRange
+local bbSequence=""
 
-	if bbis --range "${bbTempArray[$bbNum]}"; then
-		# 5-8, 1000-5000000
-		bbMIN="${bbTempArray[$bbNum]%-*}"
-		bbMAX="${bbTempArray[$bbNum]#*-}"
-		
-		if ! bbis --int "$bbMIN"; then return 1; fi
-		if ! bbis --int "$bbMAX"; then return 1; fi
+# assign params
+while [[ "${1+def}" ]]; do
+  case $1 in
+   -s=*|--sep=*|--separator=*)
+      bbSep="${1#*=}"
+    ;;
+   -s|--sep|--separator)
+      bbSep="${2?}"
+      shift
+   ;;
+   *)
+    bbRange="$1"
+   ;;
+  esac
+shift
+done
+# default separator
+bbSep="${bbSep:- }"
 
-		while [[ $bbMIN -le $bbMAX ]]; do
-			bbSequence+="${bbMIN},"
-			(( bbMIN++ ))
-		done
+#                                                                 PROCESS
+#                                                                 =======
+# explode list (5-8,100-110) by comma
+IFS=, read -a bbArray <<< "$bbRange"
 
-	else
-		if ! bbis --int "${bbTempArray[$bbNum]}"; then return 1; fi
-		bbSequence+="${bbTempArray[$bbNum]},"
-	fi
-
+for bbNum in "${bbArray[@]}"; do
+  # if element is a range (100-110)
+  if [[ "$bbNum" =~ [[:digit:]]+-[[:digit:]]+ ]]; then
+    bbMIN="${bbNum%-*}" # 100
+    bbMAX="${bbNum#*-}" # 110
+    # check that both are integers
+    [[ ! "$bbMIN" =~ ^[[:digit:]]+$ ]] && return 4
+    [[ ! "$bbMAX" =~ ^[[:digit:]]+$ ]] && return 4
+    # generate seq
+    while [[ $bbMIN -le $bbMAX ]]; do
+      bbSequence+="${bbMIN}${bbSep}"
+      (( bbMIN++ ))
+    done
+  # if element is a single number...
+  else
+    [[ ! "$bbNum" =~ ^[[:digit:]]+$ ]] && return 4
+    # ...just add it to the sequence
+    bbSequence+="${bbNum}${bbSep}"
+  fi
 done
 
-bbSequence="${bbSequence%,}"
-echo "$bbSequence"
+bbSequence="${bbSequence%$bbSep}"
+printf "%s\n" "$bbSequence"
+return 0
 }
