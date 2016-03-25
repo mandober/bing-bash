@@ -1,8 +1,10 @@
-#!/bin/bash bingmsg
+#!/bin/bash
 #========================================================================
-#: FILE: range.bash
-#: PATH: $BING_FUNC/range.bash
-#: TYPE: function
+#: FILE: range
+#: PATH: $BING_FUNC/bin/range
+#: TYPE: function/executable
+#:       source this file to use it as a function called `bb_range'
+#:       or execute this file as `range' if it's in the PATH
 #:
 #: AUTHOR:
 #:      bing-bash by mandober <zgag@yahoo.com>
@@ -147,16 +149,18 @@ IFS=, read -a bbArray <<< "$bbRange"
 for bbNum in "${bbArray[@]}"; do
   # if element is a range (100-110)
   if [[ "$bbNum" =~ [[:digit:]]+-[[:digit:]]+ ]]; then
+    
     bbMIN="${bbNum%-*}" # 100
-    bbMAX="${bbNum#*-}" # 110
-    # check that both are integers
+    bbMAX="${bbNum#*-}" # 110, check that both are integers:
     [[ ! "$bbMIN" =~ ^[[:digit:]]+$ ]] && return 4
     [[ ! "$bbMAX" =~ ^[[:digit:]]+$ ]] && return 4
+    
     # generate seq
     while [[ $bbMIN -le $bbMAX ]]; do
       bbSequence+="${bbMIN}${bbSep}"
       (( bbMIN++ ))
     done
+
   # if element is a single number...
   else
     [[ ! "$bbNum" =~ ^[[:digit:]]+$ ]] && return 4
@@ -165,7 +169,25 @@ for bbNum in "${bbArray[@]}"; do
   fi
 done
 
-bbSequence="${bbSequence%$bbSep}"
-printf "%s\n" "$bbSequence"
+# output result
+printf "%s\n" "${bbSequence%$bbSep}"
 return 0
 }
+# $BING_FUNC/bin/range
+
+if [ "${BASH_SOURCE[0]}" != $0 ]; then
+  # export -f typeof
+  echo '$0: '$0
+  echo 'BASH_SOURCE != $0'
+  # typeof BASH_SOURCE
+  printf "%s\n" "${BASH_SOURCE[@]}"
+  echo "App: $0"
+else
+  echo '$0: '$0
+  echo 'BASH_SOURCE == $0'
+  # typeof BASH_SOURCE
+  printf "%s\n" "${BASH_SOURCE[@]}"
+  echo "App: $0"
+  bb_range "$@"
+  exit $?
+fi
