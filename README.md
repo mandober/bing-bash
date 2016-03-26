@@ -26,17 +26,17 @@ interest.
 across several individual functions, as subroutines)  
   
 * `bb_typeof`  
-- Identify given string as set or unset variable, array, shell keyword, etc.  
-- Dump variables (pretty print arrays) and their attributes.   
+  -Identify given string as set or unset variable, array, shell keyword, etc.  
+  -Dump variables (pretty print arrays) and their attributes.   
   
 * `bb_explode`  
-- Convert a string to array by splitting it by substring which can be a  
-  single or multi character substring  
-- Convert a string to array of individual characters  
-- IN PROGRESS: guess the most probable delimiter  
+  -Convert a string to array by splitting it by substring which can be a  
+  single or multi character substring.  
+  -Convert a string to array of individual characters  
+  -IN PROGRESS: guess the most probable delimiter  
   
 * `bb_range`  
-- Generate sequences (e.g. 1,4-8,10,12-22,30-35,50)  
+  -Generate sequences (e.g. 1,4-8,10,12-22,30-35,50)  
 
 
 
