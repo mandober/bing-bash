@@ -9,31 +9,36 @@ functionality, disregarding portability. All was made and tested with
 bash 4.3 and 4.4-beta.  
   
 bing-bash is a collection of bash functions, meant to be sourced, but  
-some of them can be directly executed as well.  All functions are now  
-(or going to be soon) standalone - they won't need any other function  
-or file in this library to work (possibly only the main initialization  
-`bing-bash' file, file with common aliases, etc.).
+some of them can be directly executed as well.  All functions are (or  
+going to be soon) standalone -  they won't need any other function or  
+file in this library to work (possibly only some initialization files  
+such as `bing-bash', merely as a convenience, not requirement).  
   
   
 ## Quick start
-Configure and source `bing-bash' file, or just source the  
-functions/files of interest.  
-
-
-## List of functions/subroutines:  
+Configure and source `bing-bash' file to enable some sort of function  
+management like functions autoloading or just source single files of  
+interest.  
   
-
-### Strings, variables:  
-
-`bb_typeof`  
-- Identify given string as set or unset variable, array, shell keyword, etc.
+  
+## List of functions/subroutines:  
+(some functions actually encompass functionality, that could be split  
+across several individual functions, as subroutines)  
+  
+* `bb_typeof`  
+- Identify given string as set or unset variable, array, shell keyword, etc.  
 - Dump variables (pretty print arrays) and their attributes.   
-
-`bb_explode`  
+  
+* `bb_explode`  
 - Convert a string to array by splitting it by substring which can be a  
-  single or multi character substring
-- Convert a string to array of individual characters
-- IN PROGRESS: guess the most probable delimiter
+  single or multi character substring  
+- Convert a string to array of individual characters  
+- IN PROGRESS: guess the most probable delimiter  
+  
+* `bb_range`  
+- Generate sequences (e.g. 1,4-8,10,12-22,30-35,50)  
+
+
 
 `bb_implode`
 - Convert an array to string
@@ -45,9 +50,6 @@ functions/files of interest.
 `bb_trim`
 - Trim leading, trailing and intermediate whitespace.
 
-`bb_range`
-- Generate sequences (e.g. 1,4-8,10,12-22,30-35,50)
-* Can be used as function or executable
 
 `bb_to`
 - Conversions: e.g. ascii to hex, octal, decimal...and similar

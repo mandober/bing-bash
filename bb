@@ -1,5 +1,5 @@
 #!/bin/bash bingmsg
-#==================================================================
+#=======================================================================
 #: FILE: bb
 #: PATH: $BING/func/bb
 #: TYPE: function
@@ -8,54 +8,74 @@
 #:      bing-bash by mandober <zgag@yahoo.com>
 #:      https://github.com/mandober/bing-bash
 #:      za Ǆ - Use freely at owns risk
-#:      3-Mar-2016 (last revision)
+#:      26-Mar-2016 (last revision)
 #:
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 #: NAME: 
 #:      bb
 #:
-#: DESCRIPTION:
+#: BRIEF:
 #:      Functions dispatcher.
 #:
+#: DESCRIPTION:
+#:      Source and call the appropriate function and pass arguments to it.
+#:      Unload (unset) the called function when done.
+#:      Actually, when using function autoloading substitute functionality
+#:      this function is not particularly useful. 
+#:
 #: DEPENDENCIES:
-#:      -
+#:      none
 #:
 #: EXAMPLE:
-#:      
+#:      bb range ARGS...  # will load bb_range function and pass args
 #:
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 #: SYNOPSIS:
-#:      
+#:      bb FUNCTION ARGS
 #:
-#: OPTIONS: 
-#:      
+#: OPTIONS:
+#:      none
 #:
 #: PARAMETERS:
-#:      
+#:      FUNCTION <string>
+#:      Name of the function to source.
 #:
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 #: STDOUT:
-#:      
+#:      none
 #:
 #: STDERR:
-#:      Error messages
+#:      Error messages.
 #:
 #: RETURN CODE:
-#:		0  (no errors)
-#:	    55 Positional parameters error
-#==================================================================
+#:      0  great success
+#:      1  miserable failure
+#:      6  Variable not set
+#:      8  No such function
+#:      9  Parameter empty
+#=======================================================================
 
 bb () {
 
-### ABOUT
-local bbapp="${FUNCNAME[0]}"
-local bbnfo="[bing-bash] $bbapp v.0.13"
-local usage="USAGE: $bbapp FUNCTION"
+#                                                                   ABOUT
+#                                                                   =====
+ local -r bbapp="${FUNCNAME[0]}"
+ local -r bbnfo="[bing-bash] $bbapp v.0.14"
+ local -r usage="USAGE: $bbapp FUNCTION"
 
-### CHECKS
-[[ $# -eq 0 ]] && { bb_err 51; printf "${usage}\n" >&2; return 51; }
+#                                                                PRECHECK
+#                                                                ========
+  if [[ $# -eq 0 ]]; then
+    printf "\e[2m%s: %s\e[0m\n" "$bbapp" "Parameter empty" >&2
+    printf "%s\n" "$usage" >&2
+    return 9
+  fi
 
-### HUV
-[[ $1 =~ ^(--usage)$ ]] && { printf "${usage}\n"; return 0; }
-[[ $1 =~ ^(--version)$ ]] && { printf "${usage}\n"; return 0; }
-[[ $1 =~ ^(--help)$ ]] && {
+#                                                                    HELP
+#                                                                    ====
+	[[ $1 =~ ^(-u|--usage)$ ]] && { printf "%s" "$usage\n"; return 0; }
+	[[ $1 =~ ^(-v|--version)$ ]] && { printf "%s" "$bbnfo\n"; return 0; }
+	[[ $1 =~ ^(-h|--help)$ ]] && {
 	cat <<-EOFF
 	$bbnfo
 	  Functions dispatcher. Sourcing and calling functions.
@@ -68,7 +88,10 @@ local usage="USAGE: $bbapp FUNCTION"
 	return 0
 }
 
-### SET
+#                                                                    SET
+#                                                                    ===
+ shopt -s extglob extquote; shopt -u nocasematch; set -o noglob
+ trap "set +o noglob" RETURN ERR SIGHUP SIGINT SIGTERM
  shopt -s extglob 		# Enable extended regular expressions
  shopt -s extquote		# Enables $'' and $"" quoting
  shopt -u nocasematch 	# regexp case-sensitivity
@@ -76,75 +99,18 @@ local usage="USAGE: $bbapp FUNCTION"
  trap "set +o noglob" RETURN ERR SIGHUP SIGINT SIGTERM
 
 
-### PARAMS
+#                                                                PROCESS
+#                                                                =======
+case $1 in
 
+  typeof)
+    shift
+    . "$BING_FUNC/typeof.bash"
+    bb_typeof "$@"
+    unset -f bb_typeof
+  ;;
 
-bbTemp="$(bb_get --attr "$bbArrayName")"
-[[ "$bbTemp" =~ ^A[[:alpha:]]*$ ]] && { echo -n "associative" && return 0; }
-[[ "$bbTemp" =~ ^a[[:alpha:]]*$ ]] && { echo -n "indexed" && return 0; }
+  *) return 8;;
 
-
-
-local bbMethod bbVarName bbVarValue
-
-if [[ "${1}" =~ ^[[:alpha:]_][[:alnum:]_]*\.[[:alpha:]]+$ ]]; then
-	# Case #1: quasi methods, dot operator
-	# bb VAR.METHOD
-	# e.g. bb var.trim
-	# Part before dot is, identifier i.e. variable's name (without $).
-	# Part after is one of the supported methods (so only alpha chars allowed).
-	bbMethod="${1#*.}"
-	bbVarName="${1%.*}"
-	# Get var's value. First, check if var is set 
-	[[ -z "$(declare -p "${bbVarName}" 2>/dev/null)" ]] && return 60
-	bbVarValue="${!bbVarName}"
-	shift
-	#@TODO: chaining
-	# e.g. bb var.trim.bb_explode
-
-else
-	# Case #2: argument to method
-	# bb METHOD VAR
-	# e.g. bb trim var, bb trim "$var", bb trim " abc   \t def "
-	# In this form, variable is passed as argument to a method and it can be
-	# passed by name (without $) or by value (with $). 
-	# The following procedure will first assume that variable is passed by name
-	# and it will check for existance of variable by that name. If found, the
-	# variable's value is retieved. If not, the variable itself is considered 
-	# value (a string) to be acted upon.
-	bbMethod="${1}"
-	bbVarName="${2}"
-	if [[ -z "$(declare -p "${bbVarName}" 2>/dev/null)" ]]; then
-		bbVarValue="${bbVarName}"
-	else
-		bbVarValue="${!bbVarName}"
-	fi
-	shift 2
-fi
-
-
-
-echo "bbMethod: $bbMethod"
-echo "bbVarName: $bbVarName"
-echo "bbVarValue: $bbVarValue"
-echo "Rest: $@"
-
-
-# case $bbMethod in
-#   typeof) bb_load1 typeof; typeof "$bbVarName" "$@";;
-#  bb_explode) bb_load1 bb_explode "$@";;
-#        *) return 112;;
-# esac
-
-
-# case $1 in
-      # is) shift; . "$BING_FUNC/is";  bbis "$@";;
-     # get) shift; . "$BING_FUNC/get"; bb_get "$@";;
- # bb_explode) shift; . "$BING_FUNC/bb_explode"; bb_explode "$@";;
- # implode) shift;	. "$BING_FUNC/implode"; implode "$@";;
-   # clone) shift;	. "$BING_FUNC/clone";   clone   "$@";;
-   # array) shift; . "$BING_FUNC/array"; bb_array "$@";;
-       # *) echo 'USAGE: bb BING-FUNC PARAMS' 1>&2 && return 112;;
-# esac
-
+esac
 }
