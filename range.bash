@@ -3,9 +3,19 @@
 #: FILE: range
 #: PATH: $BING_FUNC/bin/range
 #: TYPE: function/executable
-#:       source this file to use it as a function called `bb_range'
-#:       or execute this file as `range' if it's in the PATH
+#:       Source this file to use it as a function called `bb_range'
+#:       or execute this file as `range' if it's in the PATH.
 #:
+#: TIMING:
+#:       When used as function (time bb_range 1-1000)
+#:         real    0m0.020s
+#:         user    0m0.031s
+#:         sys     0m0.000s
+#:       When executed (time range 1-1000)
+#:         real    0m0.191s
+#:         user    0m0.077s
+#:         sys     0m0.108s
+#:       
 #: AUTHOR:
 #:      bing-bash by mandober <zgag@yahoo.com>
 #:      https://github.com/mandober/bing-bash
@@ -14,7 +24,8 @@
 #:
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 #: NAME: 
-#:      bb_range
+#:      bb_range (function)
+#:      range (executable)
 #:
 #: BRIEF:
 #:      Generate number sequences from ranges list.
@@ -90,15 +101,15 @@ bb_range() {
 	$bbnfo
 	  Generate number sequences from ranges list.
 	$usage
-  DESCRIPTION:
-  	Generate sequences from given ranges list. List can be
-    a single range (5-10) or a comma-separated list of ranges
-    (12-22,30-35). Ranges are inclusive. Single values (2,5)
-    will not generate anything, but they will be included in
-    the final sequence. Final number sequence will be separated
-    by provided substring SEP or by <space> if no SEP given.
+	DESCRIPTION:
+	  Generate sequences from given ranges list. List can be
+	  a single range (5-10) or a comma-separated list of ranges
+	  (12-22,30-35). Ranges are inclusive. Single values (2,5)
+	  will not generate anything, but they will be included in
+	  he final sequence. Final number sequence will be separated
+	  by provided substring SEP or by <space> if no SEP given.
 	OPTIONS:
-    -s, --sep       String by which to separate resulting numbers
+	  -s, --sep       String by which to separate resulting numbers
 	  -h, --help      Show program help.
 	  -u, --usage     Show program usage.
 	  -v, --version   Show program version.
