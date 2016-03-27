@@ -23,8 +23,15 @@ management like functions autoloading or just source single files of
 interest.  
   
   
+## Using functions  
+* Files containing functions can be sourced individually (functions are not dependent on any other function from this library) and called as usual. Sourcing files that contain functions will, of course, leave these functions in the memory, but at least all these memory-occupying functions will be at their most ready state.
+* One level down in comparison to the above is to have functions marked for autoloading, although this is not a true function autoloading as in other shells; namely, when marked for autoloading, a stand-in eponymous function will be created (only a few lines long, as opposed to loading the whole function definition) that will source its true definition when first called.
+* The last, and most environment and memory friendly, way is to call functions through `bb` function dispatcher that will load called function, pass arguments to it and unload it when done. Also, this way you can tinker with the function's code while always having the latest revision of function sourced when called.
+
+
+
 ## List of functions/subroutines:  
-(some functions actually encompass functionality, that could be split  
+(some functions encompass functionality, that could be split  
 across several individual functions, as subroutines)  
   
 * `bb_typeof`  
@@ -34,8 +41,8 @@ across several individual functions, as subroutines)
 * `bb_explode`  
   Convert a string to array by splitting it by substring which can be a  
   single or multi character substring.  
-  Convert a string to array of individual characters  
-  IN PROGRESS: guess the most probable delimiter  
+  Convert a string to array of individual characters.  
+  (in progress: guess the most probable delimiter)  
   
 * `bb_implode`  
   Convert an array to string  
@@ -45,7 +52,7 @@ across several individual functions, as subroutines)
   
   
   
-
+(everything below needs final touches:)
 
 ### Arrays:  
 
@@ -83,7 +90,6 @@ across several individual functions, as subroutines)
 - Re-index an indexed sparse array
 - Remove unset elements from array
 - Pack and squeeze an array
-* TODO: sort it out
   
   
 ### MISC (match patterns, identify, qualify) 

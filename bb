@@ -112,6 +112,13 @@ case $1 in
 
  explode) shift; . "$BING_FUNC/explode.bash"; bb_explode "$@"; unset -f bb_explode;;
  implode) shift; . "$BING_FUNC/implode.bash"; bb_implode "$@"; unset -f bb_implode;;
+ 
+ array_clone) 
+  shift
+  . "$BING_FUNC/array_clone.bash"
+  bb_array_clone "$@"
+  unset -f bb_array_clone
+ ;;
 
  *) return 8;;
 

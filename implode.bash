@@ -56,7 +56,7 @@
 #:
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 #: RETURN TO ENVIRONMENT:
-#:      <variable identifier> NAME
+#:      NAME <variable identifier>
 #:      Creates a variable, containg the resulting imploded string,
 #:      called NAME, if name is provided. Otherwise this variable is
 #:      called BING_IMPLODED.
@@ -141,7 +141,6 @@ bbArrayName="$1"
 local -n bbArrayRef="$1"
 shift
 
-## GLUE
 # assign params
 while [[ "${1+def}" ]]; do
   case $1 in

@@ -1,4 +1,4 @@
-#==================================================================
+#=======================================================================
 #: FILE: array_clone.bash
 #: PATH: $BING_FUNC/array_clone.bash
 #: TYPE: function
@@ -7,7 +7,7 @@
 #:      bing-bash by mandober <zgag@yahoo.com>
 #:      https://github.com/mandober/bing-bash
 #:      za Ǆ - Use freely at owns risk
-#:      10-Mar-2016 (last revision)
+#:      26-Mar-2016 (last revision)
 #:
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 #: NAME: 
@@ -28,7 +28,7 @@
 #:      lowercasing. These additional attributes are not preserved.
 #:
 #: DEPENDENCIES:
-#:      bb_err, bb_is
+#:      none
 #:
 #: EXAMPLE:
 #:      bb_array_clone array1 newArray
@@ -38,49 +38,56 @@
 #:      bb_array_clone ARRAY [NAME]
 #:
 #: OPTIONS: 
-#:      (no options)
+#:      none
 #:
 #: PARAMETERS:
-#:    * ARRAY <array>
-#:      Name of the array to be cloned (without $).
-#:    * NAME <identifier>
+#:
+#:      ARRAY <array>
+#:      Name of the array to be cloned (passed without $, us usual).
+#:
+#:      NAME <identifier>
 #:      Optional: user chosen name for the new array.
 #:
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 #: ENVIRONMENT:
-#:    * NAME <array>
+#:      NAME <array identifier>
 #:      New array named NAME is created in the environment.
 #:
 #: STDOUT:
-#:      void
+#:      Help, usage, version (if explicitly requested).
 #:
 #: STDERR:
-#:      Error messages
+#:      Error messages.
 #:
 #: RETURN CODE:
-#:      0      success
-#:      non-0  see err file for non-zero errors
-#==================================================================
-
+#:      0  great success
+#:      1  miserable failure
+#:      3  Parameter is not set
+#:      4  Parameter is not an array
+#:      9  Parameter error
+#=======================================================================
+# $BING_FUNC/array_clone.bash
 bb_array_clone() {
 
-### ABOUT
-local bbapp="${FUNCNAME[0]}"
-local bbnfo="[bing-bash] $bbapp v.0.18"
-local usage="USAGE: $bbapp ARRAY [NAME]"
+#                                                                  ABOUT
+#                                                                  =====
+ local -r bbapp="${FUNCNAME[0]}"
+ local -r bbnfo="[bing-bash] $bbapp v.0.21"
+ local -r usage="USAGE: $bbapp ARRAY [NAME]"
 
-### DEPENDENCIES
-[[ -z "$(declare -F bb_err 2>/dev/null)" ]] && . $BING/func/err.bash
-[[ -z "$(declare -F bb_is 2>/dev/null)" ]] && . $BING/func/is.bash
+#                                                               PRECHECK
+#                                                               ========
+  if [[ $# -eq 0 || $# -gt 2 ]]; then
+    printf "\e[2m%s: %s\e[0m\n" "$bbapp" "Parameter error" >&2
+    printf "%s\n" "$usage" >&2
+    return 9
+  fi
 
-### CHECK
-[[ $# -eq 0 ]] && { bb_err 51; printf "%s" "$usage\n" >&2; return 51; }
-[[ $# -gt 3 ]] && { bb_err 52; printf "%s" "$usage\n" >&2; return 52; }
-
-### HELP
-[[ $1 =~ ^(--usage)$ ]] && { printf "%s" "$usage\n"; return 0; }
-[[ $1 =~ ^(--version)$ ]] && { printf "%s" "$bbnfo\n"; return 0; }
-[[ $1 =~ ^(--help)$ ]] && {
+#                                                                   HELP
+#                                                                   ====
+ [[ $1 =~ ^(-u|--usage)$ ]] && { printf "%s" "$usage\n"; return 0; }
+ [[ $1 =~ ^(-v|--version)$ ]] && { printf "%s" "$bbnfo\n"; return 0; }
+ [[ $1 =~ ^(-h--help)$ ]] && {
 	cat <<-EOFF
 	$bbnfo
 	  Clone an array.
@@ -94,60 +101,64 @@ local usage="USAGE: $bbapp ARRAY [NAME]"
 	   -v, --version     Show program version.
 	EOFF
 	return 0
-}
+ }
 
-### SET
- shopt -s extglob 		# Enable extended regular expressions
- shopt -s extquote		# Enables $'' and $"" quoting
- shopt -u nocasematch 	# regexp case-sensitivity
- set -o noglob			# Disable globbing. Enable it upon return:
+#                                                                    SET
+#                                                                    ===
+ shopt -s extglob extquote; shopt -u nocasematch; set -o noglob
  trap "set +o noglob" RETURN ERR SIGHUP SIGINT SIGTERM
 
 
-#
-## PARAMS
-local bbArray bbNewArray bbDeclare bbTempArray bbFlag bbPattern
+#                                                                  PARAMS
+#                                                                  ======
+local bbFlag bbDeclare bbNewArray bbPattern
 
-#1 ARRAY
-bbArray="$1"
-# check if it is indeed an array
-! bb_is --array "$bbArray" && { bb_err 63; return 63; }
+# check if var is set
+if bbDeclare="$(declare -p "$1" 2>/dev/null)"; then
+  # check if var is array
+  bbFlag=( $bbDeclare )
+  if [[ ! "${bbFlag[1]}" =~ ^-[aA] ]]; then
+    printf "\e[2m%s: %s\e[0m\n" "$bbapp" "Parameter is not an array" >&2
+    return 4
+  else
+  	# name for new array
+		bbNewArray="${2:-BING_CLONED}"
+  	# unset that name (in case that name is existing array)
+		unset $bbNewArray
+		bbNewArray="${2:-BING_CLONED}"
 
-#2 NAME
-bbNewArray="${2:-BING_CLONED}"
-if [[ "$bbNewArray" != "BING_CLONED" ]]; then
-	# check if user supplied name is a valid identifier
-	! bb_is --id "$bbNewArray" && { bb_err 61; return 61; }
+		# check if user supplied name is a valid identifier
+		if [[ "$bbNewArray" != "BING_CLONED" ]]; then
+			if [[ ! "$bbNewArray" =~ ^[[:alpha:]_][[:alnum:]_]*$ ]]; then
+			  printf "\e[2m%s: %s\e[0m\n" "$bbapp" "Invalid identifier" >&2
+			  return 6
+			fi
+		fi
+  	
+  	# check which kind of array
+		[[ "${bbFlag[1]}" =~ ^-a ]] && bbPattern="declare -ag $bbNewArray="
+		[[ "${bbFlag[1]}" =~ ^-A ]] && bbPattern="declare -Ag $bbNewArray="
+		eval "${bbDeclare/#declare*$1=/$bbPattern}"
+		return 0
+
+  fi
+else
+  printf "\e[2m%s: %s\e[0m\n" "$bbapp" "Parameter is not set" >&2
+  return 3
 fi
 
-
-#
-## PROCESS
-
-# if array is set, get its definition with `declare -p ARRAY'
-if ! bbDeclare="$(declare -p "$bbArray" 2>/dev/null)"; then
-	return 60
-fi
-# bbDeclare now contains array's definition, for example:
-# declare -p BASH_VERSINFO  outputs the statement:
-# declare -ar BASH_VERSINFO='([0]="4" [1]="3" [2]="42" [3]="4")'
-
-# Next, this statement is exploded, by space, into temporary array
-# which will contain [0]="declare" [1]="-ar" [2]=BASH_VERSINFO=...
-bbTempArray=( $bbDeclare )
-
-# To identify the type of array, examine element1 (without the leading
-# dash). If it is indexed (has `a' attribute ), a new global indexed
+# bbDeclare contains array's definition, for example:
+#   declare -ar BASH_VERSINFO='([0]="4" [1]="3" [2]="42" [3]="4")'
+# Next, this statement is exploded, by space, into array bbFlag
+#   bbFlag=( $bbDeclare )    which will contain
+#   [0]="declare" [1]="-ar" [2]=BASH_VERSINFO=...
+# To identify the type of array, examine element 1.
+# If it is indexed (has `a' attribute ), a new global indexed
 # array is declared (and same for associative array).
-bbFlag="${bbTempArray[1]/#?}"
-[[ "$bbFlag" =~ ^a[[:alpha:]]*$ ]] && bbPattern="declare -ag $bbNewArray="
-[[ "$bbFlag" =~ ^A[[:alpha:]]*$ ]] && bbPattern="declare -Ag $bbNewArray="
-
+#   [[ "$bbFlag" =~ ^a[[:alpha:]]*$ ]] && bbPattern="declare -ag $bbNewArray="
+#   [[ "$bbFlag" =~ ^A[[:alpha:]]*$ ]] && bbPattern="declare -Ag $bbNewArray="
 # Finally, the original statement `bbDeclare' is searched for
-# `declare -xx BASH_VERSINFO=' and this part is replaced with
-# `declare -ag NAME=' and then the statement is evaluated.
-eval "${bbDeclare/#declare*$bbArray=/$bbPattern}"
+#   declare -xx BASH_VERSINFO=     and this part is replaced with
+#   declare -ag NAME=              then the statement is evaluated.
 
-return 0
-
-}
+} # $BING_FUNC/array_clone.bash

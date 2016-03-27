@@ -33,7 +33,7 @@
 #:        valid identifier. If not provided it defaults to BING_EXPLODED.
 #:
 #: DEPENDENCIES:
-#:      
+#:      none
 #:
 #: EXAMPLE:
 #:      bb_explode var      # passed by name
@@ -69,8 +69,8 @@
 #:      If not given the default is BING_EXPLODED.
 #:
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-#: RETURN TO ENVIRONMENT:
-#:      <array identifier> NAME
+#: ENVIRONMENT:
+#:      NAME <array identifier>
 #:      Returns an indexed array of strings, called NAME if name
 #:      is provided. Otherwise it is called BING_EXPLODED.
 #:      In fact, the array is not `returned', but a new array

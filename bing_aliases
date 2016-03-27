@@ -17,16 +17,22 @@
 
 alias typeof='bb_typeof'
 alias explode='bb_explode'
-alias range='bb_range'
-
 alias implode='bb_implode'
-alias is='bb_is'
-alias get='bb_get'
-alias load='bb_load'
+alias range='bb_range'
+alias array_clone="bb_array_clone"
+
+
+# alias is='bb_is'
+# alias get='bb_get'
+# alias load='bb_load'
+
 alias in_array='bb_in_array'
+
 alias @='bb_array'
 alias array='bb_array'
-alias array_clone="bb_array_clone"
+
+
+
 alias array_convert='bb_array_convert'
 alias array_merge='bb_array_merge'
 alias array_remove='bb_array_remove'
