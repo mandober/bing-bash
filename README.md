@@ -2,6 +2,7 @@
   
 ## `bing-bash` - bash functions library  
   
+````
 This library is composed using native bash's (4.3) abilities, without  
 unnecessary forking or usage of external tools if possible or faster.  
 Single process bash shell was in high regard as well as bash specific  
@@ -13,6 +14,7 @@ some of them can be directly executed as well.  All functions are (or
 going to be soon) standalone -  they won't need any other function or  
 file in this library to work (possibly only some initialization files  
 such as `bing-bash', merely as a convenience, not requirement).  
+````
   
   
 ## Quick start
@@ -35,26 +37,14 @@ across several individual functions, as subroutines)
   Convert a string to array of individual characters  
   IN PROGRESS: guess the most probable delimiter  
   
-* `bb_implode`
-  Convert an array to string
-
+* `bb_implode`  
+  Convert an array to string  
+  
 * `bb_range`  
   Generate sequences (e.g. 1,4-8,10,12-22,30-35,50)  
-
-
-
-
-
-`bb_venn`
-- Venn diagrams related functions: find union, intersection, difference,  
-  complement).
-
-`bb_trim`
-- Trim leading, trailing and intermediate whitespace.
-
-
-`bb_to`
-- Conversions: e.g. ascii to hex, octal, decimal...and similar
+  
+  
+  
 
 
 ### Arrays:  
@@ -80,8 +70,8 @@ across several individual functions, as subroutines)
 `bb_array_sort`
 - Sort an array n different ways
 - Remove duplicated values from an array
-
-
+  
+  
 `bb_array`
 - Quick dump of array
 - Identify array as indexed or associative
@@ -95,7 +85,8 @@ across several individual functions, as subroutines)
 - Pack and squeeze an array
 * TODO: sort it out
   
-### Match patterns, identify, qualify:  
+  
+### MISC (match patterns, identify, qualify) 
   
 `bb_is`
 IS functions
@@ -106,8 +97,15 @@ GET functions
 `bb_do`
 DO functions
   
+`bb_venn`
+- Venn diagrams related functions: find union, intersection, difference,  
+  complement).
 
-### MISC
+`bb_trim`
+- Trim leading, trailing and intermediate whitespace.
+
+`bb_to`
+- Conversions: e.g. ascii to hex, octal, decimal...and similar
 
 `bb_load`
 - Check and source functions
@@ -124,15 +122,15 @@ DO functions
  
 -----
 
-## FILE LIST:
-
-README.md
-bing-bash
-bing_aliases
-bing_samples
-bb
-typeof.bash
-explode.bash
-implode.bash
-range.bash
+## FILE LIST:  
+  
+README.md  
+bing-bash  
+bing_aliases  
+bing_samples  
+bb  
+typeof.bash  
+explode.bash  
+implode.bash  
+range.bash  
 
