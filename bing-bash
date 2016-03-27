@@ -1,69 +1,94 @@
 #!/bin/bash bingmsg
-#==================================================================
+#=======================================================================
 #: FILE: bing-bash
 #: PATH: $BING/func/bing-bash
 #: TYPE: environment
-#: DESCRIPTION:configuration, initializer
 #:
 #: AUTHOR:
-#:      [bing-bash] by mandober <zgag@yahoo.com>
+#:      bing-bash by Ivan Ilic <ivanilic1975@gmail.com>
 #:      https://github.com/mandober/bing-bash
 #:      za Ǆ - Use freely at owns risk
-#:      10-Mar-2016 (last revision)
-#==================================================================
+#:      25-Mar-2016 (last revision)
+#:
+#: DESCRIPTION: 
+#:      Configuration and initialization settings.
+#:
+#=======================================================================
 
 #
 #   BASE VARS
 #
+# These are all convenience vars, none are imperative.
+
+# [bing-bash] root directory
 export BING="$HOME/bing"
+
+# [bing-bash] main functions' directory
 export BING_FUNC="$BING/func"
+
+# [bing-bash] temporary directory
 export BING_TEMP="$BING/temp"
 
-# FPATH: paths to functions
-export FPATH=$BING_FUNC:$BING_FUNC/strings:$BING_FUNC/sys
-
-# BING_DB: database (sqlite)
+# [bing-bash] path to sqlite db
 export BING_DB="$BING_FUNC/sys/bb.db"
+
+# [bing-bash] name of table in sqlite db
 export BING_TBL=funcs
 
+
+#
+#   FPATH
+#
+# FPATH is an environment variable, similar to PATH, containing
+# colon-delimited paths to functions' directories. Bash doesn't
+# have this directory natively set as other shells that support
+# functions autoloading do. Subroutines that deal with function
+# (auto)loading (those in the `load' file) use FPATH. Functions
+# autoloading is simulated by using an eponymous function which
+# loads the real function's definition on function's first call
+export FPATH=$BING_FUNC:$BING_FUNC/strings:$BING_FUNC/sys
+
+
+#
 #   DEBUG
-export BING_DEBUG=1
+#
 # If enabled bb_err function will print debugging messages.
-# Temporary, until integrated into BING_BASH as letter d:
-# @TODO: make BING var with letters, e.g. BING=vdc (where d is for 
-# debug, c for color, etc.)
+# Temporary, until integrated into BING_BASH as a letter d
+# @TODO: make BING var with letters, e.g. BING=vdc (where d
+# is for debug, c for color, etc.)
+export BING_DEBUG=1
 
 
 #
-#   SHELL OPTIONS
+#   SHOPT
 #
-
-## save current shell options
+shopt -s extglob 		# enable extended regular exp
+shopt -s extquote		# enables $'' and $"" quoting
+shopt -s globstar       # enable ** matching
+shopt -u nocasematch 	# case sensitivity with regexp
+shopt -u nocaseglob     # case sensitivity when globbing
+# save current shell options
 # set +o >| "$BING_TEMP/env_set"
 # shopt -p >| "$BING_TEMP/env_shopt"
 
-## set shell options
-shopt -s extglob 		# enable extended regular expressions
-shopt -s extquote		# enables $'' and $"" quoting
-shopt -u nocasematch 	# case sensitivity with regexp
-shopt -u nocaseglob     # case sensitivity when globbing
-
 
 #
-#   FUNCTIONS LIST
+#   FUNCTIONS
 #
+
+# Always load
+[[ -r "$BING_FUNC/err" ]] && . "$BING_FUNC/err"
+[[ -r "$BING_FUNC/load" ]] && . "$BING_FUNC/load"
+
+
 set +o noglob
-declare -a FUNCS
-FUNCS=( $BING_FUNC/*.bash )
+declare -a FUNCS=( $BING_FUNC/**/*.bash )
 
 
 #
 #   AUTOLOAD
 #
-if [[ -r "$BING_FUNC/load" ]]; then
-	. "$BING_FUNC/load"
-	bb_load --auto "${FUNCS[@]}"
-fi
+bb_load --auto "${FUNCS[@]}"
 
 
 #

@@ -1,14 +1,14 @@
 #!/bin/bash bingmsg
-#==================================================================
+#=======================================================================
 #: FILE: implode
-#: PATH: $BING/func/implode.bash
+#: PATH: $BING_FUNC/implode.bash
 #: TYPE: function
 #:
 #: AUTHOR:
-#:      bing-bash by mandober <zgag@yahoo.com>
+#:      bing-bash by Ivan Ilic <ivanilic1975@gmail.com>
 #:      https://github.com/mandober/bing-bash
 #:      za Ǆ - Use freely at owns risk
-#:      9-Mar-2016 (last revision)
+#:      26-Mar-2016 (last revision)
 #:
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 #: NAME:
@@ -24,7 +24,7 @@
 #:      * If NAME is not supplied it defaults to BING_IMPLODED.
 #:
 #: DEPENDENCIES:
-#:      bb_err
+#:      
 #:
 #: EXAMPLE:
 #:      implode BASH_VERSINFO -g '.' var1
@@ -68,32 +68,35 @@
 #:      Error messages.
 #:
 #: RETURN CODE:
-#:		0  - success
-#:	    non 0 - see err file
-#==================================================================
+#:      0  great success
+#:      1  miserable failure
+#:      4  Parameter is not an array
+#:      6  Invalid identifier
+#:      9  Parameter empty
+#=======================================================================
 
 bb_implode() {
 
-#   ABOUT
-#
-local bbapp=$FUNCNAME
-local bbnfo="[bing-bash] $bbapp v.15"
-local usage="USAGE: $bbapp ARRAY [-g GLUE] [NAME]"
+#                                                                  ABOUT
+#                                                                  =====
+ local -r bbapp="${FUNCNAME[0]}"
+ local -r bbnfo="[bing-bash] $bbapp v.0.20"
+ local -r usage="USAGE: $bbapp ARRAY [-g GLUE] [NAME]"
 
-#   DEPENDENCIES
-#
-[[ -z "$(declare -F bb_err 2>/dev/null)" ]] && . $BING/func/err
+#                                                               PRECHECK
+#                                                               ========
+  if [[ $# -eq 0 ]]; then
+    printf "\e[2m%s: %s\e[0m\n" "$bbapp" "Parameter empty" >&2
+    printf "%s\n" "$usage" >&2
+    return 9
+  fi
 
-#   PRECHECK
-#
-[[ $# -eq 0 ]] && { bb_err 51; printf "${usage}\n" >&2; return 51; }
-[[ $# -gt 3 ]] && { bb_err 52; printf "${usage}\n" >&2; return 52; }
 
-#   HELP
-#
-[[ $1 =~ ^(-u|--usage)$ ]] && { printf "${usage}\n"; return 0; }
-[[ $1 =~ ^(-v|--version)$ ]] && { printf "${bbnfo}\n"; return 0; }
-[[ $1 =~ ^(-h|--help)$ ]] && {
+#                                                                   HELP
+#                                                                   ====
+ [[ $1 =~ ^(-u|--usage)$ ]] && { printf "%s" "$usage\n"; return 0; }
+ [[ $1 =~ ^(-v|--version)$ ]] && { printf "%s" "$bbnfo\n"; return 0; }
+ [[ $1 =~ ^(-h|--help)$ ]] && {
 	cat <<-EOFF
 	$bbnfo
 	  Convert an array to a string.
@@ -111,69 +114,85 @@ local usage="USAGE: $bbapp ARRAY [-g GLUE] [NAME]"
 	  $bbapp BASH_VERSINFO '.' bashversion
 	EOFF
 	return 0
-}
+ }
 
-#   SET
-#
-shopt -s extglob 		# Enable extended regular expressions
-shopt -s extquote		# Enables $'' and $"" quoting
-shopt -u nocasematch 	# regexp case-sensitivity
-set -o noglob			# Disable globbing. Enable it upon return:
-trap "set +o noglob" RETURN ERR SIGHUP SIGINT SIGTERM
+#                                                                    SET
+#                                                                    ===
+ shopt -s extglob extquote; shopt -u nocasematch; set -o noglob
+ trap "set +o noglob" RETURN ERR SIGHUP SIGINT SIGTERM
 
 
-#   PARAMS
-#
+#                                                                  PARAMS
+#                                                                  ======
+# Check that param is an array
+local bbFlag
+if bbFlag=$(declare -p "$1" 2>/dev/null); then
+  bbFlag=( $bbFlag )
+  if [[ ! "${bbFlag[1]}" =~ ^-[aA] ]]; then
+    printf "\e[2m%s: %s\e[0m\n" "$bbapp" "Parameter is not an array" >&2
+    return 4
+  fi
+fi
 
-#
-# ARRAY
-local bbArrayName="$1"
+local bbArrayName bbGlue bbNewName
+
+## ARRAY
+bbArrayName="$1"
 local -n bbArrayRef="$1"
-! bbis --array "$bbArrayName" && { errors 63; return 63; }
+shift
 
-#
-# GLUE
-local bbGlue
-case $2 in
-	-g|--glue)
-		bbGlue="${2?}"
-		shift
-	;;
+## GLUE
+# assign params
+while [[ "${1+def}" ]]; do
+  case $1 in
+    -g|--glue)
+      bbGlue="${2?}"
+      shift
+    ;;
 
-	-g=*|--glue=*)
-		bbGlue="${2#*=}"
-	;;
+    -g=*|--glue=*)
+      bbGlue="${1#*=}"
+    ;;
 
-	-|--)
-		bbGlue=','
-	;;
+    *) 
+      # NAME
+      bbNewName="${1:-BING_IMPLODED}"
+      # check if NAME is a valid identifier
+      if [[ ! "$bbNewName" =~ ^[[:alpha:]_][[:alnum:]_]*$ ]]; then
+        printf "\e[2m%s: %s\e[0m\n" "$bbapp" "Invalid identifier" >&2
+        return 6
+      fi
+    ;;
+  esac
+  shift
+done
 
-	*)
-		bb_err 55
-		return 55
-	;;
-esac
-
-#3 NAME
-local bbNewName
-bbNewName="${3:-BING_IMPLODED}"
-! bbis --id "$bbNewName" && { errors 61; return 61; }
+echo "ArrayName: $bbArrayName"
+echo "Glue: $bbGlue"
+echo "NewName: $bbNewName"
 
 
 ### IMPLODE
-local j
-local bbString=
-for j in "${!bbArrayRef[@]}"; do
+local bbVal bbString=""
+
+for bbVal in "${bbArrayRef[@]}"; do
+	
 	# skip null elements
-	[[ -z "${bbArrayRef[$j]}" ]] && continue
+	[[ -z "$bbVal" ]] && continue
+	
 	# add element
-	bbString+="${bbArrayRef[$j]}"
+	bbString+="$bbVal"
+	
 	# add glue
 	bbString+="$bbGlue"
 done
+
 # remove trailing glue
 bbString="${bbString%$bbGlue}"
 
 ### Assign the string to chosen name
 read -r "$bbNewName" <<< "$bbString"
-}
+
+return 0
+
+} # $BING_FUNC/implode.bash

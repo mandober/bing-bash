@@ -2,13 +2,13 @@
 #==================================================================
 #: FILE: bing_aliases
 #: PATH: $BING_FUNC/bing_aliases
-#: TYPE: alias
+#: TYPE: aliases
 #:
 #: AUTHOR:
 #:      bing-bash by mandober <zgag@yahoo.com>
 #:      https://github.com/mandober/bing-bash
 #:      za Ǆ - Use freely at owns risk
-#:      11-Mar-2016 (last revision)
+#:      26-Mar-2016 (last revision)
 #:
 #: DESCRIPTION:
 #:      Aliases for bing-bash functions
@@ -17,9 +17,7 @@
 
 alias typeof='bb_typeof'
 alias explode='bb_explode'
-# alias range='bb_range' # FUNC:bb_range, EXE:range
-
-
+alias range='bb_range'
 
 alias implode='bb_implode'
 alias is='bb_is'

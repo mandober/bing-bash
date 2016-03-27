@@ -1,20 +1,8 @@
 #!/bin/bash
 #========================================================================
-#: FILE: range
-#: PATH: $BING_FUNC/bin/range
-#: TYPE: function/executable
-#:       Source this file to use it as a function called `bb_range'
-#:       or execute this file as `range' if it's in the PATH.
-#:
-#: TIMING:
-#:       When used as function (time bb_range 1-1000)
-#:         real    0m0.020s
-#:         user    0m0.031s
-#:         sys     0m0.000s
-#:       When executed (time range 1-1000)
-#:         real    0m0.191s
-#:         user    0m0.077s
-#:         sys     0m0.108s
+#: FILE: range.bash
+#: PATH: $BING_FUNC/range.bash
+#: TYPE: function
 #:       
 #: AUTHOR:
 #:      bing-bash by mandober <zgag@yahoo.com>
@@ -24,8 +12,7 @@
 #:
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 #: NAME: 
-#:      bb_range (function)
-#:      range (executable)
+#:      bb_range
 #:
 #: BRIEF:
 #:      Generate number sequences from ranges list.
@@ -72,7 +59,7 @@
 #: RETURN CODE:
 #:      0 - success
 #:      1 - failure
-#:      2 - Positional parameters empty
+#:      2 - Parameter empty
 #:      3 - Invalid input
 #:      4 - Not an integer
 #========================================================================
@@ -87,9 +74,9 @@ bb_range() {
 #                                                                PRECHECK
 #                                                                ========
   if [[ $# -eq 0 ]]; then
-    printf "\e[2m%s: %s\e[0m\n" "$bbapp" "Wrong number of parameters" >&2
+    printf "\e[2m%s: %s\e[0m\n" "$bbapp" "Parameter empty" >&2
     printf "%s\n" "$usage" >&2
-    return 3
+    return 2
   fi
 
 #                                                                    HELP
@@ -183,20 +170,6 @@ done
 # output result
 printf "%s\n" "${bbSequence%$bbSep}"
 return 0
+
 }
 # $BING_FUNC/bin/range
-
-if [ "${BASH_SOURCE[0]}" != $0 ]; then
-  export -f bb_range
-  echo '$0: '$0
-  echo 'BASH_SOURCE != $0'
-  printf "%s\n" "${BASH_SOURCE[@]}"
-  echo "App: $0"
-else
-  echo '$0: '$0
-  echo 'BASH_SOURCE == $0'
-  printf "%s\n" "${BASH_SOURCE[@]}"
-  echo "App: $0"
-  bb_range "$@"
-  exit $?
-fi

@@ -1,16 +1,16 @@
 #!/bin/bash bingmsg
-#==================================================================
+#=======================================================================
 #: FILE: explode.bash
 #: PATH: $BING_FUNC/explode.bash
 #: TYPE: function
 #:
 #: AUTHOR:
-#:      bing-bash by mandober <zgag@yahoo.com>
+#:      bing-bash by Ivan Ilic <ivanilic1975@gmail.com>
 #:      https://github.com/mandober/bing-bash
 #:      za Ǆ - Use freely at owns risk
-#:      9-Mar-2016 (last revision)
+#:      26-Mar-2016 (last revision)
 #:
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 #: NAME: 
 #:      bb_explode
 #:
@@ -42,7 +42,7 @@
 #:      bb_explode var -d=':' newArray
 #:      bb_explode var -d ', ' newArray
 #:
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 #: SYNOPSIS:
 #:      bb_explode STRING [-c|-d DELIM] [NAME]
 #:
@@ -68,7 +68,7 @@
 #:      Identifier for resulting array.
 #:      If not given the default is BING_EXPLODED.
 #:
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 #: RETURN TO ENVIRONMENT:
 #:      <array identifier> NAME
 #:      Returns an indexed array of strings, called NAME if name
@@ -83,12 +83,12 @@
 #:      Error messages.
 #:
 #: RETURN CODE:
-#:      0 - success
-#:      1 - failure
-#:      3 - Wrong number of parameters
-#:      4 - Parameter is an array
-#:      6 - Invalid identifier
-#==================================================================
+#:      0  great success
+#:      1  miserable failure
+#:      4  Parameter is an array
+#:      6  Invalid identifier
+#:      9  Parameter empty
+#=======================================================================
 
 bb_explode() {
 
@@ -101,16 +101,16 @@ bb_explode() {
 #                                                                PRECHECK
 #                                                                ========
   if [[ $# -eq 0 ]]; then
-    printf "\e[2m%s: %s\e[0m\n" "$bbapp" "Wrong number of parameters" >&2
+    printf "\e[2m%s: %s\e[0m\n" "$bbapp" "Parameter empty" >&2
     printf "%s\n" "$usage" >&2
-    return 3
+    return 9
   fi
 
 #                                                                    HELP
 #                                                                    ====
-	[[ $1 =~ ^(-u|--usage)$ ]] && { printf "%s" "${usage}\n"; return 0; }
-	[[ $1 =~ ^(-v|--version)$ ]] && { printf "%s" "${bbnfo}\n"; return 0; }
-	[[ $1 =~ ^(-h|--help)$ ]] && {
+ [[ $1 =~ ^(-u|--usage)$ ]] && { printf "%s" "$usage\n"; return 0; }
+ [[ $1 =~ ^(-v|--version)$ ]] && { printf "%s" "$bbnfo\n"; return 0; }
+ [[ $1 =~ ^(-h|--help)$ ]] && {
 	cat <<-EOFF
 	$bbnfo
 	  Convert a string to array by splitting it by substring.
@@ -144,7 +144,7 @@ bb_explode() {
 	printf "   $bbapp USER -c \e[2m%s\e[0m\n\n" \
 	"# default array name is BING_EXPLODED"
 	return 0
-  }
+ }
 
 #                                                                     SET
 #                                                                     ===
@@ -211,12 +211,12 @@ while [[ "${1+def}" ]]; do
       fi
     ;;
   esac
-shift
+  shift
 done
 
-# echo "bbString: $bbString"
-# echo "bbTNT: $bbTNT"
-# echo "bbArrayName: $bbArrayName"
+# echo "String: $bbString"
+# echo "TNT: $bbTNT"
+# echo "ArrayName: $bbArrayName"
 
 
 #   ====================== DEFAULT DELIMITER ===================

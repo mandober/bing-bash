@@ -123,12 +123,8 @@ local tonly=0
 
 while [[ "${1+def}" ]]; do
   case $1 in
-		-t|--type) 
-			tonly=1
-		;;
-		*) 
-			bbParamName="$1"
-		;;
+    -t|--type) tonly=1;;
+    *) bbParamName="$1";;
   esac
   shift
 done
@@ -156,12 +152,12 @@ bbDeclare="$(type -t "$bbParamName" 2>/dev/null)"
 # assign `decalare -p NAME' to bbDeclare. 
 # If assignment is empty then NAME is unset (non-set) variable.
 if ! bbDeclare="$(declare -p "$bbParamName" 2>/dev/null)"; then
-	if [[ $tonly -eq 1 ]]; then
-		printf "%s\n" "unset"
-	else
-		printf "%s is not set\n" "$bbParamName"
-	fi
-	return 0
+  if [[ $tonly -eq 1 ]]; then
+    printf "%s\n" "unset"
+  else
+    printf "%s is not set\n" "$bbParamName"
+  fi
+  return 0
 fi
 
 
@@ -183,33 +179,32 @@ case ${bbDeclare[1]} in
 #	=========================== INDEXED ARRAY =============================
 
  *a*)
-	[[ $tonly -eq 1 ]] && { printf "%s\n" "indexed"; return 0; }
+  [[ $tonly -eq 1 ]] && { printf "%s\n" "indexed"; return 0; }
 
-	local bbKey bbCurr
-	local -n bbArrayRef="$bbParamName"
-	local -i bbNum=1
+  local bbKey bbCurr
+  local -n bbArrayRef="$bbParamName"
+  local -i bbNum=1
   local bbMax=0
 
-	# max (in chars) value
-	for bbKey in "${!bbArrayRef[@]}"; do
-		bbCurr=${#bbArrayRef[$bbKey]}
-		bbMax=$(( bbCurr > bbMax ? bbCurr : bbMax ))
-	done
-	
-	printf " Name: %s\n" "$bbParamName"
-	printf " Type: indexed array [%s]\n" "${#bbArrayRef[@]}"
-	
-	# title
-	printf "\e[2m%s. %7s %-*s %5s\e[0m\n" " no" "key " $bbMax "value" "len"
+  # max (in chars) value
+  for bbKey in "${!bbArrayRef[@]}"; do
+    bbCurr=${#bbArrayRef[$bbKey]}
+    bbMax=$(( bbCurr > bbMax ? bbCurr : bbMax ))
+  done
 
-	# value
-	local bbK
-	for bbK in "${!bbArrayRef[@]}"; do
-	  printf "\e[2m%2d.\e[0m %7s: %-*s \e[2m%5s\e[0m\n" \
-	  "${bbNum}" "[${bbK}]" $bbMax "${bbArrayRef[$bbK]}" "${#bbArrayRef[$bbK]}"
-	  (( ++bbNum ))
-	done
+  printf " Name: %s\n" "$bbParamName"
+  printf " Type: indexed array [%s]\n" "${#bbArrayRef[@]}"
 
+  # title
+  printf "\e[2m%s. %7s %-*s %5s\e[0m\n" " no" "key " $bbMax "value" "len"
+
+  # value
+  local bbK
+  for bbK in "${!bbArrayRef[@]}"; do
+    printf "\e[2m%2d.\e[0m %7s: %-*s \e[2m%5s\e[0m\n" \
+    "${bbNum}" "[${bbK}]" $bbMax "${bbArrayRef[$bbK]}" "${#bbArrayRef[$bbK]}"
+    (( ++bbNum ))
+  done
  ;;&
 
 

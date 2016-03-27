@@ -103,14 +103,17 @@ bb () {
 #                                                                =======
 case $1 in
 
-  typeof)
-    shift
-    . "$BING_FUNC/typeof.bash"
-    bb_typeof "$@"
-    unset -f bb_typeof
-  ;;
+ typeof)
+  shift
+  . "$BING_FUNC/typeof.bash"
+  bb_typeof "$@"
+  unset -f bb_typeof
+ ;;
 
-  *) return 8;;
+ explode) shift; . "$BING_FUNC/explode.bash"; bb_explode "$@"; unset -f bb_explode;;
+ implode) shift; . "$BING_FUNC/implode.bash"; bb_implode "$@"; unset -f bb_implode;;
+
+ *) return 8;;
 
 esac
 }

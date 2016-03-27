@@ -1,0 +1,47 @@
+#!/bin/bash bingmsg
+
+
+
+
+### PRESETS
+# BB_PUNC=(. , : % = @ [ ] ^ _ { } )
+# BB_PUNC+=(\" \' \? \! \; \# \$ \& \( \) \* \+ \- \/ \< \> \\ \| \~ \` )
+# . , " ' ? ! ; : # $ % & ( ) * + - / < > = @ [ ] \ ^ _ { } | ~ `
+
+# BB_ALPHA=( {a..z} )
+
+# BB_VAR_LOCALE=( "${!LANG@}" "${!LC_@}" )
+
+# declare -A BB_BASH=()
+# for v in "${!BASH@}"; do
+# 	BB_BASH[$v]="${!v}"
+# done
+
+# unset BB_ALPHA BB_VAR_LOCALE BB_BASH
+
+
+
+
+
+### DATA SAMPLES
+declare -A unix=([aix]="AIX 4.3" [sol]="Solaris 2.7" [hp]="HP-UX 11.00")
+unix+=( [ubu]= [mand]=Mandriva [rh]="Red Hat" [pl]=Puppy [empty]= [num]=123 )
+
+linux=([2]="Mint Linux" [3]="Ubuntu" [4]="Arch" [6]="Suse")
+al=( a A aA AA Aa AaA aaA aAa )
+numo=( [2]=9 [4]= [7]=5 8 [10]= 9 2 7 1 [22]=4 7 [33]=3 1 6 1)
+alnum=(9 9 5 8 9 2 7 1 4 7 3 1 6 1 a A aA AA Aa AaA aaA aAa)
+
+
+# declare -a inx inx2
+# declare -A ass ass2
+
+# for i in {1..100..3}; do
+# 	inx[$i]=$i
+# 	ass[$i]=$i
+# done
+
+# for (( j=100,i=1; i<100; j--,i++ )); do
+# 	inx2[$j-$i]=$j
+# 	ass2[$j-$i]=$j
+# done
