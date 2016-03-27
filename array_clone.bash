@@ -77,11 +77,11 @@ bb_array_clone() {
 
 #                                                               PRECHECK
 #                                                               ========
-  if [[ $# -eq 0 || $# -gt 2 ]]; then
+ if [[ $# -eq 0 || $# -gt 2 ]]; then
     printf "\e[2m%s: %s\e[0m\n" "$bbapp" "Parameter error" >&2
     printf "%s\n" "$usage" >&2
     return 9
-  fi
+ fi
 
 #                                                                   HELP
 #                                                                   ====
@@ -96,9 +96,9 @@ bb_array_clone() {
 	  be a valid identifier, but if not given, it defaults to
 	  BING_CLONED.
 	OPTIONS:
-	   -h, --help        Show program help.
-	   -u, --usage       Show program usage.
-	   -v, --version     Show program version.
+	  -h, --help        Show program help.
+	  -u, --usage       Show program usage.
+	  -v, --version     Show program version.
 	EOFF
 	return 0
  }
@@ -115,37 +115,46 @@ local bbFlag bbDeclare bbNewArray bbPattern
 
 # check if var is set
 if bbDeclare="$(declare -p "$1" 2>/dev/null)"; then
+
   # check if var is array
   bbFlag=( $bbDeclare )
   if [[ ! "${bbFlag[1]}" =~ ^-[aA] ]]; then
     printf "\e[2m%s: %s\e[0m\n" "$bbapp" "Parameter is not an array" >&2
     return 4
+    
   else
-  	# name for new array
-		bbNewArray="${2:-BING_CLONED}"
-  	# unset that name (in case that name is existing array)
-		unset $bbNewArray
-		bbNewArray="${2:-BING_CLONED}"
 
-		# check if user supplied name is a valid identifier
-		if [[ "$bbNewArray" != "BING_CLONED" ]]; then
-			if [[ ! "$bbNewArray" =~ ^[[:alpha:]_][[:alnum:]_]*$ ]]; then
-			  printf "\e[2m%s: %s\e[0m\n" "$bbapp" "Invalid identifier" >&2
-			  return 6
-			fi
-		fi
-  	
-  	# check which kind of array
-		[[ "${bbFlag[1]}" =~ ^-a ]] && bbPattern="declare -ag $bbNewArray="
-		[[ "${bbFlag[1]}" =~ ^-A ]] && bbPattern="declare -Ag $bbNewArray="
-		eval "${bbDeclare/#declare*$1=/$bbPattern}"
-		return 0
+    # name for new array
+    bbNewArray="${2:-BING_CLONED}"
+
+    # unset that name (in case that name is existing array)
+    unset $bbNewArray
+    bbNewArray="${2:-BING_CLONED}"
+
+    # check if user supplied name is a valid identifier
+    if [[ "$bbNewArray" != "BING_CLONED" ]]; then
+      if [[ ! "$bbNewArray" =~ ^[[:alpha:]_][[:alnum:]_]*$ ]]; then
+        printf "\e[2m%s: %s\e[0m\n" "$bbapp" "Invalid identifier" >&2
+        return 6
+      fi
+    fi
+
+    # check which kind of array
+    [[ "${bbFlag[1]}" =~ ^-a ]] && bbPattern="declare -ag $bbNewArray="
+    [[ "${bbFlag[1]}" =~ ^-A ]] && bbPattern="declare -Ag $bbNewArray="
+    eval "${bbDeclare/#declare*$1=/$bbPattern}"
+    return 0
 
   fi
+
 else
   printf "\e[2m%s: %s\e[0m\n" "$bbapp" "Parameter is not set" >&2
   return 3
 fi
+
+} # $BING_FUNC/array_clone.bash
+
+
 
 # bbDeclare contains array's definition, for example:
 #   declare -ar BASH_VERSINFO='([0]="4" [1]="3" [2]="42" [3]="4")'
@@ -160,5 +169,3 @@ fi
 # Finally, the original statement `bbDeclare' is searched for
 #   declare -xx BASH_VERSINFO=     and this part is replaced with
 #   declare -ag NAME=              then the statement is evaluated.
-
-} # $BING_FUNC/array_clone.bash

@@ -50,6 +50,10 @@
 #:      Substring composed of single or muliple characters that will
 #:      be inserted after each array element.
 #:
+#:      WRAP <char>
+#:      Substring composed of single or muliple characters that will
+#:      be wrapped around each array element.
+#:
 #:      NAME <identifier>
 #:      Identifier for resulting string.
 #:      If not given the default is BING_IMPLODED.
@@ -102,11 +106,13 @@ bb_implode() {
 	  Convert an array to a string.
 	$usage
 	  Convert an array into a string by inserting GLUE after each
-	  element, skipping array's null elements. If not supplied GLUE
-	  defaults to comma. If NAME of resulting string is not supplied,
-	  NAME defaults to BING_IMPLODED.
+	  element, wrapping each element in WRAP chars, but skipping
+	  array's null elements. If not supplied GLUE defaults to colon.
+	  If NAME of resulting string is not supplied, NAME defaults to
+	  BING_IMPLODED.
 	OPTIONS:
 	   -g, --glue        Binding string.
+	   -w, --wrap        Wrapping string.
 	   -h, --help        Show program help.
 	   -u, --usage       Show program usage.
 	   -v, --version     Show program version.
@@ -144,13 +150,22 @@ shift
 # assign params
 while [[ "${1+def}" ]]; do
   case $1 in
+    # glue
     -g|--glue)
       bbGlue="${2?}"
       shift
     ;;
-
     -g=*|--glue=*)
       bbGlue="${1#*=}"
+    ;;
+
+    # wrap
+    -w|--wrap)
+      bbWrap="${2?}"
+      shift
+    ;;
+    -w=*|--wrap=*)
+      bbWrap="${1#*=}"
     ;;
 
     *) 
@@ -166,24 +181,19 @@ while [[ "${1+def}" ]]; do
   shift
 done
 
-echo "ArrayName: $bbArrayName"
-echo "Glue: $bbGlue"
-echo "NewName: $bbNewName"
-
+# echo "ArrayName: $bbArrayName"
+# echo "Glue: $bbGlue"
+# echo "Wrap: $bbWrap"
+# echo "NewName: $bbNewName"
 
 ### IMPLODE
 local bbVal bbString=""
 
 for bbVal in "${bbArrayRef[@]}"; do
-	
 	# skip null elements
 	[[ -z "$bbVal" ]] && continue
-	
-	# add element
-	bbString+="$bbVal"
-	
-	# add glue
-	bbString+="$bbGlue"
+  # add wrap + element + wrap + glue
+  bbString+="${bbWrap}${bbVal}${bbWrap}${bbGlue}"
 done
 
 # remove trailing glue
