@@ -3,12 +3,13 @@
 #: FILE: typeof.bash
 #: PATH: $BING_FUNC/typeof.bash
 #: TYPE: function
+#:       shell:bash:mandober:bing-bash:function:bb_array_convert
 #:
 #: AUTHOR:
-#:      bing-bash by mandober <zgag@yahoo.com>
+#:      bing-bash by Ivan Ilic <ivanilic1975@gmail.com>
 #:      https://github.com/mandober/bing-bash
 #:      za Ǆ - Use freely at owns risk
-#:      26-Mar-2016 (last revision)
+#:      30-Mar-2016 (last revision)
 #:
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 #: NAME:
@@ -66,7 +67,7 @@ bb_typeof() {
 #                                                                  ABOUT
 #                                                                  =====
  local bbapp="${FUNCNAME[0]}"
- local bbnfo="[bing-bash] $bbapp v.0.49"
+ local bbnfo="[bing-bash] $bbapp v.0.50"
  local usage="USAGE: $bbapp [-t] NAME"
 
 #                                                               PRECHECK
