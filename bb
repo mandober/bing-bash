@@ -2,10 +2,11 @@
 #=======================================================================
 #: FILE: bb
 #: PATH: $BING/func/bb
-#: TYPE: function
+#: TYPE: internal function
 #:
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 #: AUTHOR:
-#:      bing-bash by mandober <zgag@yahoo.com>
+#:      bing-bash by Ivan Ilic <ivanilic1975@gmail.com>
 #:      https://github.com/mandober/bing-bash
 #:      za Ǆ - Use freely at owns risk
 #:      26-Mar-2016 (last revision)
@@ -42,7 +43,7 @@
 #:
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 #: STDOUT:
-#:      none
+#:      Help, usage, version (if explicitly requested).
 #:
 #: STDERR:
 #:      Error messages.
@@ -60,16 +61,16 @@ bb () {
 #                                                                   ABOUT
 #                                                                   =====
  local -r bbapp="${FUNCNAME[0]}"
- local -r bbnfo="[bing-bash] $bbapp v.0.14"
+ local -r bbnfo="[bing-bash] $bbapp v.0.6"
  local -r usage="USAGE: $bbapp FUNCTION"
 
 #                                                                PRECHECK
 #                                                                ========
-  if [[ $# -eq 0 ]]; then
-    printf "\e[2m%s: %s\e[0m\n" "$bbapp" "Parameter empty" >&2
-    printf "%s\n" "$usage" >&2
-    return 9
-  fi
+ if [[ $# -eq 0 ]]; then
+   printf "\e[2m%s: %s\e[0m\n" "$bbapp" "Parameter empty" >&2
+   printf "%s\n" "$usage" >&2
+   return 9
+ fi
 
 #                                                                    HELP
 #                                                                    ====
@@ -78,8 +79,13 @@ bb () {
 	[[ $1 =~ ^(-h|--help)$ ]] && {
 	cat <<-EOFF
 	$bbnfo
-	  Functions dispatcher. Sourcing and calling functions.
+	  Functions dispatcher.
 	$usage
+	  Source and call the appropriate function and pass arguments to it;
+	  unload called function when done. This function is not particularly
+	  useful when using function autoloading; on the other hand, during
+	  tinkering with the function's code it can be usefull as it always
+	  loads the most recent function's definition from file.
 	OPTIONS:
 	   -h, --help        Show program help.
 	   -u, --usage       Show program usage.
@@ -90,12 +96,10 @@ bb () {
 
 #                                                                    SET
 #                                                                    ===
- shopt -s extglob extquote; shopt -u nocasematch; set -o noglob
- trap "set +o noglob" RETURN ERR SIGHUP SIGINT SIGTERM
- shopt -s extglob 		# Enable extended regular expressions
- shopt -s extquote		# Enables $'' and $"" quoting
- shopt -u nocasematch 	# regexp case-sensitivity
- set -o noglob			# Disable globbing. Enable it upon return:
+ shopt -s extglob     # Enable extended regular expressions
+ shopt -s extquote    # Enables $'' and $"" quoting
+ shopt -u nocasematch # regexp case-sensitivity
+ set -o noglob        # Disable globbing. Enable it upon return:
  trap "set +o noglob" RETURN ERR SIGHUP SIGINT SIGTERM
 
 
@@ -113,14 +117,27 @@ case $1 in
  explode) shift; . "$BING_FUNC/explode.bash"; bb_explode "$@"; unset -f bb_explode;;
  implode) shift; . "$BING_FUNC/implode.bash"; bb_implode "$@"; unset -f bb_implode;;
  
+ range) shift; . "$BING_FUNC/implode.bash"; bb_implode "$@"; unset -f bb_implode;;
+ 
  array_clone) 
-  shift
-  . "$BING_FUNC/array_clone.bash"
-  bb_array_clone "$@"
-  unset -f bb_array_clone
- ;;
+  shift; . "$BING_FUNC/array_clone.bash";
+  bb_array_clone "$@"; unset -f bb_array_clone;;
+  
+ array_convert) 
+  shift; . "$BING_FUNC/array_convert.bash";
+  bb_array_convert "$@"; unset -f bb_array_convert;;
+
+
 
  *) return 8;;
 
 esac
 }
+
+
+# git add README.md bing-bash bb bing_aliases bing_samples
+# git add typeof.bash explode.bash implode.bash range.bash
+# git add array_clone.bash
+
+# git commit -m "bingo"
+# git push -u origin master

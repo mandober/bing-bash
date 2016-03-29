@@ -3,8 +3,9 @@
 #: FILE: typeof.bash
 #: PATH: $BING_FUNC/typeof.bash
 #: TYPE: function
-#:       shell:bash:mandober:bing-bash:function:bb_array_convert
+#:       shell:bash:mandober:bing-bash:function:bb_typeof
 #:
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 #: AUTHOR:
 #:      bing-bash by Ivan Ilic <ivanilic1975@gmail.com>
 #:      https://github.com/mandober/bing-bash
@@ -40,8 +41,8 @@
 #:      bb_typeof [-t] NAME
 #:      bb_typeof NAME [-t]
 #:
-#: OPTIONS: 
-#:      -t, --type
+#: OPTIONS:
+#:      -t, --type <option>
 #:      Return the type, as single word. 
 #:
 #: PARAMETERS:
@@ -50,9 +51,8 @@
 #:
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 #: STDOUT:
-#:      * Type, value and attributes of the parameter
-#:      * With -t option prints type as a single word
-#:      * Help, usage, version (if explicitly requested)
+#:      Type, value and attributes of the parameter.
+#:      With -t option prints type as a single word.
 #:
 #: STDERR:
 #:      Error messages.
@@ -83,10 +83,12 @@ bb_typeof() {
  [[ $1 =~ ^(-u|--usage)$ ]] && { printf "%s\n" "$usage"; return 0; }
  [[ $1 =~ ^(-v|--version)$ ]] && { printf "%s\n" "$bbnfo"; return 0; }
  [[ $1 =~ ^(-h|--help)$ ]] && {
+	printf "\e[7m%s\e[0m\n" "$bbnfo"
+	printf "\e[1m%s\e[0m\n" "$usage"
 	cat <<-EOFF
-	$bbnfo
-	  Variable typing and dumping.
-	$usage
+	Variable typing and dumping.
+	
+	DESCRIPTION:
 	  Pass identifier's NAME (without \$) to check its type and 
 	  dump its value and attributes. With -t option, only the 
 	  type, as a single word, is returned. Returned types are:

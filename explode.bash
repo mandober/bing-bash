@@ -3,12 +3,14 @@
 #: FILE: explode.bash
 #: PATH: $BING_FUNC/explode.bash
 #: TYPE: function
+#:       shell:bash:mandober:bing-bash:function:bb_explode
 #:
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 #: AUTHOR:
 #:      bing-bash by Ivan Ilic <ivanilic1975@gmail.com>
 #:      https://github.com/mandober/bing-bash
 #:      za Ǆ - Use freely at owns risk
-#:      26-Mar-2016 (last revision)
+#:      30-Mar-2016 (last revision)
 #:
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 #: NAME: 
@@ -47,25 +49,26 @@
 #:      bb_explode STRING [-c|-d DELIM] [NAME]
 #:
 #: OPTIONS:
-#:      -c, --char, --chars
-#:      Delimiter is a character boundary.
+#:      -c, --char, --chars <option>
+#:      With -c option delimiter is character boundary.
+#:      e.g.: bb_explode "abc" -c varray  # varray=([0]=a [1]=b [2]=c)
 #:
-#:      -d, --delim, --delimiter DELIM
-#:      Specify delimiter after equal sign (e.g. -d=':')
-#:      or as a following argument (e.g. -d ', ').
+#:      -d, --delim, --delimiter <option> DELIM <argument>
+#:      With -d option delimiter is user supplied string DELIM.
+#:      The argument DELIM to this option is mandatory.
+#:      DELIM <substring> <required> <argument>
+#:        DELIM is user supplied substring of STRING composed of single 
+#:        or muliple characters by which the STRING will be exploded.
+#:        Specify delimiter after equal sign (e.g. -d=':')
+#:        or as a following argument (e.g. -d ', ').
 #:
 #: PARAMETERS:
 #:
-#:      STRING <string>
-#:      String to bb_explode. It is the only required parameter.
-#:      Variables can be passed by name or by value.
+#:      STRING <string|identifier> <required>
+#:      String STRING to split, passed by name or by value.
 #:
-#:      DELIM <char>
-#:      Substring composed of single or muliple characters
-#:      by which to split the STRING.
-#:
-#:      NAME <identifier>
-#:      Identifier for resulting array.
+#:      NAME <identifier> <optional>
+#:      User supplied identifier for resulting array.
 #:      If not given the default is BING_EXPLODED.
 #:
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -108,24 +111,25 @@ bb_explode() {
 
 #                                                                    HELP
 #                                                                    ====
- [[ $1 =~ ^(-u|--usage)$ ]] && { printf "%s" "$usage\n"; return 0; }
- [[ $1 =~ ^(-v|--version)$ ]] && { printf "%s" "$bbnfo\n"; return 0; }
+ [[ $1 =~ ^(-u|--usage)$ ]] && { printf "%s\n" "$usage"; return 0; }
+ [[ $1 =~ ^(-v|--version)$ ]] && { printf "%s\n" "$bbnfo"; return 0; }
  [[ $1 =~ ^(-h|--help)$ ]] && {
+	printf "\e[7m%s\e[0m\n" "$bbnfo"
+	printf "\e[1m%s\e[0m\n" "$usage"
 	cat <<-EOFF
-	$bbnfo
-	  Convert a string to array by splitting it by substring.
-	$usage
+	Convert a string to array by splitting it by substring.
+	
 	DESCRIPTION:
-	  Creates NAME, an indexed array of strings, each of which is a 
-	  substring of STRING, formed by splitting it on boundaries
-	  delimited by the DELIM which can also be multi-character string.
-	  If DELIM is not given it defaults to (in order of precedance):
+	   Creates NAME, an indexed array of strings, each of which is a 
+	   substring of STRING, formed by splitting it on boundaries
+	   delimited by the DELIM which can also be multi-character string.
+	   If DELIM is not given it defaults to (in order of precedance):
 	     colon(:), slash(/), comma(,), dot(.),
 	     dash(-), semicolon(;), pipe(|), space ( ).
-	  If -c option is given, the DELIM is a character boundary i.e.
-	  each element of array will contain a single character from STRING,
-	  but final array will not contain any empty elements. If NAME is not
-	  provided it defaults to BING_EXPLODED.
+	   If -c option is given, the DELIM is a character boundary i.e.
+	   each element of array will contain a single character from STRING,
+	   but final array will not contain any empty elements. If NAME is not
+	   provided it defaults to BING_EXPLODED.
 	
 	OPTIONS:
 	   -d, --delim      Substring of STRING by which to split the STRING
