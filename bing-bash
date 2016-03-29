@@ -18,7 +18,7 @@
 #
 #   BASE VARS
 #
-# These are all convenience vars, none are imperative.
+# These are all convenience vars, none are required.
 
 # [bing-bash] root directory
 export BING="$HOME/bing"
@@ -29,7 +29,7 @@ export BING_FUNC="$BING/func"
 # [bing-bash] temporary directory
 export BING_TEMP="$BING/temp"
 
-# [bing-bash] path to sqlite db
+# [bing-bash] path to sqlite db 
 export BING_DB="$BING_FUNC/sys/bb.db"
 
 # [bing-bash] name of table in sqlite db
@@ -67,6 +67,8 @@ shopt -s extquote		# enables $'' and $"" quoting
 shopt -s globstar       # enable ** matching
 shopt -u nocasematch 	# case sensitivity with regexp
 shopt -u nocaseglob     # case sensitivity when globbing
+set +o noglob           # just in case it's unset
+set +a 
 # save current shell options
 # set +o >| "$BING_TEMP/env_set"
 # shopt -p >| "$BING_TEMP/env_shopt"
@@ -77,11 +79,11 @@ shopt -u nocaseglob     # case sensitivity when globbing
 #
 
 # Always load
-[[ -r "$BING_FUNC/err" ]] && . "$BING_FUNC/err"
 [[ -r "$BING_FUNC/load" ]] && . "$BING_FUNC/load"
+[[ -r "$BING_FUNC/err" ]] && . "$BING_FUNC/err" # soon to be deprecated
 
-
-set +o noglob
+# FUNCS
+# Indexed array of function files
 declare -a FUNCS=( $BING_FUNC/**/*.bash )
 
 
