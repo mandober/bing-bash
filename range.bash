@@ -179,11 +179,11 @@ bbDiv="${bbDiv:- }"
 bbBase="${bbBase:-10}"
 if ((bbBase !=8)) && ((bbBase !=10)) && ((bbBase !=16)); then return 5; fi
 
-echo "bbDiv: $bbDiv"
-echo "bbPrefix: $bbPrefix"
-echo "bbSuffix: $bbSuffix"
-echo "bbBase: $bbBase"
-echo "bbRange: $bbRange"
+# echo "bbDiv: $bbDiv"
+# echo "bbPrefix: $bbPrefix"
+# echo "bbSuffix: $bbSuffix"
+# echo "bbBase: $bbBase"
+# echo "bbRange: $bbRange"
 
 #                                                                 PROCESS
 #                                                                 =======
