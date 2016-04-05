@@ -21,39 +21,57 @@
 #:      Merge arrays.
 #:
 #: DESCRIPTION:
-#:      Merges the elements of two or more arrays. If the array keys
-#:      of sequential arrays are the same as keys of previous, the -m
-#:      option determines what happens:
-#:      --mode=k (-mk) keeps previous values 
-#:      --mode=o (-mo) overwrites previous values with the following 
-#:      --mode=a (-ma) appends the following to the previous values
+#:      Merges the elements of two or more arrays into resulting array.
+#:      User can supply name for the resulting array and optionally
+#:      specify mode and type of resulting array. The type of resulting
+#:      array will usually be automatically determined: if at least one
+#:      array is associative, the resulting array will be associative too.
+#:      Otherwise it will be indexed, but the user can force the type
+#:      with adequate argument (a|i) to the --type option. For example,
+#:      `bb_array_merge ind1 ind2 --type a'  will force resulting array
+#:      to be associative even though both passed arrays are indexed.
+#:      The argument to --mode option determines what happens when two
+#:      arrays have the same key:
+#:      --mode=s (-ms) skips that element i.e. keeps previous value
+#:      --mode=o (-mo) overwrites previous with the new value
+#:      --mode=a (-ma) appends new to the previous value
 #:      
 #: DEPENDENCIES:
-#:      none
+#:      bb_array_clone
 #:
 #: EXAMPLE:
-#:      bb_array_merge -o array array1 array2
+#:      bb_array_merge array1 array2 array3 -o=merged -m=o
+#:      bb_array_merge -omerged -ti arr_ind arr_ass
 #:
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 #: SYNOPSIS:
-#:      bb_array_merge [-o OUT] [-m k|o|a] ARRAY1 ARRAY2 ...
+#:      bb_array_merge [-o OUT] [-m s|o|a] [-t i|a] ARRAY1 ARRAY2 ...
 #:
 #: OPTIONS:
-#:      Argument to option can be passed after `=' sign (-o=name),
+#:      
+#:    -o, --out <option> OUT <argument> <identifier> 
+#:      Argument to -o option, OUT, is the user supplied name that will
+#:      be used as a name for the resulting array; if not supplied, it
+#:      defaults to BING_MERGED.
+#:
+#:    -m, --mode <option> s|o|a <argument> <enum>
+#:      If latter array has the same key as former, than the argument
+#:      to -m option (-m s|o|a) determines what happens:
+#:      -ms, --mode=s   Skip latter value i.e. keep former value
+#:      -mo, --mode=o   Overwrite former with latter value
+#:      -ma, --mode=a   Append latter to former value
+#:      If -m option is supplied its argument is required.
+#:
+#:    -t, --type <option> i|a <argument> <enum>
+#:      Argument (i|a) to --type option can force the type of resulting array.
+#:      The forced type can be `i' for indexed or `a' for associative array.
+#:      If this option is not supplied the type for resulting array is 
+#:      determined automatically (assoc. if at least 1 array is assoc.).
+#:      
+#:      Option arguments can be passed after `=' sign (-o=name),
 #:      as the next argument (-o name) or, only in case of short
 #:      options, immediately after the option (-oname).
 #:      
-#:      -o, --out <option> OUT <argument> <identifier> 
-#:      Argument to the -o option is the identifier OUT that will be 
-#:      used as name for resulting array; but if not supplied, it 
-#:      defaults to BING_MERGED.
-#:
-#:      -m, --mode <option> k|o|a <enum> <argument>
-#:      If the array keys of sequential arrays are the same as keys 
-#:      of previous, the -m option determines what happens:
-#:      --mode=k, -mk  k(eeps) previous values 
-#:      --mode=o, -mo  o(verwrites) previous values with the following 
-#:      --mode=a, -ma  a(ppends) the following to the previous values
 #:
 #: PARAMETERS:
 #:
@@ -87,32 +105,74 @@ bb_array_merge() {
 #                                                                  ABOUT
 #                                                                  =====
  local -r bbapp="${FUNCNAME[0]}"
- local -r bbnfo="[bing-bash] $bbapp v.0.0.3"
- local -r usage="USAGE: $bbapp [-o OUT] [-m k|o|a] ARRAY1 ARRAY2 ..."
+ local -r bbnfo="[bing-bash] $bbapp v.0.4"
+ local -r usage="USAGE: $bbapp [-o OUT] [-m s|o|a] [-t i|a] ARRAY1 ARRAY2 ..."
 
 #                                                               PRECHECK
 #                                                               ========
  if [[ $# -eq 0 ]]; then
-    printf "\e[2m%s: %s\e[0m\n" "$bbapp" "Parameter error" >&2
-    printf "%s\n" "$usage" >&2
-    return 2
+   printf "\e[2m%s: %s\e[0m\n" "$bbapp" "Parameter error" >&2
+   printf "%s\n" "$usage" >&2
+   return 2
  fi
 
 #                                                                   HELP
 #                                                                   ====
  [[ $1 =~ ^(-u|--usage)$ ]] && { printf "%s" "$usage\n"; return 0; }
  [[ $1 =~ ^(-v|--version)$ ]] && { printf "%s" "$bbnfo\n"; return 0; }
- [[ $1 =~ ^(-h--help)$ ]] && {
+ [[ $1 =~ ^(-h|--help)$ ]] && {
+	printf "\e[7m%s\e[0m\n" "$bbnfo"
+	printf "\e[1m%s\e[0m\n" "$usage"
 	cat <<-EOFF
-	$bbnfo
-	  Merge arrays.
-	$usage
-	  Merge two arrays into third array named NAME. 
-	  If NAME is not given, the resulting array is BING_MERGED.
+	Merge two or more arrays.
+	
+	DESCRIPTION:
+	  Merges the elements of two or more arrays into the resulting array
+	  NAME. User can supply the name for resulting array and optionally
+	  specify mode and type of resulting array. The type of resulting
+	  array will usually be automatically determined: if at least one
+	  array is associative, the resulting array will be associative too;
+	  otherwise it will be indexed. User can force (override) the type
+	  with adequate argument (a|i) to the --type option. For example,
+	  'bb_array_merge ind1 ind2 --type a' will force resulting array to
+	  be associative even though both supplied arrays are of indexed type.
+	  The argument to --mode option determines what happens when two
+	  arrays have the same key:
+	  --mode=s (-ms) skips that element i.e. keeps previous value
+	  --mode=o (-mo) overwrites previous with the new value
+	  --mode=a (-ma) appends new to the previous value
+	  Option arguments can be passed after '=' sign (-o=name),
+	  as the next argument (-o name) or, only in case of short
+	  options, immediately after the option (-oname).
+
 	OPTIONS:
-	  -h, --help        Show program help.
-	  -u, --usage       Show program usage.
-	  -v, --version     Show program version.
+	-o, --out OUT
+	  Argument to -o option, OUT, is the user supplied name that will
+	  be used as a name for the resulting array; if not supplied, it
+	  defaults to BING_MERGED.
+
+	-m, --mode s|o|a
+	  If latter array has the same key as former, than the argument
+	  to -m option (-m s|o|a) determines what happens:
+	  -ms, --mode=s   Skip latter value i.e. keep former value
+	  -mo, --mode=o   Overwrite former with latter value
+	  -ma, --mode=a   Append latter to former value
+	  If -m option is supplied its argument is required.
+	
+	-t, --type i|a
+	  Argument (i|a) to --type option can force the type of resulting array.
+	  The forced type can be 'i' for indexed or 'a' for associative array.
+	  If this option is not supplied the type for resulting array is 
+	  determined automatically (assoc. if at least 1 array is assoc.).
+
+	-h, --help        Show program help.
+	-u, --usage       Show program usage.
+	-v, --version     Show program version.
+
+	EXAMPLES:
+	  bb_array_merge array1 array2 array3 -omerged -mo
+	  bb_array_merge -o=Indx assoc1 assoc2 -m=s -t=i
+
 	EOFF
 	return 0
  }
@@ -171,9 +231,9 @@ bbMode="${bbMode:0:1}"
 bbOut="${bbOut:-BING_MERGED}"
 
 # debug
-echo "Arrays: $@"
-echo "Out: $bbOut"
-echo "Mode: $bbMode"
+# echo "Arrays: $@"
+# echo "Out: $bbOut"
+# echo "Mode: $bbMode"
 
 
 #                                                                    TYPE
@@ -213,15 +273,15 @@ done
 if [[ -n "$bbType" ]]; then
 	bbType="${bbType:0:1}"
 	[[ ! "$bbType" =~ ^[ai]$ ]] && return 6
-	echo "forced type: $bbType"
+	# echo "forced type: $bbType"
 else
 	# if type isn't forced, type is inferred type
   bbType="$bbTypes"
 fi
 
 # debug
-echo "inferred type: $bbTypes"
-echo "THE Type: $bbType"
+# echo "inferred type: $bbTypes"
+# echo "THE Type: $bbType"
 
 #                                                                 PROCESS
 #                                                                 =======
