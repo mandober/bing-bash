@@ -1,0 +1,180 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <title>Bing-bash by mandober</title>
+
+    <link rel="stylesheet" href="stylesheets/styles.css">
+    <link rel="stylesheet" href="stylesheets/github-light.css">
+    <meta name="viewport" content="width=device-width">
+    <!--[if lt IE 9]>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+  </head>
+  <body>
+    <div class="wrapper">
+      <header>
+        <h1>Bing-bash</h1>
+        <p>Bash functions library</p>
+
+        <p class="view"><a href="https://github.com/mandober/bing-bash">View the Project on GitHub <small>mandober/bing-bash</small></a></p>
+
+
+        <ul>
+          <li><a href="https://github.com/mandober/bing-bash/zipball/master">Download <strong>ZIP File</strong></a></li>
+          <li><a href="https://github.com/mandober/bing-bash/tarball/master">Download <strong>TAR Ball</strong></a></li>
+          <li><a href="https://github.com/mandober/bing-bash">View On <strong>GitHub</strong></a></li>
+        </ul>
+      </header>
+      <section>
+        <h1>
+<a id="bing-bash" class="anchor" href="#bing-bash" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>bing-bash</h1>
+
+<h2>
+<a id="bing-bash---bash-functions-library" class="anchor" href="#bing-bash---bash-functions-library" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a><code>bing-bash</code> - bash functions library</h2>
+
+<p>This library is composed using native bash's (4.3) abilities, without
+unnecessary forking or usage of external tools if possible or faster.
+Single process bash shell was in high regard as well as bash specific
+functionality, disregarding portability. All was made and tested with
+bash 4.3 and 4.4-beta.</p>
+
+<p>bing-bash is a collection of bash functions, meant to be sourced, but
+some of them can be directly executed as well.  All functions are (or
+going to be soon) standalone -  they won't need any other function or
+file in this library to work (possibly only some initialization files
+such as `bing-bash', merely as a convenience, not requirement).</p>
+
+<h2>
+<a id="quick-start" class="anchor" href="#quick-start" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Quick start</h2>
+
+<p>Configure and source `bing-bash' file to enable some sort of function
+management like functions autoloading or just source single files of
+interest.  </p>
+
+<h2>
+<a id="using-functions" class="anchor" href="#using-functions" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Using functions</h2>
+
+<ul>
+<li>Files containing functions can be sourced individually (functions are not dependent on any other function from this library) and called as usual. Sourcing files that contain functions will, of course, leave these functions in the memory, but at least all these memory-occupying functions will be at their most ready state.</li>
+<li>One level down in comparison to the above is to have functions marked for autoloading, although this is not a true function autoloading as in other shells; namely, when marked for autoloading, a stand-in eponymous function will be created (only a few lines long, as opposed to loading the whole function definition) that will source its true definition when first called.</li>
+<li>The last, and most environment and memory friendly, way is to call functions through <code>bb</code> function dispatcher that will load called function, pass arguments to it and unload it when done. Also, this way you can tinker with the function's code while always having the latest revision of function sourced when called.<br>
+</li>
+</ul>
+
+<h2>
+<a id="conventions" class="anchor" href="#conventions" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Conventions</h2>
+
+<p>Parameters to function can be passed by name or value.  </p>
+
+<ul>
+<li>Array variables are always passed by name (without $). </li>
+<li>Scalar variables can be passed by name (without $) or by value (with $, as usual).<br>
+As a convenience, instead of passing a scalar variable the usual way, possibly with quotations e.g. <code>bb_func "$var"</code> you can just type <code>bb_func var</code>. Of course, a value can aways be passed directly: <code>bb_func "abcd"</code> or <code>bb_func abcd</code>, in which case the unexpected can happen if there is already a variable named <code>abcd</code> (the price for less typing).<br>
+Since array variables cannot be passed around in bash (nor can be exported), they are always passed by name (trying to pass an array with <code>$array</code> will just pass its first element and passing an array as <code>${array[@]}</code> can work, but at the cost of having its indices/keys discarded). </li>
+</ul>
+
+<h2>
+<a id="list-of-functionssubroutines" class="anchor" href="#list-of-functionssubroutines" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>List of functions/subroutines:</h2>
+
+<p>(some functions encompass functionality, that could be split
+across several individual functions, as subroutines)  </p>
+
+<ul>
+<li><p><code>bb_typeof</code><br>
+Identify given string as set or unset variable, array, shell keyword, etc.<br>
+Dump variables (pretty print arrays) and their attributes.   </p></li>
+<li><p><code>bb_explode</code><br>
+Convert a string to array by splitting it by substring which can be a
+single or multi-character substring. 
+Convert a string to array of individual characters.<br>
+(in progress: guess the most probable delimiter)  </p></li>
+<li><p><code>bb_implode</code><br>
+Convert an array to string.  </p></li>
+<li><p><code>bb_array_clone</code><br>
+Clone an array.  </p></li>
+<li><p><code>bb_array_convert</code><br>
+Convert indexed to associative array or vice versa.  </p></li>
+<li><p><code>bb_in_array</code><br>
+Checks if a value (variable or array) exists in an array.  </p></li>
+<li><p><code>bb_array_merge</code><br>
+Merges the elements of two or more arrays into the resulting array NAME. User can supply the name for resulting array and optionally specify mode and type of resulting array. The type of resulting array will usually be automatically determined: if at least one array is associative, the resulting array will be associative too; otherwise it will be indexed. User can force (override) the type
+with adequate argument (a|i) to the --type option. For example, 'bb_array_merge ind1 ind2 --type a' will force resulting array to be associative even though both supplied arrays are of indexed type. The argument to --mode option determines what happens when two arrays have the same key:<br>
+--mode=s (-ms) skips that element i.e. keeps previous value<br>
+--mode=o (-mo) overwrites previous with the new value<br>
+--mode=a (-ma) appends new to the previous value<br>
+Option arguments can be passed after '=' sign (-o=name), as the next argument (-o name) or, only in case of short options, immediately after the option (-oname).</p></li>
+<li><p><code>bb_array_remove</code><br>
+Remove array element(s)  </p></li>
+<li><p><code>bb_array_shift</code><br>
+Shift the first value of the array off and return it  </p></li>
+<li><p><code>bb_array_sort</code><br>
+Sort an array n different ways. Remove duplicated values from an array.  </p></li>
+<li><p><code>bb_range</code><br>
+Generate sequences (e.g. 1,4-8,10,12-22,30-35,50).  </p></li>
+<li><p><code>bb_strpos</code>
+Find the position of the first occurrence of a substring in a string.</p></li>
+<li><p><code>bb_pad</code>
+Pad a string by appending char(s) after each character of the string. </p></li>
+<li><p><code>bb_venn</code><br>
+Venn diagrams related functions: find union, intersection, difference, complement).  </p></li>
+<li><p><code>bb_trim</code><br>
+Trim leading, trailing and intermediate whitespace.  </p></li>
+<li><p><code>bb_to</code><br>
+Conversions: e.g. ascii to hex, octal, decimal...and similar  </p></li>
+<li><p><code>bb_load</code><br>
+Check and source functions. Mark functions for autoloading. Resolve function's full path.</p></li>
+</ul>
+
+<h3>
+<a id="misc-match-patterns-identify-qualify" class="anchor" href="#misc-match-patterns-identify-qualify" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>MISC (match patterns, identify, qualify)</h3>
+
+<ul>
+<li><code>bb_array</code></li>
+<li>Quick dump of array</li>
+<li>Identify array as indexed or associative</li>
+<li>Identify indexed array as numeric</li>
+<li>Return number of array elements</li>
+<li>Return keys of an array</li>
+<li>Return values of an array</li>
+<li>Return empty keys of an array</li>
+<li>Re-index an indexed sparse array</li>
+<li>Remove unset elements from array</li>
+<li><p>Pack and squeeze an array</p></li>
+<li><p><code>bb_is</code><br>
+IS functions (identify vars, arrays, identifiers; check if var set, null...)  </p></li>
+<li><p><code>bb_get</code><br>
+GET functions (get var's attributes, get md5sum, etc.)  </p></li>
+<li><p><code>bb_sql</code><br>
+Routines dealing with sqlite database.  </p></li>
+</ul>
+
+<h4>
+<a id="used-in-desciptions" class="anchor" href="#used-in-desciptions" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Used in desciptions:</h4>
+
+<pre><code>&lt;char&gt;
+&lt;string&gt;
+&lt;substring&gt;
+&lt;required&gt;
+&lt;optional&gt;
+&lt;option&gt;            short (-o) or long option (--option)
+&lt;argument&gt;          
+&lt;identifier&gt;        A-Za-z_
+&lt;var&gt;
+&lt;name&gt;
+&lt;array&gt;
+&lt;space&gt;
+&lt;integer&gt;
+&lt;enum&gt;              limited choice
+</code></pre>
+      </section>
+      <footer>
+        <p>This project is maintained by <a href="https://github.com/mandober">mandober</a></p>
+        <p><small>Hosted on GitHub Pages &mdash; Theme by <a href="https://github.com/orderedlist">orderedlist</a></small></p>
+      </footer>
+    </div>
+    <script src="javascripts/scale.fix.js"></script>
+    
+  </body>
+</html>
