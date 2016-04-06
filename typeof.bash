@@ -1,18 +1,19 @@
 #!/bin/bash bingmsg
-#=======================================================================
+#=========================================================================
 #: FILE: typeof.bash
 #: PATH: $BING_FUNC/typeof.bash
 #: TYPE: function
-#:       shell:bash:mandober:bing-bash:function:bb_typeof
+#:   NS: shell:bash:mandober:bing-bash:function:bb_typeof
+#:  CAT: symbol table
 #:
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 #: AUTHOR:
 #:      bing-bash by Ivan Ilic <ivanilic1975@gmail.com>
 #:      https://github.com/mandober/bing-bash
 #:      za Ǆ - Use freely at owns risk
-#:      30-Mar-2016 (last revision)
+#:      7-Apr-2016 (last revision)
 #:
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 #: NAME:
 #:      bb_typeof
 #:
@@ -23,33 +24,32 @@
 #:      Started as a function mostly used to pretty dump array to the
 #:      screen, became a function to type and qualify names passes to
 #:      it. Still, when used with variable gives info about it such as
-#:      its value and attributes. Variable are passed by name (no $),
+#:      its value and attributes. Variable are passed by name (no $).
 #:      With -t option, only the type, as a single word is returned.
 #:      * Types returned are: unset variable, variable, indexed array,
-#:        associative array; also the types returned by `type' builin:
+#:        associative array; also the types returned by `type` builin:
 #:        alias, keyword, function, builtin or file.
 #:
 #: DEPENDENCIES:
-#:      Bash builtins: type
+#:      none
 #:
 #: EXAMPLE:
 #:      bb_typeof -t BASH_ALIASES   # outputs: `associative'
 #:      bb_typeof BASH_VERSINFO     # dumps array BASH_VERSINFO
 #:
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 #: SYNOPSIS:
 #:      bb_typeof [-t] NAME
-#:      bb_typeof NAME [-t]
 #:
 #: OPTIONS:
-#:      -t, --type <option>
+#:      -t, --type <flag>
 #:      Return the type, as single word. 
 #:
 #: PARAMETERS:
 #:      NAME <string>
 #:      bare word, name, identifier, variable, array, etc.
 #:
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 #: STDOUT:
 #:      Type, value and attributes of the parameter.
 #:      With -t option prints type as a single word.
@@ -60,26 +60,25 @@
 #: RETURN CODES:
 #:      0  great success
 #:      1  miserable failure
-#:      9  Parameter empty
-#=======================================================================
-
+#:      2  Parameter empty
+#=========================================================================
 bb_typeof() {
-#                                                                  ABOUT
-#                                                                  =====
+#                                                                    ABOUT
+#-------------------------------------------------------------------------
  local bbapp="${FUNCNAME[0]}"
- local bbnfo="[bing-bash] $bbapp v.0.50"
+ local bbnfo="[bing-bash] $bbapp v.0.51"
  local usage="USAGE: $bbapp [-t] NAME"
 
-#                                                               PRECHECK
-#                                                               ========
+#                                                                 PRECHECK
+#-------------------------------------------------------------------------
  if [[ $# -eq 0 ]]; then
    printf "\e[2m%s: %s\e[0m\n" "$bbapp" "Parameter empty" >&2
    printf "%s\n" "$usage" >&2
-   return 9
+   return 2
  fi
 
-#                                                                   HELP
-#                                                                   ====
+#                                                                     HELP
+#-------------------------------------------------------------------------
  [[ $1 =~ ^(-u|--usage)$ ]] && { printf "%s\n" "$usage"; return 0; }
  [[ $1 =~ ^(-v|--version)$ ]] && { printf "%s\n" "$bbnfo"; return 0; }
  [[ $1 =~ ^(-h|--help)$ ]] && {
@@ -98,20 +97,22 @@ bb_typeof() {
 	   - 'variable' - for set varables
 	   or: 'alias', 'keyword', 'function', 'builtin' or 'file'
 	   as reported by the 'type' builtin.
+
 	OPTIONS:
 	   -t, --type        Return type as a single word.
 	   -h, --help        Show program help.
 	   -u, --usage       Show program usage.
 	   -v, --version     Show program version.
+
 	EXAMPLES:
-	   $bbapp BASH_ALIASES
+	   $bbapp -t BASH_ALIASES
 	   $bbapp BASH_VERSINFO
 	EOFF
 	return 0
  }
 
-#                                                                    SET
-#                                                                    ===
+#                                                                      SET
+#-------------------------------------------------------------------------
  shopt -s extglob 		# Enable extended regular expressions
  shopt -s extquote		# Enables $'' and $"" quoting
  shopt -u nocasematch 	# regexp case-sensitivity
@@ -273,6 +274,7 @@ case ${bbDeclare[1]} in
  *[linuxcrt]*) printf "\n";;
 
 esac
+printf "\n"
 
 return 0
 
