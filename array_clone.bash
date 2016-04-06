@@ -1,13 +1,17 @@
+#!/bin/bash bingmsg
 #=======================================================================
 #: FILE: array_clone.bash
 #: PATH: $BING_FUNC/array_clone.bash
 #: TYPE: function
+#:   NS: shell:bash:mandober:bing-bash:function:bb_array_clone
+#:  CAT: arrays
 #:
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 #: AUTHOR:
-#:      bing-bash by mandober <zgag@yahoo.com>
+#:      bing-bash by Ivan Ilic <ivanilic1975@gmail.com>
 #:      https://github.com/mandober/bing-bash
 #:      za Ǆ - Use freely at owns risk
-#:      26-Mar-2016 (last revision)
+#:      2-Apr-2016 (last revision)
 #:
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 #: NAME: 
@@ -64,6 +68,7 @@
 #:      1  miserable failure
 #:      3  Parameter is not set
 #:      4  Parameter is not an array
+#:      6  Invalid identifier
 #:      9  Parameter error
 #=======================================================================
 # $BING_FUNC/array_clone.bash
