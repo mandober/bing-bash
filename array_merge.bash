@@ -1,19 +1,19 @@
 #!/bin/bash bingmsg
-#==================================================================
+#=========================================================================
 #: FILE: array_merge.bash
 #: PATH: $BING_FUNC/array_merge.bash
 #: TYPE: function
 #:   NS: shell:bash:mandober:bing-bash:function:bb_array_merge
 #:  CAT: arrays
 #:
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 #: AUTHOR:
 #:      bing-bash by Ivan Ilic <ivanilic1975@gmail.com>
 #:      https://github.com/mandober/bing-bash
 #:      za Ǆ - Use freely at owns risk
-#:      2-Apr-2016 (last revision)
+#:      7-Apr-2016 (last revision)
 #:
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 #: NAME:
 #:      bb_array_merge
 #:
@@ -43,7 +43,7 @@
 #:      bb_array_merge array1 array2 array3 -o=merged -m=o
 #:      bb_array_merge -omerged -ti arr_ind arr_ass
 #:
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 #: SYNOPSIS:
 #:      bb_array_merge [-o OUT] [-m s|o|a] [-t i|a] ARRAY1 ARRAY2 ...
 #:
@@ -83,7 +83,7 @@
 #:
 #:      ... <array>
 #:      Sequential indexed or associative, arrays.
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 #: STDOUT:
 #:      Help, usage, version (if explicitly requested).
 #:
@@ -98,26 +98,26 @@
 #:      4  Parameter is not an array
 #:      5  Wrong argument to mode option 
 #:      6  Wrong argument to type option 
-#==================================================================
-# $BING_FUNC/array_merge.bash
+#:      7  Invalid identifier
+#=========================================================================
 bb_array_merge() {
 
-#                                                                  ABOUT
-#                                                                  =====
+#                                                                    ABOUT
+#-------------------------------------------------------------------------
  local -r bbapp="${FUNCNAME[0]}"
  local -r bbnfo="[bing-bash] $bbapp v.0.4"
- local -r usage="USAGE: $bbapp [-o OUT] [-m s|o|a] [-t i|a] ARRAY1 ARRAY2 ..."
+ local -r usage="USAGE: $bbapp [-o OUT] [-m s|o|a] [-t i|a] ARRAY ..."
 
-#                                                               PRECHECK
-#                                                               ========
+#                                                                 PRECHECK
+#-------------------------------------------------------------------------
  if [[ $# -eq 0 ]]; then
    printf "\e[2m%s: %s\e[0m\n" "$bbapp" "Parameter error" >&2
    printf "%s\n" "$usage" >&2
    return 2
  fi
 
-#                                                                   HELP
-#                                                                   ====
+#                                                                     HELP
+#-------------------------------------------------------------------------
  [[ $1 =~ ^(-u|--usage)$ ]] && { printf "%s" "$usage\n"; return 0; }
  [[ $1 =~ ^(-v|--version)$ ]] && { printf "%s" "$bbnfo\n"; return 0; }
  [[ $1 =~ ^(-h|--help)$ ]] && {
@@ -177,129 +177,151 @@ bb_array_merge() {
 	return 0
  }
 
-#                                                                    SET
-#                                                                    ===
+#                                                                      SET
+#-------------------------------------------------------------------------
  shopt -s extglob extquote; shopt -u nocasematch; set -o noglob
  trap "set +o noglob" RETURN ERR SIGHUP SIGINT SIGTERM
 
 
-#                                                                  ASSIGN
-#                                                                  ======
-local bbOut bbMode bbType bbArrays
-bbArrays=""
-# assign params
+#                                                                   ASSIGN
+#=========================================================================
+local bbOut         # resulting array's name
+local bbMode        # mode: s(kip), o(verwrite), a(ppend), r(eindex)
+local bbType        # force type of merged array: a(ssociative), i(ndexed)
+local bbArrays=""   # passed arrays (as space separated list)
+
 while [[ "${1+def}" ]]; do
   case $1 in
-  	# name for resulting array
     -o=*|--out=*) bbOut="${1#*=}";;
         -o|--out) bbOut="${2?}"; shift;;
              -o*) bbOut="${1#??}";;
 
-   # mode: s(kip), o(verwrite), a(ppend), r(eindex)
    -m=*|--mode=*) bbMode="${1#*=}";;
        -m|--mode) bbMode="${2?}"; shift;;
              -m*) bbMode="${1#??}";;
    
-   # force resulting array's type: a(ssociative), i(ndexed)
    -t=*|--type=*) bbType="${1#*=}";;
        -t|--type) bbType="${2?}"; shift;;
              -t*) bbType="${1#??}";;
 
-  *) # arrays (space separated list)
-    bbArrays+="$1 "
-  ;;
+    *) bbArrays+="$1 ";;
   esac
 shift
 done
 
+# positionals: remove all then restore just params so that
+# list of passed arrays will be in $@ (not in $bbArrays).
 set -- $bbArrays
 unset bbArrays
 
-#                                                                DEFAULTS
-#                                                                ========
+#                                                                    CHECK
+#=========================================================================
+# Check and validate params. Find the type of each array.
+local bbArray bbFlag bbInfType
 
-# MODE
-# default mode is skip (keep former value)
-bbMode="${bbMode:-s}"
-# in case argument is not a single letter,
-# get just the first letter (append -> a)
-bbMode="${bbMode:0:1}"
-[[ ! "$bbMode" =~ ^[soar]$ ]] && return 5
+# Determine resulting array type: if any array
+# is associative, than resulting array is also.
+# Initially, assume all are indexed (set flag to `i')
+bbInfType="i"
 
-# OUT
-# Resulting array name
-bbOut="${bbOut:-BING_MERGED}"
-
-# debug
-# echo "Arrays: $@"
-# echo "Out: $bbOut"
-# echo "Mode: $bbMode"
-
-
-#                                                                    TYPE
-#                                                                    ====
-# Type of resulting array can be forced, by passing the
-# `-t' option with `a' or `i' argument (a=associative, i=indexed)
-# `-ti' or `-t=i' means force indexed array as resulting array and
-# `-ti' or `-t=a' means force associative array as resulting array.
-# If type is not forced it is inferred from passed arrays, so that
-# if any of the passed arrays is associative than resulting is also.
-
-local bbArray bbFlag bbTypes
-
-# assume indexed type
-bbTypes="i"
-
-# Check vars, type passed words
 for bbArray; do
 	if bbFlag="$(declare -p "$bbArray" 2>/dev/null)"; then
 		bbFlag=( $bbFlag )
-		# check if array at all
+		# see if it is an array at all
 	  [[ ! "${bbFlag[1]#?}" =~ ^[aA] ]] && {
-	    printf "\e[2m%s: %s\e[0m\n" "$bbapp" "Parameter is not an array" >&2
+	    printf "\e[2m%s: %s\e[0m\n" "$bbapp" \
+	    "Parameter $bbArray is not an array" >&2
 	    return 4
 	  }
-	  # if associative, change it to a
-	  [[ "${bbFlag[1]#?}" =~ ^A ]] && bbTypes="a"
+	  # if associative, set flag `a'
+	  [[ "${bbFlag[1]#?}" =~ ^A ]] && bbInfType="a"
 	else
-		# name is not a set var
-	  printf "\e[2m%s: %s\e[0m\n" "$bbapp" "Variable is not set" >&2
+		# error: param is not a set var
+	  printf "\e[2m%s: %s\e[0m\n" "$bbapp" \
+	  "Variable $bbArray is not set" >&2
 	  return 3
 	fi
 done
 
+#                                                                 DEFAULTS
+#=========================================================================
 
-# force resulting array type: a(ssociative), i(ndexed)
+#------------------------------------------------------------ TYPE
+# Inferred type of resulting array can be overridden, by passing
+# `-t' option with `a' or `i' argument (a=associative, i=indexed)
+# `-ti' or `-t=i' means force indexed array as resulting array and
+# `-ti' or `-t=a' means force associative array as resulting array.
 if [[ -n "$bbType" ]]; then
 	bbType="${bbType:0:1}"
 	[[ ! "$bbType" =~ ^[ai]$ ]] && return 6
-	# echo "forced type: $bbType"
 else
-	# if type isn't forced, type is inferred type
-  bbType="$bbTypes"
+	# if type isn't forced, type is inferred
+  bbType="$bbInfType"
 fi
 
-# debug
-# echo "inferred type: $bbTypes"
+#------------------------------------------------------------ MODE
+if [[ -n "$bbMode" ]]; then
+  # in case argument is not a single letter,
+  # reduce it to the first letter (append => a)
+  bbMode="${bbMode:0:1}"
+  # error if that letter is not [soa]
+  [[ ! "$bbMode" =~ ^[soa]$ ]] && return 5
+else
+	# If not supplied, mode defaults to skip (keep former value)
+  bbMode="s"
+fi
+
+#------------------------------------------------------------- OUT
+# Resulting array name, if supplied check validity
+# If not supplied, OUT defaults to BING_MERGED
+if [[ -n "$bbOut" ]]; then
+  if [[ ! "$bbOut" =~ ^[[:alpha:]_][[:alnum:]_]*$ ]]; then
+    printf "\e[2m%s: %s\e[0m\n" "$bbapp" "Invalid identifier" 1>&2
+    return 7
+  fi
+else
+  bbOut=BING_MERGED
+fi
+
+
+# DEBUG
+local
+# echo "Arrays: $@"
+# echo "Out: $bbOut"
+# echo "Mode: $bbMode"
+# echo "forced type: $bbType"
+# echo "inferred type: $bbInfType"
 # echo "THE Type: $bbType"
 
-#                                                                 PROCESS
-#                                                                 =======
-
-# if any of the passed arrays is assoc, resulting is too
-unset BING_MERGED
+#                                                                  PROCESS
+#=========================================================================
 [[ $bbType == a ]] && declare -Ag BING_MERGED=() || declare -ag BING_MERGED=()
 
+#--------------------------------------------- forced indexed
+# special case:
+# if type of resulting array is inferred
+# to be assoc, but indexed type is forced
+# then REINDEX and merge all arrays
+if [[ $bbInfType == "a" && $bbType == "i" ]]; then
+	local -n bbArrRef
+	for bbArrRef; do
+    BING_MERGED+=( "${bbArrRef[@]}" )
+	done
+	
+	if [[ "$bbOut" != BING_MERGED ]]; then
+    bb_array_clone BING_MERGED $bbOut
+    unset BING_MERGED
+  fi
 
-# ====================================================== 1
-### resulting array is always assoc
-# declare -Ag BING_MERGED=()
+	return 0
+fi
 
+#--------------------------------------------- 1st
 local bbA1Keys bbKey
 
 # take the 1st array as basearray
-local bbA1Name=$1
 local -n bbA1=$1
+
 # make additional array of its keys only
 bbA1Keys=( "${!bbA1[@]}" )
 
@@ -311,8 +333,7 @@ done
 # unset 1st array 
 shift
 
-# =================================================== Current
-
+#--------------------------------------------- Current
 # take next array
 local -n bbNext=$1
 bbKey=""
@@ -325,7 +346,7 @@ for bbKey in "${!bbNext[@]}"; do
   bbMatch=0
   # list keys of 1. array # a b
   for bb1Key in "${bbA1Keys[@]}"; do
-  	# if keys match
+  	# check if keys match
 		[[ $bbKey == $bb1Key ]] && ((++bbMatch))
   done
 
@@ -342,20 +363,23 @@ for bbKey in "${!bbNext[@]}"; do
 
 done
 
-# ====================================================== Rest
+#--------------------------------------------- Rest
 # unset current array
 shift
 
+# if more than 2 params, call this func again
+# with already merged and remaining arrays (params)
 (( $# > 0 )) && {
-  # call this func again with already merged and remaining arrays
-	bb_array_merge BING_MERGED $@ -o $bbOut -m $bbMode
+	bb_array_merge BING_MERGED "$@" -m $bbMode
 }
 
-# ====================================================== Out
-# typeof BING_MERGED
+#--------------------------------------------- Out
+typeof BING_MERGED
 
 # Rename final array
-bb_array_clone BING_MERGED $bbOut
+# if [[ $bbOut != BING_MERGED]]; then
+#   bb_array_clone BING_MERGED $bbOut
+# fi
 
 unset BING_MERGED
 
