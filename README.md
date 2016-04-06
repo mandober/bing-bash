@@ -40,8 +40,8 @@ Since array variables cannot be passed around in bash (nor can be exported), the
 across several individual functions, as subroutines)  
   
 * `bb_typeof`  
-  Identify given string as set or unset variable, array, shell keyword, etc.  
-  Dump variables (pretty print arrays) and their attributes.   
+  Identify given string as set or unset variable, array, shell keyword, etc.  Dump variables, pretty print arrays and their attributes.  
+  Started as a function mostly used to pretty dump array to the screen, became a function to type and qualify names passes to it. Still, when used with variable gives info about it such as its value and attributes. Variable are passed by name (without $ sign). With `-t` option, only the type, as a single word is returned. Types returned are: unset variable, variable, indexed array, associative array; also the types returned by `type` builin: alias, keyword, function, builtin or file.
   
 * `bb_explode`  
   Convert a string to array by splitting it by substring which can be a
@@ -52,19 +52,19 @@ across several individual functions, as subroutines)
 * `bb_implode`  
   Convert an array to string.  
 
-* `bb_array_clone`
+* `bb_array_clone`  
   Clone an array.  
   
 * `bb_range`  
-  Generate sequences (e.g. 1,4-8,10,12-22,30-35,50).  
+  Generate number sequences from ranges list (e.g. 1,4-8,10,12-22,30-35,50).  
   
-* `bb_strpos`
+* `bb_strpos`  
   Find the position of the first occurrence of a substring in a string.
 
-* `bb_pad`
+* `bb_pad`  
   Pad a string by appending char(s) after each character of the string. 
   
-* `bb_array_convert`
+* `bb_array_convert`  
   Convert indexed to associative array or vice versa.
   
   
@@ -159,19 +159,28 @@ array_convert
 ````
   
   
-#### Used in desciptions:  
+#### Definitions (used in desciptions):  
 ````
-<char>
-<string>
-<substring>
-<required>
-<optional>
-<option>            short (-o) or long option (--option)
-<argument>          
-<identifier>        A-Za-z_
+<char>        One or more characters, usually non-alnum
+<string>      Any sequence of characters
+<substring>   Sequence of characters that are part of some string
+<identifier>  Sequence of alnum chars and underscore [A-Za-z_]
+<name>        Portable sequence of characters
+<filename>    POSIX portable filename [A-Za-z0-9.-_] but hyphen not 1.char
+<pathname>    POSIX portable pathname [A-Za-z0-9.-_/]
+<alias>       POSIX portable alias    [A-Za-z0-9.-_/!%,@]
+
+<flag>        Option with 2 states: present/absent
+<option>      Short (-o) or long option (--option)
+<argument>    Argument to an option
+<required>    Required argument
+<optional>    Optional argument
+
 <var>
-<name>
+<scalar>
 <array>
+
 <space>
 <integer>
+<digit>
 ````
