@@ -2,56 +2,51 @@
   
 ## `bing-bash` - bash functions library  
   
-This library is composed using native bash's (4.3) abilities, without
-unnecessary forking or usage of external tools if possible or faster.
-Single process bash shell was in high regard as well as bash specific
-functionality, disregarding portability. All was made and tested with
-bash 4.3 and 4.4-beta.
+
+### About  
+Library of bash functions providing miscellaneous functionalities: dealing with strings and arrays, symbol table management, alternatives for usual shell utilities, etc.  
+   
   
-bing-bash is a collection of bash functions, meant to be sourced, but
-some of them can be directly executed as well.  All functions are (or
-going to be soon) standalone -  they won't need any other function or
-file in this library to work (possibly only some initialization files
-such as `bing-bash', merely as a convenience, not requirement).
+### Quick start  
+Just take and source the functions you need.  
+All functions are standalone, they don't depend on any other function or file from this library.  
+
+
+### Description
+The library is composed using native bash's (4.3) abilities, without unnecessary forking (when possible) or usage of external tools (if faster). 
   
+Single process bash shell was in high regard as well as bash's specific functionalities (bashisms). Made and tested with bash 4.3 (and 4.4-beta).
   
-## Quick start
-Configure and source `bing-bash' file to enable some sort of function
-management like functions autoloading or just source single files of
-interest.  
-  
-  
-## Using functions  
-* Files containing functions can be sourced individually (functions are not dependent on any other function from this library) and called as usual. Sourcing files that contain functions will, of course, leave these functions in the memory, but at least all these memory-occupying functions will be at their most ready state.
-* One level down in comparison to the above is to have functions marked for autoloading, although this is not a true function autoloading as in other shells; namely, when marked for autoloading, a stand-in eponymous function will be created (only a few lines long, as opposed to loading the whole function definition) that will source its true definition when first called.
-* The last, and most environment and memory friendly, way is to call functions through `bb` function dispatcher that will load called function, pass arguments to it and unload it when done. Also, this way you can tinker with the function's code while always having the latest revision of function sourced when called.  
+Functions are meant to be sourced, but some of them can be directly executed as well. All functions are standalone and they don't need any other function or file from this library, but as a convenience there are some function management capabilities available; see `bing-bash' file to enable some of them, like function autoloading and managing function's aliases.
   
   
-## Conventions  
-Parameters to function can be passed by name or value.  
-* Array variables are always passed by name (without $). 
-* Scalar variables can be passed by name (without $) or by value (with $, as usual).   
-As a convenience, instead of passing a scalar variable the usual way, possibly with quotations e.g. `bb_func "$var"` you can just type `bb_func var`. Of course, a value can aways be passed directly: `bb_func "abcd"` or `bb_func abcd`, in which case the unexpected can happen if there is already a variable named `abcd` (the price for less typing).  
-Since array variables cannot be passed around in bash (nor can be exported), they are always passed by name (trying to pass an array with `$array` will just pass its first element and passing an array as `${array[@]}` can work, but at the cost of having its indices/keys discarded). 
+### Usage
+* Files containing functions can be sourced individually and then functions can be called as usual. This way functions will, of course, stay resident, but at least this memory-occupying, environment-polluting way will keep the functions instantly available.
+* One level down in comparison to the above is to have functions marked for autoloading, but this is not a true autoloading as in other shells. Namely, when marked for autoloading, a stand-in, eponymous function will be created, only a few lines long (as opposed to sourcing the whole function's body) whose purpose is to source its complete definition when first called.
+* The last and most environment friendly way is to call functions through `bb` function dispatcher that will load called function, pass arguments to it and unload it when done. This way is also convenient during fiddling with function's body, as it always sources the current function's code.
   
   
-## List of functions/subroutines:  
-(some functions encompass functionality, that could be split
-across several individual functions, as subroutines)  
+### Conventions  
+A parameter to a function can be passed by name or by value.  
+* Array variables are always passed by name (without $).  
+* Scalar variables can be passed by name (without $) or by value (with $, as usual).  
+As a convenience, instead of passing a variable by value, possibly with quotations (e.g. `function "$var"`) you can just type `function var` to pass it by name. Naturally, a value can also be passed directly (`function "abcd"`), in which case there may be unexpected results if it happens that a variable by that name (variable called `abcd`) already exist. (Ah, the price for typing less).  
+Since array variables cannot be passed around in bash (nor can be exported), they are always passed by name only. Trying to pass an array with `$array` will just pass its first element and passing an array as `${array[@]}` could work, but at the cost of having its indices/keys discarded.  
   
+  
+## List of functions and their subroutines:  
+(Some functions encompass functionality, that maybe should've been split across several functions, as subroutines)  
+    
 * `bb_typeof`  
-  Identify given string as set or unset variable, array, shell keyword, etc.  Dump variables, pretty print arrays and their attributes.  
-  Started as a function mostly used to pretty dump array to the screen, became a function to type and qualify names passes to it. Still, when used with variable gives info about it such as its value and attributes. Variable are passed by name (without $ sign). With `-t` option, only the type, as a single word is returned. Types returned are: unset variable, variable, indexed array, associative array; also the types returned by `type` builin: alias, keyword, function, builtin or file.
+  Pretty dump arrays and their attributes is its main purpose.  
+  Type and qualify given string: identify it as set or unset variable, indexed or associative array, shell keyword, etc. With `-t` option, only the type, as a single word is returned: unset, variable, indexed, associative; also those returned by type builin: alias, keyword, function, builtin or file.  
   
 * `bb_explode`  
-  Convert a string to array by splitting it by substring which can be a
-  single or multi-character substring. 
-  Convert a string to array of individual characters.  
-  (in progress: guess the most probable delimiter)  
+  Convert a string to array by splitting it by substring which can be a single or multi-character substring. Also convert a string to array of individual characters.  
   
 * `bb_implode`  
   Convert an array to string.  
-
+  
 * `bb_array_clone`  
   Clone an array.  
   
@@ -60,23 +55,17 @@ across several individual functions, as subroutines)
   
 * `bb_strpos`  
   Find the position of the first occurrence of a substring in a string.
-
+  
 * `bb_pad`  
-  Pad a string by appending char(s) after each character of the string. 
+Pad a string by appending char(s) after each character of the string. 
   
 * `bb_array_convert`  
-  Convert indexed to associative array or vice versa.
+Convert indexed to associative array or vice versa.  
   
+* `in_array`  
+Checks if a value (variable or array) exists in an array
   
-  
-(everything below needs final touches:)  
-  
-### Arrays:  
-  
-`in_array`
-- Checks if a value (variable or array) exists in an array
-
-`bb_array_merge`
+* `bb_array_merge`  
 - Merge two arrays into third
 
 `bb_array_remove`
@@ -152,8 +141,9 @@ explode.bash
 implode.bash
 range.bash
 
-array_clone
-array_convert
+array_clone.bash
+array_convert.bash
+array_merge.bash
 
 /strings/pad.bash
 ````
