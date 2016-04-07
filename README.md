@@ -17,7 +17,7 @@ The library is composed using native bash's (4.3) abilities, without unnecessary
   
 Single process bash shell was in high regard as well as bash's specific functionalities (bashisms). Made and tested with bash 4.3 (and 4.4-beta).
   
-Functions are meant to be sourced, but some of them can be directly executed as well. All functions are standalone and they don't need any other function or file from this library, but as a convenience there are some function management capabilities available; see `bing-bash' file to enable some of them, like function autoloading and managing function's aliases.
+Functions are meant to be sourced, but some of them can be directly executed as well. All functions are standalone and they don't need any other function or file from this library, but as a convenience there are some function management capabilities available; see `bing-bash`, `load` and `bb` file to enable some of them, like function autoloading and managing function's aliases.
   
   
 ### Usage
@@ -30,11 +30,13 @@ Functions are meant to be sourced, but some of them can be directly executed as 
 A parameter to a function can be passed by name or by value.  
 * Array variables are always passed by name (without $).  
 * Scalar variables can be passed by name (without $) or by value (with $, as usual).  
+
 As a convenience, instead of passing a variable by value, possibly with quotations (e.g. `function "$var"`) you can just type `function var` to pass it by name. Naturally, a value can also be passed directly (`function "abcd"`), in which case there may be unexpected results if it happens that a variable by that name (variable called `abcd`) already exist. (Ah, the price for typing less).  
-Since array variables cannot be passed around in bash (nor can be exported), they are always passed by name only. Trying to pass an array with `$array` will just pass its first element and passing an array as `${array[@]}` could work, but at the cost of having its indices/keys discarded.  
+
+Since array variables cannot be passed around in bash (nor can be exported), they are always passed by name only. Trying to pass an array with `$array` will just pass its first element and passing an array as `${array[@]}` could work at the cost of having its indices/keys discarded; not to mention passing 2 or more arrays.  
   
   
-## List of functions and their subroutines:  
+### List of functions and their subroutines:  
 (Some functions encompass functionality, that maybe should've been split across several functions, as subroutines)  
     
 * `bb_typeof`  
@@ -42,19 +44,22 @@ Since array variables cannot be passed around in bash (nor can be exported), the
   Type and qualify given string: identify it as set or unset variable, indexed or associative array, shell keyword, etc. With `-t` option, only the type, as a single word is returned: unset, variable, indexed, associative; also those returned by type builin: alias, keyword, function, builtin or file.  
   
 * `bb_explode`  
-  Convert a string to array by splitting it by substring which can be a single or multi-character substring. Also convert a string to array of individual characters.  
+Convert a string to array by splitting it by substring which can be a single or multi-character substring. Also convert a string to array of individual characters.  
   
 * `bb_implode`  
-  Convert an array to string.  
+Convert an array to string.  
   
 * `bb_array_clone`  
-  Clone an array.  
+Clone an array.  
   
 * `bb_range`  
-  Generate number sequences from ranges list (e.g. 1,4-8,10,12-22,30-35,50).  
+Generate number sequences from ranges list (e.g. 1,4-8,10,12-22,30-35,50).  
+  
+* `bb_venn`  
+Venn diagrams related functions: find union, intersection, difference, complement.  
   
 * `bb_strpos`  
-  Find the position of the first occurrence of a substring in a string.
+Find the position of the first occurrence of a substring in a string.
   
 * `bb_pad`  
 Pad a string by appending char(s) after each character of the string. 
@@ -63,22 +68,39 @@ Pad a string by appending char(s) after each character of the string.
 Convert indexed to associative array or vice versa.  
   
 * `in_array`  
-Checks if a value (variable or array) exists in an array
+Checks if a value (variable or array) exists in an array.  
   
 * `bb_array_merge`  
-- Merge two arrays into third
-
-`bb_array_remove`
-- Remove array element(s)
-
-`bb_array_shift`
-- Shift the first value of the array off and return it
-
-`bb_array_sort`
-- Sort an array n different ways
-- Remove duplicated values from an array
+Merge two arrays into third.  
   
-`bb_array`
+* `bb_array_remove`  
+Remove array elements.  
+  
+* `bb_array_shift`  
+Shift the first value of the array off and return it.  
+  
+* `bb_array_sort`  
+Sort an array in different ways. Remove duplicated values from an array.  
+  
+* `bb_load`  
+Check and source functions. Mark functions for autoloading. Resolve function's full path.  
+  
+* `bb_trim`
+Trim leading, trailing and intermediate whitespace.  
+  
+* `bb_to`  
+Conversions: e.g. ascii to hex, octal, decimal, etc.  
+  
+* `bb_sql`
+Routines dealing with sqlite database.  
+  
+* `bb_is`  
+Subroutines for pattern matching.  
+  
+* `bb_get`  
+Subroutines Routines that collect information: variable attributes, variable/array length, etc.  
+  
+* `bb_array`
 - Quick dump of array
 - Identify array as indexed or associative
 - Identify indexed array as numeric
@@ -89,67 +111,13 @@ Checks if a value (variable or array) exists in an array
 - Re-index an indexed sparse array
 - Remove unset elements from array
 - Pack and squeeze an array
-  
-  
-### MISC (match patterns, identify, qualify) 
-  
-`bb_is`
-IS functions
-
-`bb_get`
-GET functions
-
-`bb_do`
-DO functions
-  
-`bb_venn`
-- Venn diagrams related functions: find union, intersection, difference,  
-  complement).
-
-`bb_trim`
-- Trim leading, trailing and intermediate whitespace.
-
-`bb_to`
-- Conversions: e.g. ascii to hex, octal, decimal...and similar
-
-`bb_load`
-- Check and source functions
-- Mark functions for autoloading
-- Resolve function's full path
-
-`bb_sql`
-- Routines dealing with sqlite database
-
-`bb_err`
-- Display error and debug messages
+- etc.
   
   
   
   
   
-  
-#### FILES LIST:  
-  
-````
-README.md
-bing-bash           configuration
-bing_aliases        bing-bash aliases
-bing_samples        sample data
-bb                  functions dispatcher
-typeof.bash
-explode.bash
-implode.bash
-range.bash
-
-array_clone.bash
-array_convert.bash
-array_merge.bash
-
-/strings/pad.bash
-````
-  
-  
-#### Definitions (used in desciptions):  
+### Definitions (used in desciptions):  
 ````
 <char>        One or more characters, usually non-alnum
 <string>      Any sequence of characters
