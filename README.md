@@ -13,11 +13,9 @@ All functions are standalone, they don't depend on any other function or file fr
 
 
 ### Description
-The library is composed using native bash's (4.3) abilities, without unnecessary forking (when possible) or usage of external tools (if faster). 
+The library is composed using native bash's (4.3) abilities, without unnecessary forking (when possible) or usage of external tools (if faster). Single process bash shell was in high regard as well as bash's specific functionalities (bashisms). Made and tested with bash 4.3 (and 4.4-beta).
   
-Single process bash shell was in high regard as well as bash's specific functionalities (bashisms). Made and tested with bash 4.3 (and 4.4-beta).
-  
-Functions are meant to be sourced, but some of them can be directly executed as well. All functions are standalone and they don't need any other function or file from this library, but as a convenience there are some function management capabilities available; see `bing-bash`, `load` and `bb` file to enable some of them, like function autoloading and managing function's aliases.
+Functions are meant to be sourced, though some of them could be executed as well. All functions are standalone and they don't need any other function or file from this library, but as a convenience there are some function management capabilities available; see `bing-bash`, `load` and `bb` file to enable some of them, like function autoloading and managing function's aliases.
   
   
 ### Usage
