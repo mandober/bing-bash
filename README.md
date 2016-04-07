@@ -45,98 +45,94 @@ Since array variables cannot be passed around in bash (nor can be exported), the
 Convert a string to array by splitting it by substring which can be a single or multi-character substring. Also convert a string to array of individual characters.  
   
 * `bb_implode`  
-Convert an array to string.  
+Convert an array to string. Specify wrapping and glue characters.  
   
 * `bb_array_clone`  
 Clone an array.  
-  
-* `bb_range`  
-Generate number sequences from ranges list (e.g. 1,4-8,10,12-22,30-35,50).  
-  
-* `bb_venn`  
-Venn diagrams related functions: find union, intersection, difference, complement.  
-  
-* `bb_strpos`  
-Find the position of the first occurrence of a substring in a string.
-  
-* `bb_pad`  
-Pad a string by appending char(s) after each character of the string. 
+
+* `bb_array_merge`  
+Merge two or more arrays of any type (indexed or associative). User can supply name for resulting array, force its type and specify merging mode (reindex, skip, overwrite, append).  
   
 * `bb_array_convert`  
 Convert indexed to associative array or vice versa.  
   
+* `bb_range`  
+Generate numeric sequences from list of ranges and individual integers (e.g. 1,4-8,10,15-20,25-30). Specify numbers base and divider, prefix, suffix characters.  
+  
+* `bb_venn`  
+Venn diagrams related functions: union, intersection, difference, complement.  
+  
+* `bb_strpos`  
+Find the position of the first occurrence of a substring in a string.  
+  
+* `bb_pad`  
+Pad a string by appending char(s) after each character of the string. 
+  
 * `in_array`  
 Checks if a value (variable or array) exists in an array.  
   
-* `bb_array_merge`  
-Merge two arrays into third.  
-  
 * `bb_array_remove`  
-Remove array elements.  
+Remove array elements, individually or in bulk.  
   
 * `bb_array_shift`  
 Shift the first value of the array off and return it.  
   
 * `bb_array_sort`  
-Sort an array in different ways. Remove duplicated values from an array.  
+Sort array different ways. Remove duplicated values from an array.  
   
 * `bb_load`  
-Check and source functions. Mark functions for autoloading. Resolve function's full path.  
+Source functions. Mark functions for autoloading. Resolve functions path.  
   
 * `bb_trim`
 Trim leading, trailing and intermediate whitespace.  
   
 * `bb_to`  
-Conversions: e.g. ascii to hex, octal, decimal, etc.  
+Conversions between hex, octal, decimal, ascii.  
   
-* `bb_sql`
+* `bb_sql`  
 Routines dealing with sqlite database.  
   
 * `bb_is`  
-Subroutines for pattern matching.  
+Pattern matching subroutines: qualify string as alphabetic, alpha-numeric, etc.; qualify name as valid identifier/filename/path; qualify variables as set/null/indexed/associative, etc.    
   
 * `bb_get`  
-Subroutines Routines that collect information: variable attributes, variable/array length, etc.  
+Collect information about variables, their attributes, arrays, variable's length and type, etc.  
   
 * `bb_array`
-- Quick dump of array
-- Identify array as indexed or associative
-- Identify indexed array as numeric
-- Return number of array elements
-- Return keys of an array
-- Return values of an array
-- Return empty keys of an array
-- Re-index an indexed sparse array
-- Remove unset elements from array
+- Array quick dump
+- Identify array as indexed, associative, numeric
+- Return keys, values, empty elements
+- Remove unset elements
+- Re-index a sparse array
 - Pack and squeeze an array
-- etc.
   
   
   
   
   
-### Definitions (used in desciptions):  
+### Definitions  
+(used in function's help section)  
 ````
 <char>        One or more characters, usually non-alnum
 <string>      Any sequence of characters
 <substring>   Sequence of characters that are part of some string
 <identifier>  Sequence of alnum chars and underscore [A-Za-z_]
 <name>        Portable sequence of characters
-<filename>    POSIX portable filename [A-Za-z0-9.-_] but hyphen not 1.char
-<pathname>    POSIX portable pathname [A-Za-z0-9.-_/]
-<alias>       POSIX portable alias    [A-Za-z0-9.-_/!%,@]
-
+<filename>    Portable filename [A-Za-z0-9.-_] but hyphen not 1.char
+<pathname>    Portable pathname [A-Za-z0-9.-_/]
+<alias>       Portable alias    [A-Za-z0-9.-_/!%,@]
 <flag>        Option with 2 states: present/absent
 <option>      Short (-o) or long option (--option)
 <argument>    Argument to an option
 <required>    Required argument
 <optional>    Optional argument
-
-<var>
-<scalar>
-<array>
-
+<var>         Variable.
+<scalar>      'Plain', non-array variable 
+<array>       Any array
+<indexed>     indexed array
+<assoc>       Associative array
 <space>
+<whitespace>  Space, tab, vertical tab, new line
 <integer>
 <digit>
 ````
