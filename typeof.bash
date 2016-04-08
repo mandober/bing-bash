@@ -4,14 +4,14 @@
 #: PATH: $BING_FUNC/typeof.bash
 #: TYPE: function
 #:   NS: shell:bash:mandober:bing-bash:function:bb_typeof
-#:  CAT: symbol table
+#:  CAT: variables
 #:
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 #: AUTHOR:
 #:      bing-bash by Ivan Ilic <ivanilic1975@gmail.com>
 #:      https://github.com/mandober/bing-bash
 #:      za Ǆ - Use freely at owns risk
-#:      7-Apr-2016 (last revision)
+#:      8-Apr-2016 (last revision)
 #:
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 #: NAME:
@@ -26,9 +26,10 @@
 #:      it. Still, when used with variable gives info about it such as
 #:      its value and attributes. Variable are passed by name (no $).
 #:      With -t option, only the type, as a single word is returned.
-#:      * Types returned are: unset variable, variable, indexed array,
-#:        associative array; also the types returned by `type` builin:
-#:        alias, keyword, function, builtin or file.
+#:
+#:      Types returned are: unset variable, variable, indexed array,
+#:      associative array; also the types returned by `type` builin:
+#:      alias, keyword, function, builtin or file.
 #:
 #: DEPENDENCIES:
 #:      none
@@ -60,7 +61,7 @@
 #: RETURN CODES:
 #:      0  great success
 #:      1  miserable failure
-#:      2  Parameter empty
+#:      2  Parameter error
 #=========================================================================
 bb_typeof() {
 #                                                                    ABOUT
@@ -72,7 +73,7 @@ bb_typeof() {
 #                                                                 PRECHECK
 #-------------------------------------------------------------------------
  if [[ $# -eq 0 ]]; then
-   printf "\e[2m%s: %s\e[0m\n" "$bbapp" "Parameter empty" >&2
+   printf "\e[2m%s: %s\e[0m\n" "$bbapp" "Parameter error" >&2
    printf "%s\n" "$usage" >&2
    return 2
  fi
@@ -82,15 +83,16 @@ bb_typeof() {
  [[ $1 =~ ^(-u|--usage)$ ]] && { printf "%s\n" "$usage"; return 0; }
  [[ $1 =~ ^(-v|--version)$ ]] && { printf "%s\n" "$bbnfo"; return 0; }
  [[ $1 =~ ^(-h|--help)$ ]] && {
-	printf "\e[7m%s\e[0m\n" "$bbnfo"
-	printf "\e[1m%s\e[0m\n" "$usage"
-	cat <<-EOFF
+  printf "\e[7m%s\e[0m\n" "$bbnfo"
+  printf "\e[1m%s\e[0m\n" "$usage"
+  cat <<-EOFF
 	Variable typing and dumping.
 	
 	DESCRIPTION:
-	  Pass identifier's NAME (without \$) to check its type and 
-	  dump its value and attributes. With -t option, only the 
-	  type, as a single word, is returned. Returned types are:
+	  Pass an identifier (without \$), name or word NAME to 
+	  check its type and dump its value and attributes. 
+	  With -t option, only the type, as a single word, is 
+	  returned. Returned types are:
 	   - 'unset' - for unset variables
 	   - 'associative' - for associative arrays
 	   - 'indexed' - for indexed arrays
@@ -120,12 +122,12 @@ bb_typeof() {
  trap "set +o noglob" RETURN ERR SIGHUP SIGINT SIGTERM
 
 
-#                                                                 PARAMS
-#                                                                 ======
+#                                                                   ASSIGN
+#=========================================================================
 local bbParamName
 local tonly=0
 
-while [[ "${1+def}" ]]; do
+while (( $# > 0 )); do
   case $1 in
     -t|--type) tonly=1;;
     *) bbParamName="$1";;
@@ -133,19 +135,18 @@ while [[ "${1+def}" ]]; do
   shift
 done
 
-### MAIN
-
-## TYPE BUILTIN
-# As a convenience, first check NAME with bash's `type -t' builtin. This will
-# type NAME as: alias, keyword, function, builtin, file. If `type' does return
-# something, print it and return.
-
+#                                                                     TYPE
+#=========================================================================
+# As a convenience, first check NAME with bash's `type -t` builtin.
+# This will type NAME as: alias, keyword, function, builtin, file.
+# If `type` does return something, print it and return.
 local bbDeclare
 bbDeclare="$(type -t "$bbParamName" 2>/dev/null)"
 [[ -n "$bbDeclare" ]] && { printf "%s\n" "$bbDeclare"; return 0; }
 
 
-## UNSET VAR
+#                                                                UNSET VAR
+#=========================================================================
 # In order to assume the NAME is a variable (whether set or not),
 # first check if NAME is a valid shell identifier. If `set -o nounset'
 # is not enabled, all non-set variables are in fact treated as undefined 
@@ -156,7 +157,7 @@ bbDeclare="$(type -t "$bbParamName" 2>/dev/null)"
 # assign `decalare -p NAME' to bbDeclare. 
 # If assignment is empty then NAME is unset (non-set) variable.
 if ! bbDeclare="$(declare -p "$bbParamName" 2>/dev/null)"; then
-  if [[ $tonly -eq 1 ]]; then
+  if (( tonly == 1 )); then
     printf "%s\n" "unset"
   else
     printf "%s is not set\n" "$bbParamName"
@@ -164,8 +165,8 @@ if ! bbDeclare="$(declare -p "$bbParamName" 2>/dev/null)"; then
   return 0
 fi
 
-
-## SET VAR
+#                                                                  SET VAR
+#=========================================================================
 # At this point NAME is set (but might be null) variable or array. 
 # Anyway, it must be listed in symbols table as `declare xx NAME ...'
 # where xx are its attributes - get them from element1 after exploding
@@ -179,11 +180,12 @@ bbDeclare=( $bbDeclare )
 # c) other attributes (inxrt): integer, reference, export, 
 # read-only, trace
 
-case ${bbDeclare[1]} in
-#	=========================== INDEXED ARRAY =============================
 
+case ${bbDeclare[1]} in
+#                                                            INDEXED ARRAY
+#=========================================================================
  *a*)
-  [[ $tonly -eq 1 ]] && { printf "%s\n" "indexed"; return 0; }
+  (( tonly == 1 )) && { printf "%s\n" "indexed"; return 0; }
 
   local bbKey bbCurr
   local -n bbArrayRef="$bbParamName"
@@ -211,72 +213,67 @@ case ${bbDeclare[1]} in
   done
  ;;&
 
-
-#	========================= ASSOCIATIVE ARRAY ===========================
-
+#                                                        ASSOCIATIVE ARRAY
+#=========================================================================
  *A*)
-	[[ $tonly -eq 1 ]] && { printf "%s\n" "associative"; return 0; }
+  (( tonly == 1 )) && { printf "%s\n" "associative"; return 0; }
 
-	local -n bbArrayRef="$bbParamName"
-	local -i bbNum=1
-	local bbKey bbCurr bbMax=0 bbCurrKey bbMaxK=0
+  local -n bbArrayRef="$bbParamName"
+  local -i bbNum=1
+  local bbKey bbCurr bbMax=0 bbCurrKey bbMaxK=0
 
-	# max (in chars) value and kay
-	for bbKey in "${!bbArrayRef[@]}"; do
-		bbCurr=${#bbArrayRef[$bbKey]}
-		bbMax=$(( bbCurr > bbMax ? bbCurr : bbMax ))
-		bbCurrKey=${#bbKey}
-		bbMaxK=$(( bbCurrKey > bbMaxK ? bbCurrKey : bbMaxK ))
-	done
-	(( bbMaxK += 2 ))
+  # max (in chars) value and kay
+  for bbKey in "${!bbArrayRef[@]}"; do
+    bbCurr=${#bbArrayRef[$bbKey]}
+    bbMax=$(( bbCurr > bbMax ? bbCurr : bbMax ))
+    bbCurrKey=${#bbKey}
+    bbMaxK=$(( bbCurrKey > bbMaxK ? bbCurrKey : bbMaxK ))
+  done
+  (( bbMaxK += 2 ))
 
-	printf "Name: %s\n" "$bbParamName"
-	printf "Type: associative array %s\n" "[${#bbArrayRef[@]}]"
+  printf "Name: %s\n" "$bbParamName"
+  printf "Type: associative array %s\n" "[${#bbArrayRef[@]}]"
 
-	# title
-	printf "\e[2m%s. %*s %-*s %5s\e[0m\n" \
-	  " no" $bbMaxK "key " $bbMax "value" "len"
-	
-	# value
-	local bbK
-	for bbK in "${!bbArrayRef[@]}"; do
-	  printf "\e[2m%2d.\e[0m %*s: %-*s \e[2m%5s\e[0m\n" \
-	  "${bbNum}" $bbMaxK "[$bbK]" $bbMax "${bbArrayRef[$bbK]}" "${#bbArrayRef[$bbK]}"
-	  (( ++bbNum ))
-	done
+  # title
+  printf "\e[2m%s. %*s %-*s %5s\e[0m\n" \
+    " no" $bbMaxK "key " $bbMax "value" "len"
+
+  # value
+  local bbK
+  for bbK in "${!bbArrayRef[@]}"; do
+    printf "\e[2m%2d.\e[0m %*s: %-*s \e[2m%5s\e[0m\n" \
+    "${bbNum}" $bbMaxK "[$bbK]" $bbMax "${bbArrayRef[$bbK]}" "${#bbArrayRef[$bbK]}"
+    (( ++bbNum ))
+  done
 
  ;;&
 
-
-#	================================= VAR =================================
-
+#                                                              SCALAR VARS
+#=========================================================================
  -[-linuxcrt]*)
-		[[ $tonly -eq 1 ]] && { printf "%s\n" "variable"; return 0; }
+    (( tonly == 1 )) && { printf "%s\n" "variable"; return 0; }
 
-		local bbValue="${!bbParamName}"
-		printf " Name: %s\n" "$bbParamName"
-		printf " Type: variable\n"
-		printf "Value: %s \e[2m[%s]\e[0m\n" "$bbValue" "${#bbValue}"
+    local bbValue="${!bbParamName}"
+    printf " Name: %s\n" "$bbParamName"
+    printf " Type: variable\n"
+    printf "Value: %s \e[2m[%s]\e[0m\n" "$bbValue" "${#bbValue}"
  ;;&
 
-
-#	============================= ATTRIBUTES ==============================
-
- *[linuxcrt]*) printf "Attributes: "  ;;&
-          *i*) printf "integer "      ;;&
-          *r*) printf "readonly "     ;;&
-          *x*) printf "export "       ;;&
-          *l*) printf "lowercasing "  ;;&
-          *c*) printf "capitalizing " ;;&
-          *u*) printf "uppercasing "  ;;&
-          *n*) printf "reference "    ;;&
-          *t*) printf "trace "        ;;&
- *[linuxcrt]*) printf "\n";;
+#                                                               ATTRIBUTES
+#=========================================================================
+  *[linuxcrt]*) printf "Attributes: ";;&
+  *i*) printf "integer "      ;;&
+  *r*) printf "readonly "     ;;&
+  *x*) printf "export "       ;;&
+  *l*) printf "lowercasing "  ;;&
+  *c*) printf "capitalizing " ;;&
+  *u*) printf "uppercasing "  ;;&
+  *n*) printf "reference "    ;;&
+  *t*) printf "trace "        ;;&
+  *[linuxcrt]*) printf "\n";;
 
 esac
 printf "\n"
-
 return 0
-
 }
 # $BING_FUNC/typeof.bash
