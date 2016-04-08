@@ -35,11 +35,11 @@ Since array variables cannot be passed around in bash (nor can be exported), the
   
   
 ### List of functions and their subroutines:  
-(Some functions encompass functionality, that maybe should've been split across several functions, as subroutines)  
+(Some functions encompass functionalities, that might've been split across several functions, as subroutines)  
     
 * `bb_typeof`  
-  Pretty dump arrays and their attributes is its main purpose.  
-  Type and qualify given string: identify it as set or unset variable, indexed or associative array, shell keyword, etc. With `-t` option, only the type, as a single word is returned: unset, variable, indexed, associative; also those returned by type builin: alias, keyword, function, builtin or file.  
+Pretty dump arrays and their attributes is its main purpose.  
+Type and qualify given string: identify it as set or unset variable, indexed or associative array, shell keyword, etc. With `-t` option, only the type, as a single word is returned: unset, variable, indexed, associative; also those returned by type builin: alias, keyword, function, builtin or file.  
   
 * `bb_explode`  
 Convert a string to array by splitting it by substring which can be a single or multi-character substring. Also convert a string to array of individual characters.  
@@ -51,11 +51,23 @@ Convert an array to string. Specify wrapping and glue characters.
 Clone an array.  
 
 * `bb_array_merge`  
-Merge two or more arrays of any type (indexed or associative). User can supply name for resulting array, force its type and specify merging mode (reindex, skip, overwrite, append).  
+Merge two or more arrays of any type (indexed and/or associative). User can force the type of resulting array and specify merging mode (reindex, skip, overwrite, append).  
   
 * `bb_array_convert`  
 Convert indexed to associative array or vice versa.  
   
+* `bb_array_remove`  
+Remove array elements. Remove element with specified index/key from an array. Remove several elements by specifying them as comma-separated list of integers and/or ranges. Optionally, if name for the resulting array is specified, the original array will be left intact.  
+  
+* `in_array`  
+Checks if a value (variable or array) exists in an array.  
+  
+* `bb_array_shift`  
+Shift the first value of the array off and return it.  
+  
+* `bb_array_sort`  
+Sort array different ways. Remove duplicated values from an array (make unique).  
+    
 * `bb_range`  
 Generate numeric sequences from list of ranges and individual integers (e.g. 1,4-8,10,15-20,25-30). Specify numbers base and divider, prefix, suffix characters.  
   
@@ -67,19 +79,7 @@ Find the position of the first occurrence of a substring in a string.
   
 * `bb_pad`  
 Pad a string by appending char(s) after each character of the string. 
-  
-* `in_array`  
-Checks if a value (variable or array) exists in an array.  
-  
-* `bb_array_remove`  
-Remove array elements, individually or in bulk.  
-  
-* `bb_array_shift`  
-Shift the first value of the array off and return it.  
-  
-* `bb_array_sort`  
-Sort array different ways. Remove duplicated values from an array.  
-  
+
 * `bb_load`  
 Source functions. Mark functions for autoloading. Resolve functions path.  
   
@@ -98,7 +98,7 @@ Pattern matching subroutines: qualify string as alphabetic, alpha-numeric, etc.;
 * `bb_get`  
 Collect information about variables, their attributes, arrays, variable's length and type, etc.  
   
-* `bb_array`
+* `bb_array`  
 Array quick dump.  
 Identify array as indexed, associative, numeric.  
 Return keys, values, empty elements.  
