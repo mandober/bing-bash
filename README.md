@@ -31,7 +31,7 @@ A parameter to a function can be passed by name or by value.
 
 As a convenience, instead of passing a variable by value, possibly with quotations (e.g. `function "$var"`) you can just type `function var` to pass it by name. Naturally, a value can also be passed directly (`function "abcd"`), in which case there may be unexpected results if it happens that a variable by that name (variable called `abcd`) already exist. (Ah, the price for typing less).  
 
-Since array variables cannot be passed around in bash (nor can be exported), they are always passed by name only. Trying to pass an array with `$array` will just pass its first element and passing an array as `${array[@]}` could work at the cost of having its indices/keys discarded; not to mention passing 2 or more arrays.  
+Since arrays cannot be passed around in bash (nor exported), they are always passed by name (without $). Trying to pass an array with `$array` will only pass its zeroth element (if any) and passing an array as `${array[@]}` could work at the cost of having its indices/keys discarded and causing a lot of overhead, especially when 2 or more arrays need to be passed around.  
   
   
 ### List of functions and their subroutines:  
