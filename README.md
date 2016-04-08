@@ -83,7 +83,7 @@ Sort array different ways. Remove duplicated values from an array.
 * `bb_load`  
 Source functions. Mark functions for autoloading. Resolve functions path.  
   
-* `bb_trim`
+* `bb_trim`  
 Trim leading, trailing and intermediate whitespace.  
   
 * `bb_to`  
@@ -93,18 +93,18 @@ Conversions between hex, octal, decimal, ascii.
 Routines dealing with sqlite database.  
   
 * `bb_is`  
-Pattern matching subroutines: qualify string as alphabetic, alpha-numeric, etc.; qualify name as valid identifier/filename/path; qualify variables as set/null/indexed/associative, etc.    
+Pattern matching subroutines: qualify string as alphabetic, alpha-numeric, etc.; qualify name as valid identifier, filename, path; qualify variables as set, null, indexed, associative, etc.    
   
 * `bb_get`  
 Collect information about variables, their attributes, arrays, variable's length and type, etc.  
   
 * `bb_array`
-- Array quick dump
-- Identify array as indexed, associative, numeric
-- Return keys, values, empty elements
-- Remove unset elements
-- Re-index a sparse array
-- Pack and squeeze an array
+Array quick dump.  
+Identify array as indexed, associative, numeric.  
+Return keys, values, empty elements.  
+Remove unset elements.  
+Re-index a sparse array.  
+Pack and squeeze an array.  
   
   
   
