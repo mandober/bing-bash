@@ -236,11 +236,11 @@ fi
 bbTNT="${bbTNT:-default}"
 
 
-local
-echo
-echo "String: $bbString"
-echo "TNT: $bbTNT"
-echo "ArrayName: $bbOut"
+# local
+# echo
+# echo "String: $bbString"
+# echo "TNT: $bbTNT"
+# echo "ArrayName: $bbOut"
 
 
 #                                                        DEFAULT DELIMITER
