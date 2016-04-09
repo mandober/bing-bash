@@ -11,7 +11,7 @@
 #:      bing-bash by Ivan Ilic <ivanilic1975@gmail.com>
 #:      https://github.com/mandober/bing-bash
 #:      za Ǆ - Use freely at owns risk
-#:      2-Apr-2016 (last revision)
+#:      8-Apr-2016 (last revision)
 #:
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 #: NAME: 
@@ -24,12 +24,7 @@
 #:      Pass array's name, ARRAY, to clone it as array named NAME,
 #:      which must be a valid identifier. If NAME is not given, it 
 #:      defaults to BING_CLONED. Array is cloned without additional
-#:      attributes (if any) but indices/keys are preserved. An
-#:      indexed array has -a attribute and associative array has -A
-#:      attribute; these attributes are of course preserved, but
-#:      an array can have other attributes. For example -i which would
-#:      make its values integers, or -l which would make its values
-#:      lowercasing. These additional attributes are not preserved.
+#:      attributes (if any) preserved.
 #:
 #: DEPENDENCIES:
 #:      none
@@ -113,23 +108,6 @@ bb_array_clone() {
  trap "set +o noglob" RETURN ERR SIGHUP SIGINT SIGTERM
 
 
-#                                                                  PROCESS
-#=========================================================================
-# bbDeclare contains array's definition, for example:
-#   declare -ar BASH_VERSINFO='([0]="4" [1]="3" [2]="42" [3]="4")'
-# Next, this statement is exploded, by space, into array bbFlag
-#   bbFlag=( $bbDeclare )    which will contain
-#   [0]="declare" [1]="-ar" [2]=BASH_VERSINFO=...
-# To identify the type of array, examine element 1.
-# If it is indexed (has `a' attribute ), a new global indexed
-# array is declared (and same for associative array).
-#   [[ "$bbFlag" =~ ^a[[:alpha:]]*$ ]] && bbPattern="declare -ag $bbNewArray="
-#   [[ "$bbFlag" =~ ^A[[:alpha:]]*$ ]] && bbPattern="declare -Ag $bbNewArray="
-# Finally, the original statement `bbDeclare' is searched for
-#   declare -xx BASH_VERSINFO=     and this part is replaced with
-#   declare -ag NAME=              then the statement is evaluated.
-
-
 #                                                                   PARAMS
 #=========================================================================
 local bbFlag bbDeclare bbNewArray bbPattern
@@ -159,8 +137,22 @@ if [[ "$bbNewArray" != "BING_CLONED" ]]; then
   fi
 fi
 
-#                                                                    CLONE
+#                                                                  PROCESS
 #=========================================================================
+# bbDeclare contains array's definition, for example:
+#   declare -ar BASH_VERSINFO='([0]="4" [1]="3" [2]="42" [3]="4")'
+# Next, this statement is exploded, by space, into array bbFlag
+#   bbFlag=( $bbDeclare )    which will contain
+#   [0]="declare" [1]="-ar" [2]=BASH_VERSINFO=...
+# To identify the type of array, examine element 1.
+# If it is indexed (has `a' attribute ), a new global indexed
+# array is declared (and same for associative array).
+#   [[ "$bbFlag" =~ ^a[[:alpha:]]*$ ]] && bbPattern="declare -ag $bbNewArray="
+#   [[ "$bbFlag" =~ ^A[[:alpha:]]*$ ]] && bbPattern="declare -Ag $bbNewArray="
+# Finally, the original statement `bbDeclare' is searched for
+#   declare -xx BASH_VERSINFO=     and this part is replaced with
+#   declare -ag NAME=              then the statement is evaluated.
+
 # type of array
 [[ "${bbFlag[1]}" =~ ^-a ]] && bbPattern="declare -ag $bbNewArray="
 [[ "${bbFlag[1]}" =~ ^-A ]] && bbPattern="declare -Ag $bbNewArray="
