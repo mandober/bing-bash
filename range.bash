@@ -3,13 +3,15 @@
 #: FILE: range.bash
 #: PATH: $BING_FUNC/range.bash
 #: TYPE: function
-#:       shell:bash:mandober:bing-bash:function:bb_range
+#:   NS: shell:bash:mandober:bing-bash:function:bb_range
+#:  CAT: strings
+#:
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 #: AUTHOR:
 #:      bing-bash by Ivan Ilic <ivanilic1975@gmail.com>
 #:      https://github.com/mandober/bing-bash
 #:      za Ǆ - Use freely at owns risk
-#:      25-Mar-2016 (last revision)
+#:      9-Apr-2016 (last revision)
 #:
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 #: NAME: 
@@ -21,13 +23,14 @@
 #: DESCRIPTION:
 #:      Generate sequences from given ranges list. List can be
 #:      a single range (5-10) or a comma-separated list of ranges
-#:      (12-22,30-35). Ranges are inclusive. Single values (2,5)
+#:      (12-22,21-15). Ranges are inclusive. Single values (2,5)
 #:      will not generate anything, but they will be included in
 #:      the final sequence. Final sequence will be separated with
 #:      provided substring DIV or by <space> by default. If PRE
 #:      is given each number will be prefixed by it. If SUF is 
 #:      given each number will be suffixed by it. Base of the final
 #:      numbers is determined by BASE option which can be 8, 10 or 16.
+#:      If parameter is not supplied, random range is generated.
 #:
 #: DEPENDENCIES:
 #:      none
@@ -38,26 +41,25 @@
 #:
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 #: SYNOPSIS:
-#:      bb_range [-p PRE] [-s SUF] [-d DIV] [-b BASE] LIST
-#:      bb_range [-pPRE] [-sSUF] [-dDIV] [-bBASE] LIST
+#:      bb_range [-p PRE] [-s SUF] [-d DIV] [-b BASE] [-n STEP] LIST
 #:
 #: OPTIONS:
 #:
-#:     -p|--pre|--prefix <option> PRE <argument>
-#:      With -p option user can specify PRE char(s) that will be
-#:      used to prefix each resulting number.
+#:     -p|--pre|--prefix PRE
+#:      Specify prefix to each resulting number.
 #:
-#:     -s|--suf|--suffix <option> SUF <argument>
-#:      With -s option user can specify SUF char(s) that will be
-#:      used to suffix each resulting number.
+#:     -s|--suf|--suffix SUF
+#:      Specify suffix to each resulting number.
 #:
-#:     -d|--div|--diveder <option> DIV <argument>
-#:      With -d option user can specify DIV char(s) that will be
-#:      used to separate resulting numbers. 
+#:     -d|--div|--diveder DIV
+#:      Specify separator between resulting numbers.
 #:
-#:     -b|--base <option> BASE <argument>
-#:      With -b option user can specify base for the resulting numbers.
+#:     -b|--base BASE
+#:      Specify base for the resulting numbers.
 #:      The base can be 8 (octal), 10 (decimal) or 16 (hexadecimal).
+#:
+#:     -n|--step STEP
+#:      Specify a step between resulting numbers.
 #:
 #:      Argument to each option above can be specified in various ways:
 #:      - separated by space or equal sign from its option
@@ -85,28 +87,19 @@
 #:      4 - Not an integer
 #:      5 - Unsupported base
 #========================================================================
-
 bb_range() {
-#                                                                   ABOUT
-#                                                                   =====
+
+#                                                                    ABOUT
+#-------------------------------------------------------------------------
  local bbapp="${FUNCNAME[0]}"
  local bbnfo="[bing-bash] $bbapp v.0.12"
- local usage="USAGE: $bbapp [-p PRE] [-s SUF] [-d DIV] [-b BASE] LIST
-       $bbapp [-pPRE] [-sSUF] [-dDIV] [-bBASE] LIST"
+ local usage="USAGE: $bbapp [-p PRE] [-s SUF] [-d DIV] [-b BASE] [-n STEP] LIST"
 
-#                                                                PRECHECK
-#                                                                ========
-  if [[ $# -eq 0 ]]; then
-    printf "\e[2m%s: %s\e[0m\n" "$bbapp" "Parameter empty" >&2
-    printf "%s\n" "$usage" >&2
-    return 2
-  fi
-
-#                                                                    HELP
-#                                                                    ====
-  [[ $1 =~ ^(-u|--usage)$ ]] && { printf "%s\n" "$usage"; return 0; }
-  [[ $1 =~ ^(-v|--version)$ ]] && { printf "%s\n" "$bbnfo"; return 0; }
-  [[ $1 =~ ^(-h|--help)$ ]] && {
+#                                                                     HELP
+#-------------------------------------------------------------------------
+ [[ $1 =~ ^(-u|--usage)$ ]] && { printf "%s\n" "$usage"; return 0; }
+ [[ $1 =~ ^(-v|--version)$ ]] && { printf "%s\n" "$bbnfo"; return 0; }
+ [[ $1 =~ ^(-h|--help)$ ]] && {
   printf "\e[7m%s\e[0m\n" "$bbnfo"
   printf "\e[1m%s\e[0m\n" "$usage"
   cat <<-EOFF
@@ -116,13 +109,14 @@ bb_range() {
 	  Generates numeric sequence from given list. List comprises
 	  comma-separated ranges and/or integers (1,3-7,9-12,15).
 	  Ranges are inclusive. Final sequence will be separated with
-	  user supplied string DIV or with a <space> by default. 
-	  If PRE string is given each number will be prefixed by it.
-	  If SUF string is given each number will be suffixed by it. 
-	  Base of the numbers in generated sequence is determined by
-	  BASE argument, which can be 8, 10 or 16.
+	  user supplied argument to -d option (<space> by default). 
+	  Base of numbers in resulting sequence is determined by the
+	  BASE argument, which can be 8, 10 or 16. If no parameter
+	  supplied, random range is generated.
+
 	OPTIONS:
 	  -b, --base            Base of the resulting numbers.
+	  -n, --step            Step between resulting numbers.
 	  -p, --pre, --prefix   String by which to prefix each number.
 	  -s, --suf, --suffix   String by which to suffix each number.
 	  -d, --div, --divider  String by which to separate numbers.
@@ -131,105 +125,168 @@ bb_range() {
 	  -v, --version         Show program version.
 	EXAMPLE:
 	EOFF
-	  printf "  bb_range 1,3-5,9           \e[2m# outputs: 1,3,4,5,9\e[0m\n"
+	  printf "  bb_range 1,3-5,9-7   \e[2m# outputs: 1 3 4 5 9 8 7\e[0m\n"
 	  printf "  bb_range 161-163 -b16 -px  \e[2m# outputs: xA1 xA2 xA3\e[0m\n"
 	return 0
  }
 
-#                                                                     SET
-#                                                                     ===
+#                                                                      SET
+#-------------------------------------------------------------------------
  shopt -s extglob extquote; shopt -u nocasematch; set -o noglob
  trap "set +o noglob" RETURN ERR SIGHUP SIGINT SIGTERM
 
-#                                                                  PARAMS
-#                                                                  ======
-local bbDiv bbPrefix bbSuffix bbBase bbRange 
 
-# assign params
-while [[ "${1+def}" ]]; do
+#                                                                   ASSIGN
+#=========================================================================
+local bbRange    # input range
+local bbPre      # prefix to each number in result
+local bbSuf      # suffix to each number in result
+local bbDiv      # separator char between resulting sequence
+local bbBase     # base of resulting numbers (8|10|16)
+local bbStep     # step between numbers
+
+while (( $# > 0 )); do
   case $1 in
-      -d=*|--div=*|--divider=*) bbDiv="${1#*=}";;
-            -d|--div|--divider) bbDiv="${2?}"; shift;;
-                           -d*) bbDiv="${1#??}";;
+    -d=*|--div=*|--divider=*) bbDiv="${1#*=}";;
+          -d|--div|--divider) bbDiv="${2?}"; shift;;
+                         -d*) bbDiv="${1#??}";;
 
-       -p=*|--pre=*|--prefix=*) bbPrefix="${1#*=}";;
-             -p|--pre|--prefix) bbPrefix="${2?}"; shift;;
-                           -p*) bbPrefix="${1#??}";;
+     -p=*|--pre=*|--prefix=*) bbPre="${1#*=}";;
+           -p|--pre|--prefix) bbPre="${2?}"; shift;;
+                         -p*) bbPre="${1#??}";;
 
-       -s=*|--suf=*|--suffix=*) bbSuffix="${1#*=}";;
-             -s|--suf|--suffix) bbSuffix="${2?}"; shift;;
-                           -s*) bbSuffix="${1#??}";;
+     -s=*|--suf=*|--suffix=*) bbSuf="${1#*=}";;
+           -s|--suf|--suffix) bbSuf="${2?}"; shift;;
+                         -s*) bbSuf="${1#??}";;
 
-                 -b=*|--base=*) bbBase="${1#*=}";;
-                     -b|--base) bbBase="${2?}"; shift;;
-                           -b*) bbBase="${1#??}";;
-    *)
-      # passed by value
-      bbRange="$1"
-      # passed by name
-      [[ ! "$bbRange" =~ [[:digit:]]+[,-]? ]] && bbRange="${!1}"
-      [[ ! "$bbRange" =~ [[:digit:]]+[,-]? ]] && return 3
-    ;;
+               -b=*|--base=*) bbBase="${1#*=}";;
+                   -b|--base) bbBase="${2?}"; shift;;
+                         -b*) bbBase="${1#??}";;
+
+               -n=*|--step=*) bbStep="${1#*=}";;
+                   -n|--step) bbStep="${2?}"; shift;;
+                         -n*) bbStep="${1#??}";;
+
+   --) shift; bbRange="$1"; set --;;
+    *) bbRange="$1";;
   esac
 shift
 done
 
-# defaults
+
+#                                                                   CHECKS
+#=========================================================================
+
+#                                        RANGE
+#----------------------------------------------
+if [[ -z "$bbRange" ]]; then
+  local bbG=$RANDOM
+  bbRange="${bbG: -4:1}-${bbG: -1:1},${bbG: -2:1}-${bbG: -3:1}"
+else
+  # passed by name?
+  [[ ! "$bbRange" =~ ^[[:digit:]] ]] && bbRange="${!bbRange}"
+fi
+
+# check if valid range
+[[ ! "$bbRange" =~ ^[[:digit:],-]+$ ]] && return 3
+
+# check if single range
+# [[ ! "$bbRange" =~ ^[[:digit:]]+-[[:digit:]]+$ ]] && return 3
+
+#                                       DIVIDER
+#----------------------------------------------
 bbDiv="${bbDiv:- }"
+
+#                                          BASE
+#----------------------------------------------
 bbBase="${bbBase:-10}"
 if ((bbBase !=8)) && ((bbBase !=10)) && ((bbBase !=16)); then return 5; fi
 
+#                                          STEP
+#----------------------------------------------
+bbStep="${bbStep:-1}"
+[[ ! "$bbStep" =~ ^[[:digit:]]+$ ]] && return 3
+
+
+# local
+# return
 # echo "bbDiv: $bbDiv"
-# echo "bbPrefix: $bbPrefix"
-# echo "bbSuffix: $bbSuffix"
+# printf "Prefix: %q\n" "$bbPre"
+# printf "Suffix:: %q\n" "$bbSuf:"
 # echo "bbBase: $bbBase"
 # echo "bbRange: $bbRange"
 
-#                                                                 PROCESS
-#                                                                 =======
+#                                                                  PROCESS
+#=========================================================================
 local bbMIN bbMAX bbArray bbNum
-local bbSequence=""
+local bbSq=""
 
-# explode list (1,5-8,100-110) by comma
+# explode list (1,5-8,10-15) by comma
 IFS=, read -a bbArray <<< "$bbRange"
 
 for bbNum in "${bbArray[@]}"; do
-  # if element is a range (100-110)
-  if [[ "$bbNum" =~ [[:digit:]]+-[[:digit:]]+ ]]; then
+  # if element is a range (10-15)
+  if [[ "$bbNum" =~ ^[[:digit:]]+-[[:digit:]]+$ ]]; then
+
+#                                                          RANGE
+# --------------------------------------------------------------
+
+    bbMIN="${bbNum%-*}" # 10
+    bbMAX="${bbNum#*-}" # 15
     
-    bbMIN="${bbNum%-*}" # 100
-    bbMAX="${bbNum#*-}" # 110
-    
-    # GENERATE SEQUENCE
-    while [[ $bbMIN -le $bbMAX ]]; do
+   if ((bbMIN < bbMAX)); then
+
+#                               LOW-HI SEQUENCE
+#----------------------------------------------
+    while ((bbMIN <= bbMAX)); do
       if ((bbBase == 16)); then
-        bbSequence+="${bbPrefix}$(printf "%X" $bbMIN)${bbSuffix}${bbDiv}" # hex
+        bbSq+="${bbPre}$(printf "%X" $bbMIN)${bbSuf}${bbDiv}" # hex
       elif ((bbBase == 8)); then
-        bbSequence+="${bbPrefix}$(printf "%o" $bbMIN)${bbSuffix}${bbDiv}" # oct
+        bbSq+="${bbPre}$(printf "%o" $bbMIN)${bbSuf}${bbDiv}" # oct
       else
-        bbSequence+="${bbPrefix}${bbMIN}${bbSuffix}${bbDiv}" # dec
+        bbSq+="${bbPre}${bbMIN}${bbSuf}${bbDiv}" # dec
       fi
-      (( bbMIN++ ))
+      ((bbMIN += bbStep))
     done
 
-  # if element is a single number...
+
+   else # ¯\_(ツ)_/¯
+
+#                               HI-LOW SEQUENCE
+#----------------------------------------------
+    while ((bbMIN >= bbMAX)); do
+      if ((bbBase == 16)); then
+        bbSq+="${bbPre}$(printf "%X" $bbMIN)${bbSuf}${bbDiv}" # hex
+      elif ((bbBase == 8)); then
+        bbSq+="${bbPre}$(printf "%o" $bbMIN)${bbSuf}${bbDiv}" # oct
+      else
+        bbSq+="${bbPre}${bbMIN}${bbSuf}${bbDiv}" # dec
+      fi
+      ((bbMIN -= bbStep))
+    done
+   fi # end min < max
+
+#                                                  SINGLE NUMBER
+# --------------------------------------------------------------
   else
     [[ ! "$bbNum" =~ ^[[:digit:]]+$ ]] && return 4
     # ...just add it to the sequence
-      if ((bbBase == 16)); then
-      bbSequence+="${bbPrefix}$(printf "%X" $bbNum)${bbSuffix}${bbDiv}" # hex
-      elif ((bbBase == 8)); then
-        bbSequence+="${bbPrefix}$(printf "%o" $bbNum)${bbSuffix}${bbDiv}" # oct
+    if ((bbBase == 16)); then
+      bbSq+="${bbPre}$(printf "%X" $bbNum)${bbSuf}${bbDiv}" # hex
+    elif ((bbBase == 8)); then
+      bbSq+="${bbPre}$(printf "%o" $bbNum)${bbSuf}${bbDiv}" # oct
     else
-      bbSequence+="${bbPrefix}${bbNum}${bbSuffix}${bbDiv}" # dec
+      bbSq+="${bbPre}${bbNum}${bbSuf}${bbDiv}" # dec
     fi
-
   fi
 done
 
-# output result
-printf "%s\n" "${bbSequence%$bbDiv}"
-printf "%b\n" "${bbSequence%$bbDiv}"
+bbSq="${bbSq%$bbDiv}"
+
+#                                                                   OUTPUT
+#=========================================================================
+printf "%s" "$bbSq"
+# printf "%b" "$bbSq"
 return 0
 
 }
