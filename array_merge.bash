@@ -18,7 +18,7 @@
 #:      bb_array_merge
 #:
 #: BRIEF:
-#:      Merge arrays.
+#:      Merge two or more arrays.
 #:
 #: DESCRIPTION:
 #:      Merges the elements of two or more arrays into resulting array.
@@ -37,7 +37,7 @@
 #:      --mode=a (-ma) appends new to the previous value
 #:      
 #: DEPENDENCIES:
-#:      bb_array_clone
+#:      none
 #:
 #: EXAMPLE:
 #:      bb_array_merge array1 array2 array3 -o=merged -m=o
@@ -205,9 +205,11 @@ while (( $# > 0 )); do
        -t|--type) bbType="${2?}"; shift;;
              -t*) bbType="${1#??}";;
 
+   --) shift; bbArrays+="$@"; set --;;
+
     *) bbArrays+="$1 ";;
   esac
-shift
+  shift
 done
 
 # positionals: remove all then restore just params so that
@@ -244,8 +246,8 @@ for bbArray; do
   fi
 done
 
-#                                                                     TYPE
-#=========================================================================
+#                                                              TYPE
+#------------------------------------------------------------------
 # Inferred type of resulting array can be overridden, by passing
 # `-t' option with `a' or `i' argument (a=associative, i=indexed)
 # `-ti' or `-t=i' means force indexed array as resulting array and
@@ -258,8 +260,8 @@ else
   bbType="$bbInfType"
 fi
 
-#                                                                     MODE
-#=========================================================================
+#                                                              MODE
+#------------------------------------------------------------------
 if [[ -n "$bbMode" ]]; then
   # in case argument is not a single letter,
   # reduce it to the first letter (append => a)
@@ -271,8 +273,8 @@ else
   bbMode="s"
 fi
 
-#                                                                      OUT
-#=========================================================================
+#                                                               OUT
+#------------------------------------------------------------------
 # Resulting array name, if supplied check validity
 # If not supplied, OUT defaults to BING_MERGED
 if [[ -n "$bbOut" ]]; then
@@ -283,18 +285,6 @@ if [[ -n "$bbOut" ]]; then
 else
   bbOut=BING_MERGED
 fi
-
-
-
-# DEBUG
-# local
-# echo "Arrays: $@"
-# echo "Out: $bbOut"
-# echo "Mode: $bbMode"
-# echo "forced type: $bbType"
-# echo "inferred type: $bbInfType"
-# echo "THE Type: $bbType"
-
 
 #                                             SPECIAL CASE: FORCED INDEXED
 #=========================================================================
@@ -379,19 +369,6 @@ while (( $# > 0 )); do
 
 done
 
-
-
-#                                                             OTHER ARRAYS
-#=========================================================================
-# Third step (optional):
-# if more than 2 params (arrays), call this func again
-# with already merged and remaining params (arrays)
-# if (( $# > 0 )); then
-#   echo "CMD: bb_array_merge BING_ARRAY $@ -m$bbMode -o$bbOut -t$bbType"
-#   bb_array_merge BING_ARRAY "$@" -m$bbMode -o$bbOut -t$bbType
-#   typeof BING_ARRAY
-# fi
-
 #                                                          RESULTING ARRAY
 #=========================================================================
 # Final step:
@@ -412,9 +389,5 @@ eval "${bbRename/#declare*BING_ARRAY=/$bbPattern}"
 unset BING_ARRAY
 
 return 0
-} # $BING_FUNC/array_merge.bash
 
-# cd $BING_FUNC
-# . array_merge.bash
-# bb_array_merge linux unix -oout
-# typeof out
+} # $BING_FUNC/array_merge.bash
