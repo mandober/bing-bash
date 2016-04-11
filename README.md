@@ -1,12 +1,10 @@
 # bing-bash  
   
-## `bing-bash` - bash functions library  
-  
-![bingbash](https://img.shields.io/badge/bing-bash-orange.svg?style=flat-square)   
+## ![bingbash](https://img.shields.io/badge/bing-bash-orange.svg?style=flat-square) Bash functions library
   
 
-* [[About|about]]
-* [[Quick start|quick-start]]
+* [About]<https://github.com/mandober/bing-bash#about>
+* [Quick start|]<#quick-start>
 * [[Description|description]]
 * [[Usage|usage]]
 * [[Conventions|conventions]]
