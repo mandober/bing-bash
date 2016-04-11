@@ -1,84 +1,93 @@
 #!/bin/bash bingmsg
-#==================================================================
-#: FILE: get
-#: PATH: $BING/func/get
+#=========================================================================
+#: FILE: get.bash
+#: PATH: $BING_FUNC/get.bash
 #: TYPE: function
+#:   NS: shell:bash:mandober:bing-bash:function:bb_get
+#:  CAT: variables
 #:
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 #: AUTHOR:
-#:      bing-bash by mandober <zgag@yahoo.com>
+#:      bing-bash by Ivan Ilic <ivanilic1975@gmail.com>
 #:      https://github.com/mandober/bing-bash
 #:      za Ǆ - Use freely at owns risk
-#:      8-Mar-2016 (last revision)
+#:      8-Apr-2016 (last revision)
 #:
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 #: NAME: 
 #:      bb_get
 #:
 #: BRIEF: 
-#:      Routines that get information.
+#:      Get information about variables.
 #:
 #: DESCRIPTION:
-#:      Routines for getting information about arguments. For example,
-#:      option `--attr' returns variable's attributes (-aAi...).
+#:      Routines that collect information: variable attributes, 
+#:      variable/array length, etc.
 #:
 #: DEPENDENCIES:
-#:      bb_err
+#:      
 #:
 #: EXAMPLE:
-#:      bb_get --attr VAR
+#:      $ declare -air arr=()
+#:      $ bb_get --attr arr
+#:      $ air
+#:      # which is a(rray indexed) i(nteger) r(eadonly)
 #:
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 #: SYNOPSIS:
-#:      bb_get --ATTR VAR
+#:      bb_get --ATTR NAME
 #:
 #: OPTIONS: 
-#:      Range of options:
+#:      --len  Returns variable's length or number of array elements
 #:      --attr  Returns variable's attributes
-#:
+#:      
 #: PARAMETERS:
-#:      <string> VAR - word, name, variable, array...
+#:      VAR <string>
+#:      scalar or array variable
 #:
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 #: RETURN:
+#:      
 #:
 #: STDOUT:
-#:      plenty
+#:      Help, usage, version (if explicitly requested).
 #:
 #: STDERR:
-#:      Error messages, usage
+#:      Error messages.
 #:
 #: RETURN CODE:
-#:		 0   true
-#:	 not 0   false
-#:		51   Positional parameter absent
-#:		52   Wrong number of positional parameters
-#:		53   Positional parameter empty
-#:	    ...  see err for error codes of specific procedures
-#==================================================================
+#:      0  great success
+#:      1  miserable failure
+#:      3  Variable is not set
+#=========================================================================
 
 bb_get() {
 
-### ABOUT
-local bbapp="${FUNCNAME[0]}"
-local bbnfo="[bing-bash] $bbapp v.0.13"
-local usage="USAGE: $bbapp --property VAR"
+#                                                                    ABOUT
+#-------------------------------------------------------------------------
+ local -r bbapp="${FUNCNAME[0]}"
+ local -r bbnfo="[bing-bash] $bbapp v.0.19"
+ local usage="USAGE: $bbapp --ATTR NAME"
 
-### DEPENDENCIES
-[[ -z "$(declare -F bb_err 2>/dev/null)" ]] && . $BING/func/err
+#                                                                 PRECHECK
+#-------------------------------------------------------------------------
+ if [[ $# -eq 0 ]]; then
+   printf "\e[2m%s: %s\e[0m\n" "$bbapp" "Parameter error" >&2
+   printf "%s\n" "$usage" >&2
+   return 2
+ fi
 
-### PRECHECK
-[[ $# -eq 0 ]] && { bb_err 51; printf "${usage}\n" 1>&2; return 51; }
-# [[ $# -gt 2 ]] && { bb_err 52; printf "${usage}\n" 1>&2; return 52; }
-
-### HELP
-[[ $1 =~ ^(-u|--usage)$ ]] && { printf "${usage}\n"; return 0; }
-[[ $1 =~ ^(-v|--version)$ ]] && { printf "${bbnfo}\n"; return 0; }
-[[ $1 =~ ^(--help)$ ]] && {
+#                                                                     HELP
+#-------------------------------------------------------------------------
+ [[ $1 =~ ^(-u|--usage)$ ]] && { printf "%s\n" "$usage"; return 0; }
+ [[ $1 =~ ^(-v|--version)$ ]] && { printf "%s\n" "$bbnfo"; return 0; }
+ [[ $1 =~ ^(-h|--help)$ ]] && {
+  printf "\e[7m%s\e[0m\n" "$bbnfo"
+  printf "\e[1m%s\e[0m\n" "$usage"
 	cat <<-EOFF
-	$bbnfo
-	  Routines that get information.
-	$usage
-	  PROPERTY is one of the following:
+	Subroutines that collect miscellaneous information.
+  
+	PROPERTY is one of the following:
 	    attr - Get variable's attributes.
 	    type - Qualify an array as indexed or associative.
 
@@ -88,53 +97,81 @@ local usage="USAGE: $bbapp --property VAR"
 	   -v, --version     Show program version.
 	EOFF
 	return 0
-}
+ }
 
-### SET
- shopt -s extglob 		# Enable extended regular expressions
- shopt -s extquote		# Enables $'' and $"" quoting
- shopt -u nocasematch 	# regexp case-sensitivity
- set -o noglob			# Disable globbing. Enable it upon return:
+#                                                                      SET
+#-------------------------------------------------------------------------
+ shopt -s extglob extquote; shopt -u nocasematch; set -o noglob
  trap "set +o noglob" RETURN ERR SIGHUP SIGINT SIGTERM
 
 
-### PARAMS
 
-##1 OPTION
-[[ -z "$1" ]] && { bb_err 53; return 53; }
-[[ ! "$1" =~ ^--[[:alpha:]][[:alnum:]-]+$ ]] && return 241
-local bbOpt="$1"
-shift
+#                                                                   PARAMS
+#=========================================================================
+case $1 in
+
+-l|--len|--length)
+  #
+  #  USAGE: 
+  #      bb_str --length TOKEN
+  #
+  #  DESCRIPTION: 
+  #      Output length of string or array.
+  #
+  shift
+  # usage="USAGE: $bbapp -l|--len|--length TOKEN"
+  # (($# > 1)) && { printf "%s\n" "$usage" >&2; return 9; }
+
+  local bbToken bbFlag
+
+  for bbToken; do
+    if ! bbFlag="$(declare -p "$bbToken" 2>/dev/null)"; then
+      # use value
+      printf "%d " "${#bbToken}"
+    else
+      # use var
+
+      bbToken="${!bbToken}"
+      printf "%d " "${#bbToken}"
+    fi
 
 
-### PROCESS
-case $bbOpt in
+    # passed by value
+    # bbString="$1"
+    # passed by name
+    # declare -p "$1" &>/dev/null && bbString="${!1}"
+    # printf "%s" "${#bbString}"
+  done
+  printf '\n'
+  return 0
+;;
 
- -a|--attr)
+-a|--attr)
   #
   #  USAGE: 
   #      bb_get --attr VAR
   #
   #  DESCRIPTION: 
-  #      Get VAR's attributes, one or combination of: -aAlinuxcrt
+  #      Get VAR's attributes [aAlinuxcrt]
   #
   #  EXAMPLE:
   #      bb_get --attr BASHPID  # returns `ir' (integer readonly)
   #
-  [[ ! "$1" =~ ^[[:alpha:]_][[:alnum:]_]*$ ]] && return 61
-  local bbFlag
-  if ! bbFlag=$(declare -p "$1" 2>/dev/null); then 
-    return 60
-  else
-    bbFlag=( $bbFlag )
-    bbFlag="${bbFlag[1]#?}"
-    printf "%s" "$bbFlag"
-    return 0
-  fi
- ;;
+  shift
+  local bbDeclare bbVar
+  for bbVar; do
+    if ! bbDeclare="$(declare -p "$1" 2>/dev/null)"; then
+      printf "\e[2m%s: %s\e[0m\n" "$bbapp" "Parameter $1 is not set" >&2
+      return 3
+    fi
+    bbDeclare=( $bbDeclare )
+    printf "%s\n" "${bbDeclare[1]#?}"
+  done
+  return 0
+;;
 
 
- -t|--type)
+-t|--type)
   #
   #  USAGE: 
   #      bb_get --type ARRAY
@@ -145,11 +182,12 @@ case $bbOpt in
   bbTemp="$(bb_get --attr "$1")"
   [[ "$bbTemp" =~ ^A[[:alpha:]]*$ ]] && { printf "associative" && return 0; }
   [[ "$bbTemp" =~ ^a[[:alpha:]]*$ ]] && { printf "indexed" && return 0; }
-  return 63
- ;;
+  [[ "$bbTemp" =~ ^a[[:alpha:]]*$ ]] && { printf "indexed" && return 0; }
+  return 1
+;;
 
 
- --md5)
+--md5)
   #
   #  USAGE: 
   #      bb_get --md5 FILE
@@ -158,14 +196,15 @@ case $bbOpt in
   #      Return md5 of the file.
   #
   bbFunc=$1  # e.g. bb_err
-  bbFuncFile="${BING_FUNC}/${bbFunc#bb_}.bash"  # $BING_FUNC/err.bash
+  bbFuncFile="${BING_FUNC}/${bbFunc#bb_}.bash"  # $BING_FUNC/err
   bbMD5="$(md5sum "$bbFuncFile")"
   bbMD5="${bbMD5:0:32}"
   printf "%s" "$bbMD5"
- ;;
+  return 0
+;;
 
 
- -p|--pos|--position)
+-p|--pos|--position)
   #
   #  USAGE: 
   #      bb_get --char N STRING
@@ -184,14 +223,10 @@ case $bbOpt in
 
   printf "%s" "${bbString:$bbChar:1}"
   return 0
- ;;
+;;
 
-
- *) return 195;;
-
+*) return 1;;
 
 esac
 
-
-return 195
-}
+} # $BING_FUNC/get.bash
