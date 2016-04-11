@@ -3,10 +3,10 @@
 ## ![bingbash](https://img.shields.io/badge/bing-bash-orange.svg?style=flat-square) Bash functions library
   
 
-* [About]<https://github.com/mandober/bing-bash#about>
-* [Quick start|]<#quick-start>
-* [[Description|description]]
-* [[Usage|usage]]
+* [About](https://github.com/mandober/bing-bash#about)
+* [Quick start|](#quick-start)
+* [[Description|#description]]
+* Usage [[usage|usage]]
 * [[Conventions|conventions]]
   - [[Naming conventions|naming-conventions]]
   - [[Positional parameters|positional-parameters]]
