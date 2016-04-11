@@ -3,8 +3,8 @@
 ## `bing-bash` - bash functions library  
   
 
-* [[About|about]]
-* [[Quick start|quick-start]]
+* About [[#about]]
+* Quick start [[quick-start]]
 * [[Description|description]]
 * [[Usage|usage]]
 * [[Conventions|conventions]]
