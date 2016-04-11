@@ -2,17 +2,19 @@
   
 ## `bing-bash` - bash functions library  
   
+![bingbash](https://img.shields.io/badge/bing-bash-orange.svg?style=flat-square)   
+  
 
-* About [[#about]]
-* Quick start [[quick-start]]
+* [[About|about]]
+* [[Quick start|quick-start]]
 * [[Description|description]]
 * [[Usage|usage]]
 * [[Conventions|conventions]]
-  - Naming conventions
-  - Positional parameters
-  - Short options
-  - Long Options
-  - Parameters (non-options)
+  - [[Naming conventions|naming-conventions]]
+  - [[Positional parameters|positional-parameters]]
+  - [[Short options|short-options]]
+  - [[Long options|long-options]]
+  - [[Parameters (non-options)|parameters-non-options]]
 * [[List of functions|list-of-functions]]
   
   
