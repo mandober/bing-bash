@@ -2,14 +2,26 @@
   
 ## `bing-bash` - bash functions library  
   
+
+* [[About|about]]
+* [[Quick start|quick-start]]
+* [[Description|description]]
+* [[Usage|usage]]
+* [[Conventions|conventions]]
+  - Naming conventions
+  - Positional parameters
+  - Short options
+  - Long Options
+  - Parameters (non-options)
+* [[List of functions|list-of-functions]]
+  
   
 ### About  
 Library of bash functions comprising routines for dealing with variables, arrays, strings, symbols table, etc.  
   
   
-### Quick start  
-Just take and source the functions you need.  
-All functions are standalone, they don't depend on any other function or file from this library.  
+### Quick Start
+Just take the functions you need and source them. All functions are standalone, they don't depend on any other function or file from this library (unless specifically noted). 
   
   
 ### Description
@@ -21,19 +33,29 @@ Functions are meant to be sourced, though some of them could be executed as well
 ### Usage
 * Files containing functions can be sourced individually and then functions can be called as usual. This way functions will, of course, stay resident, but at least this memory-occupying, environment-polluting way will keep the functions instantly available.
 * One level down in comparison to the above is to have functions marked for autoloading, but this is not a true autoloading as in other shells. Namely, when marked for autoloading, a stand-in, eponymous function will be created, only a few lines long (as opposed to sourcing the whole function's body) whose purpose is to source its complete definition when first called.
-* The last and most environment friendly way is to call functions through `bb` function dispatcher that will load called function, pass arguments to it and unload it when done. This way is also convenient during fiddling with function's body, as it always sources the current function's code.
+* The last and most environment friendly way is to call functions through `bb` function dispatcher that will load called function, pass arguments to it and unload it when done. This way is also convenient during fiddling with function's body, as it always sources the current function's code.  
   
   
-### Conventions  
+### Conventions
+  
+#### Naming Conventions
+Names of all functions are prefixed with `bb_` as an attempt to pseudo-namespace them so they won't collide with eponymous utilities, scripts or functions. On the other hand, files that define these functions are named without said prefix, but with `.bash` extension added (apart from only a few noted exceptions which have no extension). If you're sure no naming collisions exist on your system, you can, of course, make aliases (e.g. `alias typeof=bb_typeof`); some aliases are already provided in `bing_aliases` file. 
+  
+Names of variables local to functions all have `bb` prefix followed by capital letter (e.g. `bbParam`), so avoid passing similarly named parameters to minimize problems.
+  
+Names of environment variables used are all upper-cased and have `BING_` prefix (e.g. `BING_FUNC`).
+  
+#### Positional Parameters
 Positional parameters are divided into options and parameters (non-options).
 Options are further divided into: flags (options without arguments), options that have an optional argument and options that have required argument. Options are also divided into short (-o) and long options (--long-option).  
-
+  
 Parameters can be explicitly separated from options by using '--', as in:
 func -oARG --long-option ARG -- PARAMS in which case everything after '--' is treated as a parameter, even if it starts with a '-' or '--'.  
-
+  
 Order of options and parameters is not important, unless specifically noted or when using '--' to explicitly separate them. If the same option is repeated, the latter will overshadow the former. If non-existent option is supplied, it will be discarded.
   
-**Short options**
+
+#### Short Options
 A short option begins with a dash (-) followed by a single character.
 * If the option has NO ARGUMENTS it is called a simple option or a flag: -x
 * If the option has a REQUIRED argument it may be written:
@@ -42,8 +64,8 @@ A short option begins with a dash (-) followed by a single character.
 * If the option has an OPTIONAL ARGUMENT, it must be written:
   - directly after the option character (-rreq)
 * It is possible to specify several short options after one '-', as long as all (except possibly the last) options are flags: -xyz, -xyzr req
-
-**Long Options**
+  
+#### Long Options
 A long option normally begins with '--' followed by the long option name.
 * If the option has a REQUIRED argument, it may be written:
   - directly after option name: --optionREQUIRED
@@ -54,19 +76,18 @@ A long option normally begins with '--' followed by the long option name.
   - after the equal sign: --option=OPTIONAL
 * Long options may be ABBREVIATED, as long as the abbreviation is not 
   ambiguous: --long (instead of --long-option).
-
-**Parameters (non-options)**
+   
+#### Parameters (non-options)
 A parameter to a function can be passed by name or by value.  
 * Array variables are always passed by name (without $).  
 * Scalar variables can be passed by name (without $) or by value (with $, as usual).  
-
+  
 As a convenience, instead of passing a variable by value, possibly with quotations (e.g. `function "$var"`) you can just type `function var` to pass it by name. Naturally, a value can also be passed directly (`function "abcd"`), in which case there may be unexpected results if it happens that a variable by that name (variable called `abcd`) already exist. (Ah, the price for typing less).  
-
+  
 Since arrays cannot be passed around in bash (nor exported), they are always passed by name (without $). Trying to pass an array with `$array` will only pass its zeroth element (if any) and passing an array as `${array[@]}` could work at the cost of having its indices/keys discarded and causing a lot of overhead, especially when 2 or more arrays need to be passed around.  
   
   
-
-### List of functions and subroutines:  
+### List of functions  
 (Some functions encompass functionalities, that might've been split across several functions, as subroutines)  
     
 * `bb_typeof`  
@@ -149,7 +170,7 @@ Pack and squeeze an array.
 <substring>   Sequence of characters that are part of some string
 <identifier>  Sequence of alnum chars and underscore [A-Za-z_]
 <name>        Portable sequence of characters
-<filename>    Portable filename [A-Za-z0-9.-_] but hyphen not 1.char
+<filename>    Portable filename [A-Za-z0-9.-_] (hyphen not 1.char)
 <pathname>    Portable pathname [A-Za-z0-9.-_/]
 <alias>       Portable alias    [A-Za-z0-9.-_/!%,@]
 <flag>        Option with 2 states: present/absent
@@ -167,3 +188,4 @@ Pack and squeeze an array.
 <integer>
 <digit>
 ````
+  
