@@ -2,20 +2,20 @@
   
 ## `bing-bash` - bash functions library  
   
-
+  
 ### About  
-Library of bash functions providing miscellaneous functionalities: dealing with strings and arrays, symbol table management, alternatives for usual shell utilities, etc.  
-   
+Library of bash functions comprising routines for dealing with variables, arrays, strings, symbols table, etc.  
+  
   
 ### Quick start  
 Just take and source the functions you need.  
 All functions are standalone, they don't depend on any other function or file from this library.  
-
-
-### Description
-The library is composed using native bash's (4.3) abilities, without unnecessary forking (when possible) or usage of external tools (if faster). Single process bash shell was in high regard as well as bash's specific functionalities (bashisms). Made and tested with bash 4.3 (and 4.4-beta).
   
-Functions are meant to be sourced, though some of them could be executed as well. All functions are standalone and they don't need any other function or file from this library, but as a convenience there are some function management capabilities available; see `bing-bash`, `load` and `bb` file to enable some of them, like function autoloading and managing function's aliases.
+  
+### Description
+The library is composed using bash's (4.3) features, without unnecessary forking (when possible) or usage of external tools (unless faster). Single process bash shell was in high regard as well as bash's specific functionalities (bashisms). Made and tested with bash 4.3 (and 4.4-beta).
+  
+Functions are meant to be sourced, though some of them could be executed as well. All functions are standalone and they don't need any other function or file from this library (unless explicitly stated), but, as a convenience, there are some function management capabilities available; see `bing-bash`, `load` and `bb` file to enable some of them, like function autoloading and managing function's aliases.
   
   
 ### Usage
@@ -25,6 +25,37 @@ Functions are meant to be sourced, though some of them could be executed as well
   
   
 ### Conventions  
+Positional parameters are divided into options and parameters (non-options).
+Options are further divided into: flags (options without arguments), options that have an optional argument and options that have required argument. Options are also divided into short (-o) and long options (--long-option).  
+
+Parameters can be explicitly separated from options by using '--', as in:
+func -oARG --long-option ARG -- PARAMS in which case everything after '--' is treated as a parameter, even if it starts with a '-' or '--'.  
+
+Order of options and parameters is not important, unless specifically noted or when using '--' to explicitly separate them. If the same option is repeated, the latter will overshadow the former. If non-existent option is supplied, it will be discarded.
+  
+**Short options**
+A short option begins with a dash (-) followed by a single character.
+* If the option has NO ARGUMENTS it is called a simple option or a flag: -x
+* If the option has a REQUIRED argument it may be written:
+  - directly after the option character (-rreq)
+  - as the next parameter (-r req)
+* If the option has an OPTIONAL ARGUMENT, it must be written:
+  - directly after the option character (-rreq)
+* It is possible to specify several short options after one '-', as long as all (except possibly the last) options are flags: -xyz, -xyzr req
+
+**Long Options**
+A long option normally begins with '--' followed by the long option name.
+* If the option has a REQUIRED argument, it may be written:
+  - directly after option name: --optionREQUIRED
+  - after the equal sign: --option=REQUIRED
+  - as the next argument: --option REQUIRED
+* If the option has an OPTIONAL argument, it must be written:
+  - directly after option name: --optionOPTIONAL
+  - after the equal sign: --option=OPTIONAL
+* Long options may be ABBREVIATED, as long as the abbreviation is not 
+  ambiguous: --long (instead of --long-option).
+
+**Parameters (non-options)**
 A parameter to a function can be passed by name or by value.  
 * Array variables are always passed by name (without $).  
 * Scalar variables can be passed by name (without $) or by value (with $, as usual).  
@@ -34,7 +65,8 @@ As a convenience, instead of passing a variable by value, possibly with quotatio
 Since arrays cannot be passed around in bash (nor exported), they are always passed by name (without $). Trying to pass an array with `$array` will only pass its zeroth element (if any) and passing an array as `${array[@]}` could work at the cost of having its indices/keys discarded and causing a lot of overhead, especially when 2 or more arrays need to be passed around.  
   
   
-### List of functions and their subroutines:  
+
+### List of functions and subroutines:  
 (Some functions encompass functionalities, that might've been split across several functions, as subroutines)  
     
 * `bb_typeof`  
@@ -59,14 +91,13 @@ Convert indexed to associative array or vice versa.
 * `bb_array_remove`  
 Remove array elements. Remove element with specified index/key from an array. Remove several elements by specifying them as comma-separated list of integers and/or ranges. Optionally, if name for the resulting array is specified, the original array will be left intact.  
   
-* `in_array`  
-Checks if a value (variable or array) exists in an array.  
-  
 * `bb_array_shift`  
 Shift the first value of the array off and return it.  
   
 * `bb_array_sort`  
 Sort array different ways. Remove duplicated values from an array (make unique).  
+* `in_array`  
+Checks if a value (variable or array) exists in an array.  
     
 * `bb_range`  
 Generate numeric sequences from list of ranges and individual integers (e.g. 1,4-8,10,15-20,25-30). Specify numbers base and divider, prefix, suffix characters.  
@@ -106,12 +137,12 @@ Remove unset elements.
 Re-index a sparse array.  
 Pack and squeeze an array.  
   
-  
-  
+
+
   
   
 ### Definitions  
-(used in function's help section)  
+(used in function's comments or help section)  
 ````
 <char>        One or more characters, usually non-alnum
 <string>      Any sequence of characters
