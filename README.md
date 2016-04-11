@@ -47,35 +47,30 @@ Names of environment variables used are all upper-cased and have `BING_` prefix 
   
 #### Positional Parameters
 Positional parameters are divided into options and parameters (non-options).
-Options are further divided into: flags (options without arguments), options that have an optional argument and options that have required argument. Options are also divided into short (-o) and long options (--long-option).  
-  
-Parameters can be explicitly separated from options by using '--', as in:
-func -oARG --long-option ARG -- PARAMS in which case everything after '--' is treated as a parameter, even if it starts with a '-' or '--'.  
-  
-Order of options and parameters is not important, unless specifically noted or when using '--' to explicitly separate them. If the same option is repeated, the latter will overshadow the former. If non-existent option is supplied, it will be discarded.
-  
+Options are further divided into: flags (options without arguments), options that have an optional argument and options that have required argument. Options are also divided into short (`-o`) and long options (`--long-option`).  
+Parameters can be explicitly separated from options by using double dash `--`; for example, `function -o ARG1 --long-option ARG2 -- PARAM` in which case everything after '--' is treated as a parameter, even if it starts with '-' or '--'. Otherwise (i.e. without '--'), order of options and parameters is not important (unless specifically noted in function's help section). If the same option is repeated, the latter will overshadow the former occurrence. If unrecognized option is supplied, it will be discarded.
 
 #### Short Options
 A short option begins with a dash (-) followed by a single character.
-* If the option has NO ARGUMENTS it is called a simple option or a flag: -x
-* If the option has a REQUIRED argument it may be written:
-  - directly after the option character (-rreq)
-  - as the next parameter (-r req)
-* If the option has an OPTIONAL ARGUMENT, it must be written:
-  - directly after the option character (-rreq)
-* It is possible to specify several short options after one '-', as long as all (except possibly the last) options are flags: -xyz, -xyzr req
+* If the option has **no arguments** it is called a simple option or a **flag** (e.g. `-x`).  
+* If the option has **required** argument it may be written:
+  - **immediately** after the option character, e.g. `-rreq`
+  - as the **following** parameter, e.g. `-r req`
+* If the option has **optional** argument, it must be written:
+  - **immediately** after the option character, e.g. `-rreq`
+* It is possible to specify several short options after one '-', as long as all (except possibly the last) options are flags: `-xyz`, `-xyzr req`
   
 #### Long Options
-A long option normally begins with '--' followed by the long option name.
-* If the option has a REQUIRED argument, it may be written:
-  - directly after option name: --optionREQUIRED
-  - after the equal sign: --option=REQUIRED
-  - as the next argument: --option REQUIRED
-* If the option has an OPTIONAL argument, it must be written:
-  - directly after option name: --optionOPTIONAL
-  - after the equal sign: --option=OPTIONAL
-* Long options may be ABBREVIATED, as long as the abbreviation is not 
-  ambiguous: --long (instead of --long-option).
+A long option normally begins with double dash (--) followed by the long option name.
+* If the option has **required** argument, it may be written:
+  - **immediately** after option name, e.g. `--optionREQUIRED`
+  - as the **following** argument, e.g. `--option REQUIRED`
+  - after the **equal** sign, e.g. `--option=REQUIRED`
+* If the option has **optional** argument, it must be written:
+  - **immediately** after option name, e.g. `--optionOPTIONAL`
+  - after the **equal** sign, e.g. `--option=OPTIONAL`
+* Long options may be **abbreviated**, as long as the abbreviation is 
+  **unambiguous**, e.g. `--long` instead of `--long-option`.
    
 #### Parameters (non-options)
 A parameter to a function can be passed by name or by value.  
@@ -84,8 +79,7 @@ A parameter to a function can be passed by name or by value.
   
 As a convenience, instead of passing a variable by value, possibly with quotations (e.g. `function "$var"`) you can just type `function var` to pass it by name. Naturally, a value can also be passed directly (`function "abcd"`), in which case there may be unexpected results if it happens that a variable by that name (variable called `abcd`) already exist. (Ah, the price for typing less).  
   
-Since arrays cannot be passed around in bash (nor exported), they are always passed by name (without $). Trying to pass an array with `$array` will only pass its zeroth element (if any) and passing an array as `${array[@]}` could work at the cost of having its indices/keys discarded and causing a lot of overhead, especially when 2 or more arrays need to be passed around.  
-  
+Since arrays cannot be passed around in bash (nor exported), they are always passed by name (without $). Trying to pass an array with `$array` will only pass its zeroth element (if any) and passing an array as `${array[@]}` could work at the cost of having its indices/keys discarded; still not very practical, especially when two or more arrays need to be passed to a function.  
   
 ### List of functions  
 (Some functions encompass functionalities, that might've been split across several functions, as subroutines)  
