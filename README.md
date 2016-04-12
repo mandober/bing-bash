@@ -14,6 +14,7 @@
   - [Long options](#long-options)
   - [Parameters (non-options)](#parameters-non-options)
 * [List of functions](#list-of-functions)
+* [Features](#features)
   
   
 ### About  
@@ -21,25 +22,28 @@ Library of bash functions comprising routines for dealing with variables, arrays
   
   
 ### Quick Start
-Just take the functions you need and source them. All functions are standalone, they don't depend on any other function or file from this library (unless specifically noted). 
+Just download and source the functions you need.   
+Apart from few, all functions are standalone, they don't depend on any other function or file from this library. Those that are, have their dependencies specified in the corresponding help section.  
   
   
 ### Description
-The library is composed using bash's (4.3) features, without unnecessary forking (when possible) or usage of external tools (unless faster). Single process bash shell was in high regard as well as bash's specific functionalities (bashisms). Made and tested with bash 4.3 (and 4.4-beta).
-  
-Functions are meant to be sourced, though some of them could be executed as well. All functions are standalone and they don't need any other function or file from this library (unless explicitly stated), but, as a convenience, there are some function management capabilities available; see `bing-bash`, `load` and `bb` file to enable some of them, like function autoloading and managing function's aliases.
+The library is composed using bash's (4.3) features, without unnecessary forking (when possible) or usage of external tools (unless faster). Single process bash shell was in high regard as well as bash's specific functionalities. Made and tested with bash 4.3 (and 4.4-beta).  
   
   
 ### Usage
-* Files containing functions can be sourced individually and then functions can be called as usual. This way functions will, of course, stay resident, but at least this memory-occupying, environment-polluting way will keep the functions instantly available.
-* One level down in comparison to the above is to have functions marked for autoloading, but this is not a true autoloading as in other shells. Namely, when marked for autoloading, a stand-in, eponymous function will be created, only a few lines long (as opposed to sourcing the whole function's body) whose purpose is to source its complete definition when first called.
+Functions are meant to be sourced, though some of them could be executed as well. All functions are standalone and they don't need any other function or file from this library (unless explicitly stated), but as a convenience, there are some function management capabilities available (see `bing-bash`, `load` and `bb` files).
+  
+* Files containing functions can be sourced individually and then functions can be called as usual. This way functions will, of course, stay resident, but at least all the environment-polluting code will make the functions instantly responsive.
+* One level down in comparison to the above is to have functions marked for autoloading; although not a true autoloading, as in other shells. Namely, when marked for autoloading, a stand-in, eponymous function will be created, only a few lines long (as opposed to the whole function's body) whose purpose is to source its complete definition when first called.
 * The last and most environment friendly way is to call functions through `bb` function dispatcher that will load called function, pass arguments to it and unload it when done. This way is also convenient during fiddling with function's body, as it always sources the current function's code.  
   
   
 ### Conventions
   
 #### Naming Conventions
-Names of all functions are prefixed with `bb_` as an attempt to pseudo-namespace them so they won't collide with eponymous utilities, scripts or functions. On the other hand, files that define these functions are named without said prefix, but with `.bash` extension added (apart from only a few noted exceptions which have no extension). If you're sure no naming collisions exist on your system, you can, of course, make aliases (e.g. `alias typeof=bb_typeof`); some aliases are already provided in `bing_aliases` file. 
+Names of all functions are prefixed with `bb_` as an attempt to pseudo-namespace them so they won't collide with other eponymous tools, scripts and functions. On the other hand, files that define these functions are named without such prefix, with a `.bash` extension added. This makes it easy to separate files that contain functions from other files; the exceptions to this is `load` file that has no extension (because it contains autoloading function code).  
+  
+If you're sure no naming collisions exist on your system, you can, of course, make aliases (e.g. `alias typeof=bb_typeof`) to shorten function's names; some aliases are already defined in `bing_aliases` file. 
   
 Names of variables local to functions all have `bb` prefix followed by capital letter (e.g. `bbParam`), so avoid passing similarly named parameters to minimize problems.
   
@@ -47,12 +51,13 @@ Names of environment variables used are all upper-cased and have `BING_` prefix 
   
 #### Positional Parameters
 Positional parameters are divided into options and parameters (non-options).
-Options are further divided into: flags (options without arguments), options that have an optional argument and options that have required argument. Options are also divided into short (`-o`) and long options (`--long-option`).  
-Parameters can be explicitly separated from options by using double dash `--`; for example, `function -o ARG1 --long-option ARG2 -- PARAM` in which case everything after '--' is treated as a parameter, even if it starts with '-' or '--'. Otherwise (i.e. without '--'), order of options and parameters is not important (unless specifically noted in function's help section). If the same option is repeated, the latter will overshadow the former occurrence. If unrecognized option is supplied, it will be discarded.
-
+Options are further divided into: flags (options without arguments), options that have an optional argument, options that have required argument. Options are also divided into short (`-o`) and long options (`--long-option`).  
+  
+Parameters can be explicitly separated from options by using double dash `--`; for example, `function -o ARG1 --long-option ARG2 -- PARAM` in which case everything after '--' is treated as a parameter, even if it starts with '-' or '--'. Otherwise (i.e. without '--'), order of options and parameters is not important (unless specifically noted in function's help section). If the same option is repeated, the latter will overshadow the former occurrence. If unrecognized option is supplied, it will be discarded.  
+  
 #### Short Options
 A short option begins with a dash (-) followed by a single character.
-* If the option has **no arguments** it is called a simple option or a **flag** (e.g. `-x`).  
+* If the option has **no argument** it is called a simple option or a **flag** (e.g. `-x`).  
 * If the option has **required** argument it may be written:
   - **immediately** after the option character, e.g. `-rreq`
   - as the **following** parameter, e.g. `-r req`
@@ -84,9 +89,10 @@ Since arrays cannot be passed around in bash (nor exported), they are always pas
 ### List of functions  
 (Some functions encompass functionalities, that might've been split across several functions, as subroutines)  
     
-* `bb_typeof`  
+* `bb_typeof`   
 Pretty dump arrays and their attributes is its main purpose.  
 Type and qualify given string: identify it as set or unset variable, indexed or associative array, shell keyword, etc. With `-t` option, only the type, as a single word is returned: unset, variable, indexed, associative; also those returned by type builin: alias, keyword, function, builtin or file.  
+[feat: s,d,h,n,t]
   
 * `bb_explode`  
 Convert a string to array by splitting it by substring which can be a single or multi-character substring. Also convert a string to array of individual characters.  
@@ -153,9 +159,22 @@ Re-index a sparse array.
 Pack and squeeze an array.  
   
 
+### Features
+Implement or check that everything is as described above.  
+s) standalone 
+d) documentation (in comments of function's file itself)
+h) current --help option
+v) verbosity levels
+o) output result to stdout and/or to given var
+m) man page
+n) pass variables by name
+t) tests
+p) parse positionals as described (compound short and abbreviated long options)
+c) completions
+?) option to get parameters from stdin
+  
+  
 
-  
-  
 ### Definitions  
 (used in function's comments or help section)  
 ````

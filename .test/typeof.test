@@ -1,15 +1,10 @@
 #!/bin/bash
-#================================================================
-#:   FILE: typeof.test
-#:   TYPE: test for 'typeof' function - can be sourced or executed
-#:   PATH: $BING/func/typeof.test
-#:   AUTHOR: [bing-bash] by mandober <zgag@yahoo.com>
-#:   RELATED FILES: typeof, typeof.info, typeof.test
-#:   REVISION: 31-Jan-16
-#================================================================
-[[ -z "$(declare -F bb_typeof 2>/dev/null)" ]] && . $BING_FUNC/typeof.bash
+#
+# $BING_FUNC/.test/typeof.test
+#
 
 run_test() {
+[[ -z "$(declare -F bb_typeof 2>/dev/null)" ]] && . $BING_FUNC/typeof.bash
 
 # setup for testing
 local -a bob=( [0]="bob" [2]="bob:2.1-1" [5]="\"Bobby\"" [6]= [8]="at Jo's" )
@@ -19,7 +14,6 @@ local -ln reff='biNGo'
 local bingo='Bing-Bash'
 local emptyVar=
 
-
 # to test
 vars=( bob bobi year bingo reff )
 vars+=( ${!BING*} )
@@ -27,7 +21,6 @@ vars+=( ${!BASH*} )
 vars+=( DISPLAY OSTYPE RANDOM EUID PPID UID SHELLOPTS )
 vars+=( declare ls for typeof type grep vars )
 vars+=( unsetVar emptyVar )
-
 
 tput clear; tput setaf 5; echo '========== TEST: typeof =========='; tput sgr0
 echo
