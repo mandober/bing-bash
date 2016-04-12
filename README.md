@@ -92,7 +92,7 @@ Since arrays cannot be passed around in bash (nor exported), they are always pas
 * `bb_typeof`   
 Pretty dump arrays and their attributes is its main purpose.  
 Type and qualify given string: identify it as set or unset variable, indexed or associative array, shell keyword, etc. With `-t` option, only the type, as a single word is returned: unset, variable, indexed, associative; also those returned by type builin: alias, keyword, function, builtin or file.  
-[feat: s,d,h,n,t]
+feat: `s` `d` `h` `n` `t`
   
 * `bb_explode`  
 Convert a string to array by splitting it by substring which can be a single or multi-character substring. Also convert a string to array of individual characters.  
@@ -161,18 +161,19 @@ Pack and squeeze an array.
   
 ### Features  
 Implement or check that everything is as described above.  
-s) standalone  
-d) documentation (in comments of function's file)  
-h) current --help option  
-v) verbosity levels  
-o) output result to stdout and/or to given var  
-m) man page  
-n) pass variables by name  
-t) tests  
-p) parse positionals as described (compound short, abbreviated long options)  
-c) completions  
+`c` completions  
+`d` documentation (in comments of function's file)  
+`h` current --help option  
+`o` output result to stdout and/or to given var  
+`m` man page  
+`n` pass variables by name  
+`p` parse positionals as described (compound short, abbreviated long options)  
+`s` standalone  
+`t` tests  
+`v` verbosity levels  
 ?) option to get parameters from stdin  
-  
+
+<span title="completions"><code>c</code></span>
   
   
 ### Definitions  
