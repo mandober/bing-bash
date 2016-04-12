@@ -158,23 +158,23 @@ Remove unset elements.
 Re-index a sparse array.  
 Pack and squeeze an array.  
   
-
-### Features
+  
+### Features  
 Implement or check that everything is as described above.  
-s) standalone 
-d) documentation (in comments of function's file itself)
-h) current --help option
-v) verbosity levels
-o) output result to stdout and/or to given var
-m) man page
-n) pass variables by name
-t) tests
-p) parse positionals as described (compound short and abbreviated long options)
-c) completions
-?) option to get parameters from stdin
+s) standalone  
+d) documentation (in comments of function's file)  
+h) current --help option  
+v) verbosity levels  
+o) output result to stdout and/or to given var  
+m) man page  
+n) pass variables by name  
+t) tests  
+p) parse positionals as described (compound short, abbreviated long options)  
+c) completions  
+?) option to get parameters from stdin  
   
   
-
+  
 ### Definitions  
 (used in function's comments or help section)  
 ````
