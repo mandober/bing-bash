@@ -88,14 +88,22 @@ Since arrays cannot be passed around in bash (nor exported), they are always pas
   
 ### List of functions  
 (Some functions encompass functionalities, that might've been split across several functions, as subroutines)  
-    
+  
 * `bb_typeof`   
 Pretty dump arrays and their attributes is its main purpose.  
 Type and qualify given string: identify it as set or unset variable, indexed or associative array, shell keyword, etc. With `-t` option, only the type, as a single word is returned: unset, variable, indexed, associative; also those returned by type builin: alias, keyword, function, builtin or file.  
-feat: `s` `d` `h` `n` `t`
+feat: 
+`[d](#features "documentation")` 
+`[h](#features "help section")` 
+`[m](#features "man page")` 
+`[n](#features "pass by name")` 
+`[t](#features "tests")` 
+`[s](#features "standalone")` 
+  
   
 * `bb_explode`  
 Convert a string to array by splitting it by substring which can be a single or multi-character substring. Also convert a string to array of individual characters.  
+feat: `d` `h` `m` `n` `t` `s` 
   
 * `bb_implode`  
 Convert an array to string. Specify wrapping and glue characters.  
@@ -202,7 +210,3 @@ Implement or check that everything is as described above.
 <digit>
 ````
   
-feat: [s](features "standalone")
-feat: `[s](features "standalone")`
-feat: `[s]`(features "standalone")
-feat: [s][features "standalone"]
