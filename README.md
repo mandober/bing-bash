@@ -92,14 +92,14 @@ Since arrays cannot be passed around in bash (nor exported), they are always pas
 * `bb_typeof`   
 Pretty dump arrays and their attributes is its main purpose.  
 Type and qualify given string: identify it as set or unset variable, indexed or associative array, shell keyword, etc. With `-t` option, only the type, as a single word is returned: unset, variable, indexed, associative; also those returned by type builin: alias, keyword, function, builtin or file.  
-feat: 
-`[d]`(#features "documentation") 
-`[h]`(#features "help section") 
-`[m]`(#features "man page") 
-`[n]`(#features "pass by name") 
-`[t]`(#features "tests") 
-`[s]`(#features "standalone") 
-  
+````feat:
+[d](#features "documentation") 
+[h](#features "help section")
+[m](#features "man page") 
+[n](#features "pass by name") 
+[t](#features "tests") 
+[s](#features "standalone") 
+````
   
 * `bb_explode`  
 Convert a string to array by splitting it by substring which can be a single or multi-character substring. Also convert a string to array of individual characters.  
