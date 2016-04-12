@@ -171,9 +171,8 @@ Implement or check that everything is as described above.
 `s` standalone  
 `t` tests  
 `v` verbosity levels  
-?) option to get parameters from stdin  
+`?` option to get parameters from stdin  
 
-<span title="completions"><code>c</code></span>
   
   
 ### Definitions  
@@ -203,3 +202,7 @@ Implement or check that everything is as described above.
 <digit>
 ````
   
+feat: [s](features "standalone")
+feat: `[s](features "standalone")`
+feat: `[s]`(features "standalone")
+feat: [s][features "standalone"]
