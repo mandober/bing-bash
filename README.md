@@ -12,7 +12,7 @@
   - [Positional parameters](#positional-parameters)
   - [Short options](#short-options)
   - [Long options](#long-options)
-  - [Parameters (non-options)](#parameters-non-options)
+  - [Parameters](#parameters-non-options)
 * [List of functions](#list-of-functions)
 * [Features](#features)
   
@@ -194,11 +194,12 @@ Implement or check that everything is as described above.
 
   
   
-### Definitions  
-(used usually in function's comments, help section, etc.)  
-`identifier`  
+### Definitions
+(used usually in function's comments, help section, etc.)   
+
+*`identifier`*  
 Variable's name consisting of alphabetic characters, numbers and underscore char, but 1st char must not be a number. `[[:alpha:]_][[:alnum:]_]+`  
-`char`  
+**`char`**  
 Any character.  
 `string`  
 Sequence of characters.  
