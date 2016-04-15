@@ -85,24 +85,36 @@ A parameter to a function can be passed by name or by value.
 As a convenience, instead of passing a variable by value, possibly with quotations (e.g. `function "$var"`) you can just type `function var` to pass it by name. Naturally, a value can also be passed directly (`function "abcd"`), in which case there may be unexpected results if it happens that a variable by that name (variable called `abcd`) already exist. (Ah, the price for typing less).  
   
 Since arrays cannot be passed around in bash (nor exported), they are always passed by name (without $). Trying to pass an array with `$array` will only pass its zeroth element (if any) and passing an array as `${array[@]}` could work at the cost of having its indices/keys discarded; still not very practical, especially when two or more arrays need to be passed to a function.  
+#### Common options
+These 3 options, in long format, are guaranteed to be accepted in all functions:  
+`--help` show help  
+`--usage` show usage  
+`--version` show version  
+Short options equivalents of above options, `-h`, `-u`, `-V`, are common, but are not to be relied upon as they might've been used for something else entirely.  
+  
+Most functions also accept setting of verbosity level through  
+`-v, --verbosity LEVEL` option, followed by LEVEL option-argument, which is one of these numbers: 0 (quiet), 1(fatal), 2(errors), 3(debug).  
+  
+If a function accepts user supplied name for a variable that will hold function's resulting value, this is always achieved through  
+`-o, --out NAME` option followed by a required argument that must be valid identifier. If the argument is a number 1-9 (inclusive) the output will be send to this file descriptor.
+
   
 ### List of functions  
 (Some functions encompass functionalities, that might've been split across several functions, as subroutines)  
   
 * `bb_typeof`   
 Pretty dump arrays and their attributes is its main purpose.  
-Type and qualify given string: identify it as set or unset variable, indexed or associative array, shell keyword, etc. With `-t` option, only the type, as a single word is returned: unset, variable, indexed, associative; also those returned by type builin: alias, keyword, function, builtin or file.  
-feat: 
+Type and qualify given string: identify it as set or unset variable, array, shell keyword, etc. With `-t` option, only the type, as a single word is returned: unset, variable, indexed, associative; also those returned by type builin: alias, keyword, function, builtin or file.  
+[feat: 
 [d](#features "documentation") 
 [h](#features "help section")
 [m](#features "man page") 
 [n](#features "pass by name") 
 [t](#features "tests") 
-[s](#features "standalone") 
+[s](#features "standalone") ]  
   
 * `bb_explode`  
 Convert a string to array by splitting it by substring which can be a single or multi-character substring. Also convert a string to array of individual characters.  
-feat: `d` `h` `m` `n` `t` `s` 
   
 * `bb_implode`  
 Convert an array to string. Specify wrapping and glue characters.  
@@ -183,15 +195,29 @@ Implement or check that everything is as described above.
   
   
 ### Definitions  
-(used in function's comments or help section)  
+(used usually in function's comments, help section, etc.)  
+`identifier`  
+Variable's name consisting of alphabetic characters, numbers and underscore char, but 1st char must not be a number. `[[:alpha:]_][[:alnum:]_]+`  
+`char`  
+Any character.  
+`string`  
+Sequence of characters.  
+`substring`  
+Sequence of characters that are part of the string.  
+`name`  
+Portable sequence of characters. `[[:alpha:].-_]+`  
+`filename`  
+POSIX portable filename, hyphen not 1st char. `[[:alnum:]._][[:alnum:].-_]+`  
+`pathname`  
+POSIX portable filename, hyphen not 1st char. `[[:alnum:]._/][[:alnum:].-_/]+`  
+`alias`  
+POSIX portable name of alias. `[[:alnum:].-_/!%,@]`  
+
+
 ````
-<char>        One or more characters, usually non-alnum
-<string>      Any sequence of characters
-<substring>   Sequence of characters that are part of some string
-<identifier>  Sequence of alnum chars and underscore [A-Za-z_]
 <name>        Portable sequence of characters
 <filename>    Portable filename [A-Za-z0-9.-_] (hyphen not 1.char)
-<pathname>    Portable pathname [A-Za-z0-9.-_/]
+<pathname>    Portable pathname [A-Za-z0-9.-_/] (hyphen not 1.char)
 <alias>       Portable alias    [A-Za-z0-9.-_/!%,@]
 <flag>        Option with 2 states: present/absent
 <option>      Short (-o) or long option (--option)
