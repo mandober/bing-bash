@@ -1,0 +1,69 @@
+.TH BB_TYPEOF 1 "10 April 2016" "0.55" "bb_typeof function"
+
+.SH NAME
+bb_typeof \- variables typing and dumping
+
+.SH SYNOPSIS
+.B bb_typeof
+.RB [ " \-t " ]
+[
+.I NAME
+]
+
+.SH DESCRIPTION
+Started as a function mostly used to pretty dump array to the screen, 
+now a function to type and qualify supplied parameter. 
+Still, when used with variable as parameter it outputs 
+information about it, such as its value and attributes.
+
+.SH OPTIONS
+.TP
+.B \-t --type
+Return the type, as a single word.
+.br
+.PP
+If parameter is a valid identifier, returned types are:
+.br
+.I unset
+for an unset variable
+.br
+.I variable
+for a set variable
+.br
+.I indexed
+for an indexed array
+.br
+.I associative
+for an associative array
+.br
+If parameter is a shell keyword, returned types are those returned by the 
+.B type 
+builtin: 
+.br
+.IR alias , keyword , function , builtin , file .
+
+.SH PARAMETERS
+.I NAME
+Parameter can be a bare word, identifier, variable, array, shell keyword, etc. If parameter is an identifier (variable's name) it must be passed without the $ sign. 
+
+.SH "RETURN STATUS"
+.B 0
+Successful program execution.
+.br
+.B 1
+Usage or syntax error.
+.br
+.B 2
+Empty parameter supplied.
+
+.SH EXAMPLE
+$ bb_typeof -t BASH_ALIASES   # outputs: `associative'
+$ bb_typeof BASH_VERSINFO     # dumps array BASH_VERSINFO
+
+.SH AUTHORS
+bing-bash library by Ivan Ilic <ivanilic1975@gmail.com>
+.br
+<https://github.com/mandober/bing-bash>
+
+.SH COPYRIGHT
+Use freely at owns risk.
