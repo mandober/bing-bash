@@ -105,7 +105,7 @@ If a function accepts user supplied name for a variable that will hold function'
 * `bb_typeof`   
 Pretty dump arrays and their attributes is its main purpose.  
 Type and qualify given string: identify it as set or unset variable, array, shell keyword, etc. With `-t` option, only the type, as a single word is returned: unset, variable, indexed, associative; also those returned by type builin: alias, keyword, function, builtin or file.  
-feat: [d][] 
+(feat: [d][] [h][] [o][] [m][] [p][] [s][] [t][])  
   
 * `bb_explode`  
 Convert a string to array by splitting it by substring which can be a single or multi-character substring. Also convert a string to array of individual characters.  
@@ -175,18 +175,20 @@ Pack and squeeze an array.
 ### Features  
 Implement or check that everything is as described above.  
 `c` completions  
-`d` documentation (in comments of function's file)  
+`d` documentation in comments (of function's file)  
 `h` current --help option  
 `o` output result to given var or FD  
 `m` man page  
 `n` pass variables by name or value  
-`p` parse positionals as described (compound short, abbreviated long options)\*  
+`p` positionals\*  
 `s` standalone  
 `t` tests  
 `v` verbosity levels  
-`?` option to get parameters from stdin  
   
-
+`?` option to get parameters from stdin  
+\*  parse positional params, but if any left (compounded short options, abbreviated long options) use `getopt`  
+  
+  
 [c]: #features  "completions"
 [d]: #features  "documentation"
 [h]: #features  "help"
