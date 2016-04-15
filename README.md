@@ -184,8 +184,8 @@ Implement or check that everything is as described above.
 `s` standalone  
 `t` tests  
 `v` verbosity levels  
-  
 `?` option to get parameters from stdin  
+
 \*  parse positional params, but if any left (compounded short options, abbreviated long options) use `getopt`  
   
   
@@ -204,49 +204,25 @@ Implement or check that everything is as described above.
 ### Definitions
 (used usually in function's comments, help section, etc.)   
 
-**identifier**  
-    Variable's name consisting of alphabetic characters, numbers and underscore char, but 1st char must not be a number. `[[:alpha:]_][[:alnum:]_]+`  
-**char**  
-    Any character.  
-**string**  
-    Sequence of characters.  
-**substring**  
-    Sequence of characters that are part of the string.  
-**name**  
-	Portable sequence of characters. `[[:alpha:].-_]+`  
-**filename**  
-	POSIX portable filename, hyphen not 1st char. `[[:alnum:]._][[:alnum:].-_]+`  
-**pathname**  
-	POSIX portable filename, hyphen not 1st char. `[[:alnum:]._/][[:alnum:].-_/]+`  
-**alias**  
-	POSIX portable name of alias. `[[:alnum:].-_/!%,@]`  
-**var**  
-	Name of variable.  
-**scalar**  
-	*Plain*, non-array variable.  
-**array**  
-	Name of array variable.  
-**assoc**  
-	Name of associative array variable.  
-**indexed**  
-	Name of indexed array variable.  
-**sparse array**  
-	Indexed array with non-contiguous indexes.  
-**packed array**  
-	Indexed array with contiguous indexes.  
-**whitespace**  
-	Space, tab, vertical tab, new line.  
+**identifier**  Variable's name consisting of alphabetic characters, numbers and underscore char, but 1st char must not be a number. `[[:alpha:]_][[:alnum:]_]+`  
+**char**  Any character.  
+**string**  Sequence of characters.  
+**substring**  Sequence of characters that are part of the string.  
+**name**  Portable sequence of characters. `[[:alpha:].-_]+`  
+**filename**  POSIX portable filename, hyphen not 1st char. `[[:alnum:]._][[:alnum:].-_]+`  
+**pathname**  POSIX portable filename, hyphen not 1st char. `[[:alnum:]._/][[:alnum:].-_/]+`  
+**alias**  POSIX portable name of alias. `[[:alnum:].-_/!%,@]`  
+**var**  Name of variable.  
+**scalar**  Name of variable.  
+**array**  Name of array variable.  
+**assoc**  Name of associative array variable.  
+**indexed**  Name of indexed array variable.  
+**sparse array**  Indexed array with non-contiguous indexes.  
+**packed array**  Indexed array with contiguous indexes.  
+**whitespace**  Space, tab, vertical tab, new line.  
+**flag**  Option with 2 states: present/absent.  
+**argument**  Argument to an option.  
+**required**  Required argument.  
+**optional**  Optional argument.  
   
-  
-
-````
-<flag>        Option with 2 states: present/absent
-<option>      Short (-o) or long option (--option)
-<argument>    Argument to an option
-<required>    Required argument
-<optional>    Optional argument
-<space>
-<integer>
-<digit>
-````
   
