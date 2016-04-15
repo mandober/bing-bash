@@ -105,13 +105,7 @@ If a function accepts user supplied name for a variable that will hold function'
 * `bb_typeof`   
 Pretty dump arrays and their attributes is its main purpose.  
 Type and qualify given string: identify it as set or unset variable, array, shell keyword, etc. With `-t` option, only the type, as a single word is returned: unset, variable, indexed, associative; also those returned by type builin: alias, keyword, function, builtin or file.  
-[feat: 
-[d](#features "documentation") 
-[h](#features "help section")
-[m](#features "man page") 
-[n](#features "pass by name") 
-[t](#features "tests") 
-[s](#features "standalone") ]  
+feat: [d][]
   
 * `bb_explode`  
 Convert a string to array by splitting it by substring which can be a single or multi-character substring. Also convert a string to array of individual characters.  
@@ -192,46 +186,62 @@ Implement or check that everything is as described above.
 `v` verbosity levels  
 `?` option to get parameters from stdin  
 
+
+[d](#features "documentation") 
+[h](#features "help section")
+[m](#features "man page") 
+[n](#features "pass by name") 
+[t](#features "tests") 
+[s](#features "standalone")
+[d]: <#features>  "documentation"
+[h]: #features    "help section"
   
   
 ### Definitions
 (used usually in function's comments, help section, etc.)   
 
-*`identifier`*  
-Variable's name consisting of alphabetic characters, numbers and underscore char, but 1st char must not be a number. `[[:alpha:]_][[:alnum:]_]+`  
-**`char`**  
-Any character.  
-`string`  
-Sequence of characters.  
-`substring`  
-Sequence of characters that are part of the string.  
-`name`  
-Portable sequence of characters. `[[:alpha:].-_]+`  
-`filename`  
-POSIX portable filename, hyphen not 1st char. `[[:alnum:]._][[:alnum:].-_]+`  
-`pathname`  
-POSIX portable filename, hyphen not 1st char. `[[:alnum:]._/][[:alnum:].-_/]+`  
-`alias`  
-POSIX portable name of alias. `[[:alnum:].-_/!%,@]`  
-
-
+**identifier**  
+	Variable's name consisting of alphabetic characters, numbers and underscore char, but 1st char must not be a number. `[[:alpha:]_][[:alnum:]_]+`  
+**char**  
+	Any character.  
+**string**  
+	Sequence of characters.  
+**substring**  
+	Sequence of characters that are part of the string.  
+**name**  
+	Portable sequence of characters. `[[:alpha:].-_]+`  
+**filename**  
+	POSIX portable filename, hyphen not 1st char. `[[:alnum:]._][[:alnum:].-_]+`  
+**pathname**  
+	POSIX portable filename, hyphen not 1st char. `[[:alnum:]._/][[:alnum:].-_/]+`  
+**alias**  
+	POSIX portable name of alias. `[[:alnum:].-_/!%,@]`  
+**var**  
+	Name of variable.  
+**scalar**  
+	*Plain*, non-array variable.  
+**array**  
+	Name of array variable.  
+**assoc**  
+	Name of associative array variable.  
+**indexed**  
+	Name of indexed array variable.  
+**sparse array**  
+	Indexed array with non-contiguous indexes.  
+**packed array**  
+	Indexed array with contiguous indexes.  
+**whitespace**  
+	Space, tab, vertical tab, new line.  
+  
+  
+  
 ````
-<name>        Portable sequence of characters
-<filename>    Portable filename [A-Za-z0-9.-_] (hyphen not 1.char)
-<pathname>    Portable pathname [A-Za-z0-9.-_/] (hyphen not 1.char)
-<alias>       Portable alias    [A-Za-z0-9.-_/!%,@]
 <flag>        Option with 2 states: present/absent
 <option>      Short (-o) or long option (--option)
 <argument>    Argument to an option
 <required>    Required argument
 <optional>    Optional argument
-<var>         Variable.
-<scalar>      'Plain', non-array variable 
-<array>       Any array
-<indexed>     indexed array
-<assoc>       Associative array
 <space>
-<whitespace>  Space, tab, vertical tab, new line
 <integer>
 <digit>
 ````
