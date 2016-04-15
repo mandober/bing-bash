@@ -105,7 +105,7 @@ If a function accepts user supplied name for a variable that will hold function'
 * `bb_typeof`   
 Pretty dump arrays and their attributes is its main purpose.  
 Type and qualify given string: identify it as set or unset variable, array, shell keyword, etc. With `-t` option, only the type, as a single word is returned: unset, variable, indexed, associative; also those returned by type builin: alias, keyword, function, builtin or file.  
-feat: [d][]
+feat: [d][] 
   
 * `bb_explode`  
 Convert a string to array by splitting it by substring which can be a single or multi-character substring. Also convert a string to array of individual characters.  
@@ -177,37 +177,39 @@ Implement or check that everything is as described above.
 `c` completions  
 `d` documentation (in comments of function's file)  
 `h` current --help option  
-`o` output result to stdout and/or to given var  
+`o` output result to given var or FD  
 `m` man page  
-`n` pass variables by name  
-`p` parse positionals as described (compound short, abbreviated long options)  
+`n` pass variables by name or value  
+`p` parse positionals as described (compound short, abbreviated long options)\*  
 `s` standalone  
 `t` tests  
 `v` verbosity levels  
 `?` option to get parameters from stdin  
+  
 
-
-[d](#features "documentation") 
-[h](#features "help section")
-[m](#features "man page") 
-[n](#features "pass by name") 
-[t](#features "tests") 
-[s](#features "standalone")
-[d]: <#features>  "documentation"
-[h]: #features    "help section"
+[c]: #features  "completions"
+[d]: #features  "documentation"
+[h]: #features  "help"
+[o]: #features  "output"
+[m]: #features  "man"
+[n]: #features  "pass-by-name"
+[p]: #features  "positionals"
+[s]: #features  "standalone"
+[t]: #features  "tests"
+[v]: #features  "verbosity"
   
   
 ### Definitions
 (used usually in function's comments, help section, etc.)   
 
 **identifier**  
-	Variable's name consisting of alphabetic characters, numbers and underscore char, but 1st char must not be a number. `[[:alpha:]_][[:alnum:]_]+`  
+    Variable's name consisting of alphabetic characters, numbers and underscore char, but 1st char must not be a number. `[[:alpha:]_][[:alnum:]_]+`  
 **char**  
-	Any character.  
+    Any character.  
 **string**  
-	Sequence of characters.  
+    Sequence of characters.  
 **substring**  
-	Sequence of characters that are part of the string.  
+    Sequence of characters that are part of the string.  
 **name**  
 	Portable sequence of characters. `[[:alpha:].-_]+`  
 **filename**  
@@ -234,7 +236,7 @@ Implement or check that everything is as described above.
 	Space, tab, vertical tab, new line.  
   
   
-  
+
 ````
 <flag>        Option with 2 states: present/absent
 <option>      Short (-o) or long option (--option)
