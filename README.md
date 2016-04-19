@@ -69,6 +69,7 @@ A short option begins with a dash (-) followed by a single character.
   - *immediately* after the option character, e.g. `-rREQ`  
   - as the *following* parameter, e.g. `-r REQ`  
 * If the option has **optional** argument, it must be written *immediately* after the option character, e.g. `-rOPT`  
+   
 It is possible to specify several short options after one '-' (compounded short options), as long as all (except possibly the last) options are flags: `-xyz`, `-xyzr req`  
   
 #### Long Options
@@ -77,10 +78,12 @@ A long option normally begins with double dash (--) followed by the long option 
 * If the option has *required* argument, it may be written:
   - as the *following* argument, e.g. `--option REQ`
   - after the *equal sign*, e.g. `--option=REQ`
-* If the option has **optional** argument, it must be written after the **equal sign**, e.g. `--option=OPT`
+* If the option has **optional** argument, it must be written after the *equal sign*, e.g. `--option=OPT`  
+   
 Long options may be **abbreviated**, as long as the abbreviation is 
   *unambiguous*, e.g. `--long` instead of `--long-option`.
-  
+   
+    
 >     
 NOTE: Important thing to know about this library is that all functions will parse canonically provided parameters (i.e. no compounded short options, no abbreviations of long options) internally, in the body of function itself, which means faster execution. Otherwise `getopt` utility will be called to parse parameters, which may sometimes result in slower function's execution.  
   
