@@ -32,37 +32,150 @@
 <a id="bing-bash" class="anchor" href="#bing-bash" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>bing-bash</h1>
 
 <h2>
-<a id="bing-bash---bash-functions-library" class="anchor" href="#bing-bash---bash-functions-library" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a><code>bing-bash</code> - bash functions library</h2>
+<a id="-bash-functions-library" class="anchor" href="#-bash-functions-library" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a><img src="https://img.shields.io/badge/bing-bash-orange.svg?style=flat-square" alt="bingbash"> Bash functions library</h2>
+
+<ul>
+<li><a href="#about">About</a></li>
+<li><a href="#quick-start">Quick start</a></li>
+<li><a href="#description">Description</a></li>
+<li><a href="#usage">Usage</a></li>
+<li>
+<a href="#conventions">Conventions</a>
+
+<ul>
+<li><a href="#naming-conventions">Naming conventions</a></li>
+<li><a href="#positional-parameters">Positional parameters</a></li>
+<li><a href="#short-options">Short options</a></li>
+<li><a href="#long-options">Long options</a></li>
+<li><a href="#parameters-non-options">Parameters</a></li>
+</ul>
+</li>
+<li><a href="#list-of-functions">List of functions</a></li>
+<li><a href="#features">Features</a></li>
+</ul>
 
 <h3>
 <a id="about" class="anchor" href="#about" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>About</h3>
 
-<p>Library of bash functions providing miscellaneous functionalities: dealing with strings and arrays, symbol table management, alternatives for usual shell utilities, etc.  </p>
+<p>Library of bash functions comprising routines for dealing with variables, arrays, strings, symbols table, etc.  </p>
 
 <h3>
-<a id="quick-start" class="anchor" href="#quick-start" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Quick start</h3>
+<a id="quick-start" class="anchor" href="#quick-start" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Quick Start</h3>
 
-<p>Just take and source the functions you need.<br>
-All functions are standalone, they don't depend on any other function or file from this library.  </p>
+<p>Just download and source the functions you need.<br>
+Apart from few, all functions are standalone, they don't depend on any other function or file from this library. Those that are, have their dependencies specified in the corresponding help section.  </p>
 
 <h3>
 <a id="description" class="anchor" href="#description" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Description</h3>
 
-<p>The library is composed using native bash's (4.3) abilities, without unnecessary forking (when possible) or usage of external tools (if faster). Single process bash shell was in high regard as well as bash's specific functionalities (bashisms). Made and tested with bash 4.3 (and 4.4-beta).</p>
-
-<p>Functions are meant to be sourced, though some of them could be executed as well. All functions are standalone and they don't need any other function or file from this library, but as a convenience there are some function management capabilities available; see <code>bing-bash</code>, <code>load</code> and <code>bb</code> file to enable some of them, like function autoloading and managing function's aliases.</p>
+<p>The library is composed using bash's (4.3) features, without unnecessary forking (when possible) or usage of external tools (unless faster). Single process bash shell was in high regard as well as bash's specific functionalities. Made and tested with bash 4.3 (and 4.4-beta).  </p>
 
 <h3>
 <a id="usage" class="anchor" href="#usage" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Usage</h3>
 
+<p>Functions are meant to be sourced, though some of them could be executed as well. All functions are standalone and they don't need any other function or file from this library (unless explicitly stated), but as a convenience, there are some function management capabilities available (see <code>bing-bash</code>, <code>load</code> and <code>bb</code> files).</p>
+
 <ul>
-<li>Files containing functions can be sourced individually and then functions can be called as usual. This way functions will, of course, stay resident, but at least this memory-occupying, environment-polluting way will keep the functions instantly available.</li>
-<li>One level down in comparison to the above is to have functions marked for autoloading, but this is not a true autoloading as in other shells. Namely, when marked for autoloading, a stand-in, eponymous function will be created, only a few lines long (as opposed to sourcing the whole function's body) whose purpose is to source its complete definition when first called.</li>
-<li>The last and most environment friendly way is to call functions through <code>bb</code> function dispatcher that will load called function, pass arguments to it and unload it when done. This way is also convenient during fiddling with function's body, as it always sources the current function's code.</li>
+<li>Files containing functions can be sourced individually and then functions can be called as usual. This way functions will, of course, stay resident, but at least all the environment-polluting code will make the functions instantly responsive.</li>
+<li>One level down in comparison to the above is to have functions marked for autoloading; although not a true autoloading, as in other shells. Namely, when marked for autoloading, a stand-in, eponymous function will be created, only a few lines long (as opposed to the whole function's body) whose purpose is to source its complete definition when first called.</li>
+<li>The last and most environment friendly way is to call functions through <code>bb</code> function dispatcher that will load called function, pass arguments to it and unload it when done. This way is also convenient during fiddling with function's body, as it always sources the current function's code.<br>
+</li>
 </ul>
 
 <h3>
 <a id="conventions" class="anchor" href="#conventions" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Conventions</h3>
+
+<h4>
+<a id="naming-conventions" class="anchor" href="#naming-conventions" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Naming Conventions</h4>
+
+<p>Names of all functions are prefixed with <code>bb_</code> as an attempt to pseudo-namespace them so they won't collide with other eponymous tools, scripts and functions. On the other hand, files that define these functions are named without such prefix, with a <code>.bash</code> extension added. This makes it easy to separate files that contain functions from other files; the exceptions to this is <code>load</code> file that has no extension (because it contains autoloading function code).  </p>
+
+<p>If you're sure no naming collisions exist on your system, you can, of course, make aliases (e.g. <code>alias typeof=bb_typeof</code>) to shorten function's names; some aliases are already defined in <code>bing_aliases</code> file. </p>
+
+<p>Names of variables local to functions all have <code>bb</code> prefix followed by capital letter (e.g. <code>bbParam</code>), so avoid passing similarly named parameters to minimize problems.</p>
+
+<p>Names of environment variables used are all upper-cased and have <code>BING_</code> prefix (e.g. <code>BING_FUNC</code>).</p>
+
+<h4>
+<a id="positional-parameters" class="anchor" href="#positional-parameters" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Positional Parameters</h4>
+
+<p>Positional parameters are divided into options and non-option parameters.<br>
+Options are further divided into:  </p>
+
+<ul>
+<li>flags (options without arguments)<br>
+</li>
+<li>options that have required argument<br>
+</li>
+<li>options that have an optional argument<br>
+</li>
+</ul>
+
+<p>Options are also divided into short (<code>-o</code>) and long options (<code>--long-option</code>).  </p>
+
+<p>Non-option parameters can be explicitly separated from options by using double dash <code>--</code>; for example, <code>function -options -- PARAM1 PARAM2</code> in which case everything after '--' is treated as a non-option parameter, even if it starts with '-' or '--'. Otherwise (i.e. without '--'), <strong>order</strong> of options and non-option parameters is not important (unless specifically noted for a particular function).  </p>
+
+<ul>
+<li>If the same option is repeated, the latter will overshadow the former occurrence.<br>
+</li>
+<li>If unrecognized option is supplied, it will be discarded.<br>
+</li>
+</ul>
+
+<h4>
+<a id="short-options" class="anchor" href="#short-options" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Short Options</h4>
+
+<p>A short option begins with a dash (-) followed by a single character.</p>
+
+<ul>
+<li>If the option has <strong>no argument</strong> it is called a simple option or a flag e.g. <code>-x</code>.<br>
+</li>
+<li>If the option has <strong>required</strong> argument it may be written:<br>
+
+<ul>
+<li>
+<em>immediately</em> after the option character, e.g. <code>-rREQ</code><br>
+</li>
+<li>as the <em>following</em> parameter, e.g. <code>-r REQ</code><br>
+</li>
+</ul>
+</li>
+<li>If the option has <strong>optional</strong> argument, it must be written <em>immediately</em> after the option character, e.g. <code>-rOPT</code><br>
+</li>
+</ul>
+
+<p>It is possible to specify several short options after one '-' (compounded short options), as long as all (except possibly the last) options are flags: <code>-xyz</code>, <code>-xyzr req</code>  </p>
+
+<h4>
+<a id="long-options" class="anchor" href="#long-options" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Long Options</h4>
+
+<p>A long option normally begins with double dash (--) followed by the long option name (which is a string of alphanumerics and dash).  </p>
+
+<ul>
+<li>If the long option has <strong>no argument</strong> it is called a simple option or a flag e.g. <code>--long-option</code><br>
+</li>
+<li>If the option has <em>required</em> argument, it may be written:
+
+<ul>
+<li>as the <em>following</em> argument, e.g. <code>--option REQ</code>
+</li>
+<li>after the <em>equal sign</em>, e.g. <code>--option=REQ</code>
+</li>
+</ul>
+</li>
+<li>If the option has <strong>optional</strong> argument, it must be written after the <em>equal sign</em>, e.g. <code>--option=OPT</code><br>
+</li>
+</ul>
+
+<p>Long options may be <strong>abbreviated</strong>, as long as the abbreviation is 
+  <em>unambiguous</em>, e.g. <code>--long</code> instead of <code>--long-option</code>.</p>
+
+<blockquote>
+<p>NOTE: Important thing to know about this library is that all functions will parse canonically provided parameters (i.e. no compounded short options, no abbreviations of long options) internally, in the body of function itself, which means faster execution. Otherwise <code>getopt</code> utility will be called to parse parameters, which may sometimes result in slower function's execution.  </p>
+</blockquote>
+
+<h4>
+<a id="parameters-non-options" class="anchor" href="#parameters-non-options" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Parameters (non-options)</h4>
 
 <p>A parameter to a function can be passed by name or by value.  </p>
 
@@ -75,17 +188,33 @@ All functions are standalone, they don't depend on any other function or file fr
 
 <p>As a convenience, instead of passing a variable by value, possibly with quotations (e.g. <code>function "$var"</code>) you can just type <code>function var</code> to pass it by name. Naturally, a value can also be passed directly (<code>function "abcd"</code>), in which case there may be unexpected results if it happens that a variable by that name (variable called <code>abcd</code>) already exist. (Ah, the price for typing less).  </p>
 
-<p>Since array variables cannot be passed around in bash (nor can be exported), they are always passed by name only. Trying to pass an array with <code>$array</code> will just pass its first element and passing an array as <code>${array[@]}</code> could work at the cost of having its indices/keys discarded; not to mention passing 2 or more arrays.  </p>
+<p>Since arrays cannot be passed around in bash (nor exported), they are always passed by name (without $). Trying to pass an array with <code>$array</code> will only pass its zeroth element (if any) and passing an array as <code>${array[@]}</code> could work at the cost of having its indices/keys discarded; still not very practical, especially when two or more arrays need to be passed to a function.  </p>
+
+<h4>
+<a id="common-options" class="anchor" href="#common-options" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Common options</h4>
+
+<p>These 3 options, in long format, are guaranteed to be accepted in all functions:<br>
+<code>--help</code> show help<br>
+<code>--usage</code> show usage<br>
+<code>--version</code> show version<br>
+Short options equivalents of above options, <code>-h</code>, <code>-u</code>, <code>-V</code>, are common, but are not to be relied upon as they might've been used for something else entirely.  </p>
+
+<p>Most functions also accept setting of verbosity level through<br>
+<code>-v, --verbosity LEVEL</code> option, followed by LEVEL option-argument, which is one of these numbers: 0 (quiet), 1(fatal), 2(errors), 3(debug).  </p>
+
+<p>If a function accepts user supplied name for a variable that will hold function's resulting value, this is always achieved through<br>
+<code>-o, --out NAME</code> option followed by a required argument that must be valid identifier. If the argument is a number 1-9 (inclusive) the output will be send to this file descriptor.</p>
 
 <h3>
-<a id="list-of-functions-and-their-subroutines" class="anchor" href="#list-of-functions-and-their-subroutines" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>List of functions and their subroutines:</h3>
+<a id="list-of-functions" class="anchor" href="#list-of-functions" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>List of functions</h3>
 
-<p>(Some functions encompass functionality, that maybe should've been split across several functions, as subroutines)  </p>
+<p>(Some functions encompass functionalities, that might've been split across several functions, as subroutines)  </p>
 
 <ul>
 <li><p><code>bb_typeof</code><br>
 Pretty dump arrays and their attributes is its main purpose.<br>
-Type and qualify given string: identify it as set or unset variable, indexed or associative array, shell keyword, etc. With <code>-t</code> option, only the type, as a single word is returned: unset, variable, indexed, associative; also those returned by type builin: alias, keyword, function, builtin or file.  </p></li>
+Type and qualify given string: identify it as set or unset variable, array, shell keyword, etc. With <code>-t</code> option, only the type, as a single word is returned: unset, variable, indexed, associative; also those returned by type builin: alias, keyword, function, builtin or file.<br>
+(feat: <a href="#features" title="documentation">d</a> <a href="#features" title="help">h</a> <a href="#features" title="output">o</a> <a href="#features" title="man">m</a> <a href="#features" title="positionals">p</a> <a href="#features" title="standalone">s</a> <a href="#features" title="tests">t</a>)  </p></li>
 <li><p><code>bb_explode</code><br>
 Convert a string to array by splitting it by substring which can be a single or multi-character substring. Also convert a string to array of individual characters.  </p></li>
 <li><p><code>bb_implode</code><br>
@@ -93,9 +222,17 @@ Convert an array to string. Specify wrapping and glue characters.  </p></li>
 <li><p><code>bb_array_clone</code><br>
 Clone an array.  </p></li>
 <li><p><code>bb_array_merge</code><br>
-Merge two or more arrays of any type (indexed or associative). User can supply name for resulting array, force its type and specify merging mode (reindex, skip, overwrite, append).  </p></li>
+Merge two or more arrays of any type (indexed and/or associative). User can force the type of resulting array and specify merging mode (reindex, skip, overwrite, append).  </p></li>
 <li><p><code>bb_array_convert</code><br>
 Convert indexed to associative array or vice versa.  </p></li>
+<li><p><code>bb_array_remove</code><br>
+Remove array elements. Remove element with specified index/key from an array. Remove several elements by specifying them as comma-separated list of integers and/or ranges. Optionally, if name for the resulting array is specified, the original array will be left intact.  </p></li>
+<li><p><code>bb_array_shift</code><br>
+Shift the first value of the array off and return it.  </p></li>
+<li><p><code>bb_array_sort</code><br>
+Sort array different ways. Remove duplicated values from an array (make unique).  </p></li>
+<li><p><code>in_array</code><br>
+Checks if a value (variable or array) exists in an array.  </p></li>
 <li><p><code>bb_range</code><br>
 Generate numeric sequences from list of ranges and individual integers (e.g. 1,4-8,10,15-20,25-30). Specify numbers base and divider, prefix, suffix characters.  </p></li>
 <li><p><code>bb_venn</code><br>
@@ -104,63 +241,70 @@ Venn diagrams related functions: union, intersection, difference, complement.  <
 Find the position of the first occurrence of a substring in a string.  </p></li>
 <li><p><code>bb_pad</code><br>
 Pad a string by appending char(s) after each character of the string. </p></li>
-<li><p><code>in_array</code><br>
-Checks if a value (variable or array) exists in an array.  </p></li>
-<li><p><code>bb_array_remove</code><br>
-Remove array elements, individually or in bulk.  </p></li>
-<li><p><code>bb_array_shift</code><br>
-Shift the first value of the array off and return it.  </p></li>
-<li><p><code>bb_array_sort</code><br>
-Sort array different ways. Remove duplicated values from an array.  </p></li>
 <li><p><code>bb_load</code><br>
 Source functions. Mark functions for autoloading. Resolve functions path.  </p></li>
-<li><p><code>bb_trim</code>
+<li><p><code>bb_trim</code><br>
 Trim leading, trailing and intermediate whitespace.  </p></li>
 <li><p><code>bb_to</code><br>
 Conversions between hex, octal, decimal, ascii.  </p></li>
 <li><p><code>bb_sql</code><br>
 Routines dealing with sqlite database.  </p></li>
 <li><p><code>bb_is</code><br>
-Pattern matching subroutines: qualify string as alphabetic, alpha-numeric, etc.; qualify name as valid identifier/filename/path; qualify variables as set/null/indexed/associative, etc.    </p></li>
+Pattern matching subroutines: qualify string as alphabetic, alpha-numeric, etc.; qualify name as valid identifier, filename, path; qualify variables as set, null, indexed, associative, etc.    </p></li>
 <li><p><code>bb_get</code><br>
 Collect information about variables, their attributes, arrays, variable's length and type, etc.  </p></li>
-<li><p><code>bb_array</code></p></li>
-<li>Array quick dump</li>
-<li>Identify array as indexed, associative, numeric</li>
-<li>Return keys, values, empty elements</li>
-<li>Remove unset elements</li>
-<li>Re-index a sparse array</li>
-<li>Pack and squeeze an array</li>
+<li><p><code>bb_array</code><br>
+Array quick dump.<br>
+Identify array as indexed, associative, numeric.<br>
+Return keys, values, empty elements.<br>
+Remove unset elements.<br>
+Re-index a sparse array.<br>
+Pack and squeeze an array.  </p></li>
 </ul>
+
+<h3>
+<a id="features" class="anchor" href="#features" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Features</h3>
+
+<p>Implement or check that everything is as described above.<br>
+<code>c</code> completions<br>
+<code>d</code> documentation in comments (of function's file)<br>
+<code>h</code> current --help option<br>
+<code>o</code> output result to given var or FD<br>
+<code>m</code> man page<br>
+<code>n</code> pass variables by name or value<br>
+<code>p</code> positionals*<br>
+<code>s</code> standalone<br>
+<code>t</code> tests<br>
+<code>v</code> verbosity levels<br>
+<code>?</code> option to get parameters from stdin  </p>
+
+<p>*  parse positional params, but if any left (compounded short options, abbreviated long options) use <code>getopt</code>  </p>
 
 <h3>
 <a id="definitions" class="anchor" href="#definitions" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Definitions</h3>
 
-<p>(used in function's help section)  </p>
+<p>(used usually in function's comments, help section, etc.)   </p>
 
-<pre><code>&lt;char&gt;        One or more characters, usually non-alnum
-&lt;string&gt;      Any sequence of characters
-&lt;substring&gt;   Sequence of characters that are part of some string
-&lt;identifier&gt;  Sequence of alnum chars and underscore [A-Za-z_]
-&lt;name&gt;        Portable sequence of characters
-&lt;filename&gt;    Portable filename [A-Za-z0-9.-_] but hyphen not 1.char
-&lt;pathname&gt;    Portable pathname [A-Za-z0-9.-_/]
-&lt;alias&gt;       Portable alias    [A-Za-z0-9.-_/!%,@]
-&lt;flag&gt;        Option with 2 states: present/absent
-&lt;option&gt;      Short (-o) or long option (--option)
-&lt;argument&gt;    Argument to an option
-&lt;required&gt;    Required argument
-&lt;optional&gt;    Optional argument
-&lt;var&gt;         Variable.
-&lt;scalar&gt;      'Plain', non-array variable 
-&lt;array&gt;       Any array
-&lt;indexed&gt;     indexed array
-&lt;assoc&gt;       Associative array
-&lt;space&gt;
-&lt;whitespace&gt;  Space, tab, vertical tab, new line
-&lt;integer&gt;
-&lt;digit&gt;
-</code></pre>
+<p><strong>identifier</strong>  Variable's name consisting of alphabetic characters, numbers and underscore char, but 1st char must not be a number. <code>[[:alpha:]_][[:alnum:]_]+</code><br>
+<strong>char</strong>  Any character.<br>
+<strong>string</strong>  Sequence of characters.<br>
+<strong>substring</strong>  Sequence of characters that are part of the string.<br>
+<strong>name</strong>  Portable sequence of characters. <code>[[:alpha:].-_]+</code><br>
+<strong>filename</strong>  POSIX portable filename, hyphen not 1st char. <code>[[:alnum:]._][[:alnum:].-_]+</code><br>
+<strong>pathname</strong>  POSIX portable filename, hyphen not 1st char. <code>[[:alnum:]._/][[:alnum:].-_/]+</code><br>
+<strong>alias</strong>  POSIX portable name of alias. <code>[[:alnum:].-_/!%,@]</code><br>
+<strong>var</strong>  Name of scalar or array variable.<br>
+<strong>scalar</strong>  Name of scalar variable.<br>
+<strong>array</strong>  Name of array variable.<br>
+<strong>assoc</strong>  Array whose keys are strings.<br>
+<strong>indexed</strong>  Array whose indexes are numberic.<br>
+<strong>packed array</strong>  Indexed array with contiguous indexes that start from 0.<br>
+<strong>sparse array</strong>  Indexed array with non-contiguous indexes.<br>
+<strong>whitespace</strong>  Space, tab, vertical tab, new line.<br>
+<strong>flag</strong>  Option with 2 states: present/absent.<br>
+<strong>argument</strong>  Argument to an option.<br>
+<strong>required</strong>  Required argument.<br>
+<strong>optional</strong>  Optional argument.  </p>
       </section>
       <footer>
         <p>This project is maintained by <a href="https://github.com/mandober">mandober</a></p>
