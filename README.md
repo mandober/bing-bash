@@ -50,33 +50,39 @@ Names of variables local to functions all have `bb` prefix followed by capital l
 Names of environment variables used are all upper-cased and have `BING_` prefix (e.g. `BING_FUNC`).
   
 #### Positional Parameters
-Positional parameters are divided into options and parameters (non-options).
-Options are further divided into: flags (options without arguments), options that have an optional argument, options that have required argument. Options are also divided into short (`-o`) and long options (`--long-option`).  
+Positional parameters are divided into options and non-option parameters.  
+Options are further divided into:  
+* flags (options without arguments)
+* options that have required argument. 
+* options that have an optional argument
+Options are also divided into short (`-o`) and long options (`--long-option`).  
   
-Parameters can be explicitly separated from options by using double dash `--`; for example, `function -o ARG1 --long-option ARG2 -- PARAM` in which case everything after '--' is treated as a parameter, even if it starts with '-' or '--'. Otherwise (i.e. without '--'), order of options and parameters is not important (unless specifically noted in function's help section). If the same option is repeated, the latter will overshadow the former occurrence. If unrecognized option is supplied, it will be discarded.  
+Non-option parameters can be explicitly separated from options by using double dash `--`; for example, `function -o ARG1 --long-option ARG2 -- PARAM` in which case everything after '--' is treated as a non-option parameter, even if it starts with '-' or '--'. Otherwise (i.e. without '--'), **order** of options and parameters is not important (unless specifically noted in function's help section).  
+* If the same option is repeated, the latter will overshadow the former occurrence.  
+* If unrecognized option is supplied, it will be discarded.  
   
 #### Short Options
 A short option begins with a dash (-) followed by a single character.
-* If the option has **no argument** it is called a simple option or a **flag** (e.g. `-x`).  
-* If the option has **required** argument it may be written:
-  - **immediately** after the option character, e.g. `-rreq`
-  - as the **following** parameter, e.g. `-r req`
-* If the option has **optional** argument, it must be written:
-  - **immediately** after the option character, e.g. `-rreq`
-* It is possible to specify several short options after one '-', as long as all (except possibly the last) options are flags: `-xyz`, `-xyzr req`
+* If the option has **no argument** it is called a simple option or a flag e.g. `-x`.  
+* If the option has **required** argument it may be written:  
+  - **immediately** after the option character, e.g. `-rREQ`  
+  - as the **following** parameter, e.g. `-r REQ`  
+* If the option has **optional** argument, it must be written **immediately** after the option character, e.g. `-rOPT`  
+It is possible to specify several short options after one '-' (compounded short options), as long as all (except possibly the last) options are flags: `-xyz`, `-xyzr req`  
   
 #### Long Options
-A long option normally begins with double dash (--) followed by the long option name.
+A long option normally begins with double dash (--) followed by the long option name (which is a string of alphanumerics and dash).  
+* If the long option has **no argument** it is called a simple option or a flag e.g. `--long-option`  
 * If the option has **required** argument, it may be written:
-  - **immediately** after option name, e.g. `--optionREQUIRED`
   - as the **following** argument, e.g. `--option REQUIRED`
-  - after the **equal** sign, e.g. `--option=REQUIRED`
-* If the option has **optional** argument, it must be written:
-  - **immediately** after option name, e.g. `--optionOPTIONAL`
-  - after the **equal** sign, e.g. `--option=OPTIONAL`
-* Long options may be **abbreviated**, as long as the abbreviation is 
+  - after the **equal sign**, e.g. `--option=REQUIRED`
+* If the option has **optional** argument, it must be written after the **equal sign**, e.g. `--option=OPTIONAL`
+Long options may be **abbreviated**, as long as the abbreviation is 
   **unambiguous**, e.g. `--long` instead of `--long-option`.
-   
+  
+>     
+NOTE: Important thing to know about this library is that all functions will parse canonically provided parameters (i.e. no compounded short options, no abbreviations of long options) internally, in the body of function itself, which means faster execution. Otherwise `getopt` utility will be called to parse parameters, which may sometimes result in slower function's execution.  
+  
 #### Parameters (non-options)
 A parameter to a function can be passed by name or by value.  
 * Array variables are always passed by name (without $).  
@@ -212,13 +218,13 @@ Implement or check that everything is as described above.
 **filename**  POSIX portable filename, hyphen not 1st char. `[[:alnum:]._][[:alnum:].-_]+`  
 **pathname**  POSIX portable filename, hyphen not 1st char. `[[:alnum:]._/][[:alnum:].-_/]+`  
 **alias**  POSIX portable name of alias. `[[:alnum:].-_/!%,@]`  
-**var**  Name of variable.  
-**scalar**  Name of variable.  
+**var**  Name of scalar or array variable.  
+**scalar**  Name of scalar variable.  
 **array**  Name of array variable.  
-**assoc**  Name of associative array variable.  
-**indexed**  Name of indexed array variable.  
+**assoc**  Array whose keys are strings.    
+**indexed**  Array whose indexes are numberic.  
+**packed array**  Indexed array with contiguous indexes that start from 0.  
 **sparse array**  Indexed array with non-contiguous indexes.  
-**packed array**  Indexed array with contiguous indexes.  
 **whitespace**  Space, tab, vertical tab, new line.  
 **flag**  Option with 2 states: present/absent.  
 **argument**  Argument to an option.  
