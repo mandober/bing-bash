@@ -52,12 +52,13 @@ Names of environment variables used are all upper-cased and have `BING_` prefix 
 #### Positional Parameters
 Positional parameters are divided into options and non-option parameters.  
 Options are further divided into:  
-* flags (options without arguments)
-* options that have required argument. 
-* options that have an optional argument
+* flags (options without arguments)  
+* options that have required argument  
+* options that have an optional argument  
+  
 Options are also divided into short (`-o`) and long options (`--long-option`).  
   
-Non-option parameters can be explicitly separated from options by using double dash `--`; for example, `function -o ARG1 --long-option ARG2 -- PARAM` in which case everything after '--' is treated as a non-option parameter, even if it starts with '-' or '--'. Otherwise (i.e. without '--'), **order** of options and parameters is not important (unless specifically noted in function's help section).  
+Non-option parameters can be explicitly separated from options by using double dash `--`; for example, `function -options -- PARAM1 PARAM2` in which case everything after '--' is treated as a non-option parameter, even if it starts with '-' or '--'. Otherwise (i.e. without '--'), **order** of options and non-option parameters is not important (unless specifically noted for a particular function).  
 * If the same option is repeated, the latter will overshadow the former occurrence.  
 * If unrecognized option is supplied, it will be discarded.  
   
@@ -65,20 +66,20 @@ Non-option parameters can be explicitly separated from options by using double d
 A short option begins with a dash (-) followed by a single character.
 * If the option has **no argument** it is called a simple option or a flag e.g. `-x`.  
 * If the option has **required** argument it may be written:  
-  - **immediately** after the option character, e.g. `-rREQ`  
-  - as the **following** parameter, e.g. `-r REQ`  
-* If the option has **optional** argument, it must be written **immediately** after the option character, e.g. `-rOPT`  
+  - *immediately* after the option character, e.g. `-rREQ`  
+  - as the *following* parameter, e.g. `-r REQ`  
+* If the option has **optional** argument, it must be written *immediately* after the option character, e.g. `-rOPT`  
 It is possible to specify several short options after one '-' (compounded short options), as long as all (except possibly the last) options are flags: `-xyz`, `-xyzr req`  
   
 #### Long Options
 A long option normally begins with double dash (--) followed by the long option name (which is a string of alphanumerics and dash).  
 * If the long option has **no argument** it is called a simple option or a flag e.g. `--long-option`  
-* If the option has **required** argument, it may be written:
-  - as the **following** argument, e.g. `--option REQUIRED`
-  - after the **equal sign**, e.g. `--option=REQUIRED`
-* If the option has **optional** argument, it must be written after the **equal sign**, e.g. `--option=OPTIONAL`
+* If the option has *required* argument, it may be written:
+  - as the *following* argument, e.g. `--option REQ`
+  - after the *equal sign*, e.g. `--option=REQ`
+* If the option has **optional** argument, it must be written after the **equal sign**, e.g. `--option=OPT`
 Long options may be **abbreviated**, as long as the abbreviation is 
-  **unambiguous**, e.g. `--long` instead of `--long-option`.
+  *unambiguous*, e.g. `--long` instead of `--long-option`.
   
 >     
 NOTE: Important thing to know about this library is that all functions will parse canonically provided parameters (i.e. no compounded short options, no abbreviations of long options) internally, in the body of function itself, which means faster execution. Otherwise `getopt` utility will be called to parse parameters, which may sometimes result in slower function's execution.  
