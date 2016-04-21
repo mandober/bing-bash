@@ -1,4 +1,4 @@
-#!/bin/bash bingmsg
+#!/bin/bash sourceme
 #=======================================================================
 #: FILE: bb
 #: PATH: $BING_FUNC/bb
@@ -50,17 +50,16 @@
 #:      Error messages.
 #:
 #: RETURN CODE:
-#:      0  great success
-#:      1  miserable failure
+#:      0  success
+#:      1  Access problem or no such function
 #:      2  No such function
 #=======================================================================
-
 bb () {
 
 #                                                                    ABOUT
 #-------------------------------------------------------------------------
  local -r bbapp="${FUNCNAME[0]}"
- local -r bbnfo="[bing-bash] $bbapp v.0.7"
+ local -r bbnfo="[bing-bash] $bbapp v.0.0.8"
  local -r usage="USAGE: $bbapp FUNCTION ARGS"
 
 #                                                                 PRECHECK
@@ -102,100 +101,56 @@ bb () {
  set -o noglob        # Disable globbing. Enable it upon return:
  trap "set +o noglob" RETURN ERR SIGHUP SIGINT SIGTERM
 
+# `bb' will load the passed function
+# pass through the args and UNLOAD the function
+# Or set this to 1 for `bb' to unload it, but 
+# to mark it as autoloadable
+# 
 
 #                                                                  PROCESS
 #=========================================================================
-local bbOpt
-bbOpt="${1#bb_}"
+local bbFunc
+local bbReturn
+bbFunc="${1#bb_}"
+shift
 
-case $bbOpt in
+case $bbFunc in
 
- typeof)
-    shift; . "$BING_FUNC/typeof.bash"
-    bb_typeof "$@"; unset -f bb_typeof;;
+$bbFunc)
 
- explode) 
-    shift; . "$BING_FUNC/explode.bash";
-    bb_explode "$@"; unset -f bb_explode;;
+  # TODO
+  # resolve function's file path
+  bb_load -r $bbFunc
 
- implode) 
-    shift; . "$BING_FUNC/implode.bash";
-    bb_implode "$@"; unset -f bb_implode;;
- 
- array_clone) 
-    shift; . "$BING_FUNC/array_clone.bash";
-    bb_array_clone "$@"; unset -f bb_array_clone;;
+  # if function file doesn't exist or no read permissions
+  if [[ ! -r "$BING_FUNC/$bbFunc.bash" ]]; then
+    echo "No such file or no read permissions"
+    return 1
+  fi
 
- array_merge) 
-    shift; . "$BING_FUNC/array_merge.bash";
-    bb_array_merge "$@"; unset -f bb_array_merge;;
+  # source the function
+  . "$BING_FUNC/$bbFunc.bash"
 
- array_convert) 
-    shift; . "$BING_FUNC/array_convert.bash";
-    bb_array_convert "$@"; unset -f bb_array_convert;;
+  # pass through the args
+  bb_$bbFunc "$@"
 
- array_remove) 
-    shift; . "$BING_FUNC/array_remove.bash";
-    bb_array_remove "$@"; unset -f bb_array_remove;;
+  # catch function's return code
+  bbReturn=$?
 
- array_shift) 
-    shift; . "$BING_FUNC/array_shift.bash";
-    bb_array_shift "$@"; unset -f bb_array_shift;;
+  # unset the function
+  unset -f bb_$bbFunc
 
- array_sort) 
-    shift; . "$BING_FUNC/array_sort.bash";
-    bb_array_sort "$@"; unset -f bb_array_sort;;
+  # TODO
+  # convert function to autoloadable
 
- in_array) 
-    shift; . "$BING_FUNC/in_array.bash";
-    bb_in_array "$@"; unset -f bb_in_array;;
+  # return catched code
+  return $bbReturn
+;;
 
- array) 
-    shift; . "$BING_FUNC/array.bash";
-    bb_array "$@"; unset -f bb_array;;
-
- range) 
-    shift; . "$BING_FUNC/range.bash";
-    bb_range "$@"; unset -f bb_range;;
-
- venn) 
-    shift; . "$BING_FUNC/venn.bash";
-    bb_venn "$@"; unset -f bb_venn;;
- 
- strpos) 
-    shift; . "$BING_FUNC/strpos.bash";
-    bb_strpos "$@"; unset -f bb_strpos;;
-
- pad) 
-    shift; . "$BING_FUNC/pad.bash";
-    bb_pad "$@"; unset -f bb_pad;;
-
- trim) 
-    shift; . "$BING_FUNC/trim.bash";
-    bb_trim "$@"; unset -f bb_trim;;
-
- load) 
-    shift; . "$BING_FUNC/load.bash";
-    bb_load "$@"; unset -f bb_load;;
-
- is) 
-    shift; . "$BING_FUNC/is.bash";
-    bb_is "$@"; unset -f bb_is;;
-
- get) 
-    shift; . "$BING_FUNC/get.bash";
-    bb_get "$@"; unset -f bb_get;;
-
- to) 
-    shift; . "$BING_FUNC/to.bash";
-    bb_to "$@"; unset -f bb_to;;
-
- sql) 
-    shift; . "$BING_FUNC/sql.bash";
-    bb_sql "$@"; unset -f bb_sql;;
-
- *) return 2;;
+*) return 2;;
 
 esac
+
+return 0
 
 } # $BING_FUNC/bb
