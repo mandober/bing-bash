@@ -12,13 +12,13 @@
   - [Positional parameters](#positional-parameters)
   - [Short options](#short-options)
   - [Long options](#long-options)
-  - [Parameters](#parameters-non-options)
+  - [Operands](#operands)
 * [List of functions](#list-of-functions)
 * [Features](#features)
   
   
 ### About  
-Library of bash functions comprising routines for dealing with variables, arrays, strings, symbols table, etc.  
+Library of bash functions comprising routines for dealing with variables, arrays, strings, functions, symbols table, etc.  
   
   
 ### Quick Start
@@ -43,14 +43,15 @@ Functions are meant to be sourced, though some of them could be executed as well
 #### Naming Conventions
 Names of all functions are prefixed with `bb_` as an attempt to pseudo-namespace them so they won't collide with other eponymous tools, scripts and functions. On the other hand, files that define these functions are named without such prefix, with a `.bash` extension added. This makes it easy to separate files that contain functions from other files; the exceptions to this is `load` file that has no extension (because it contains autoloading function code).  
   
-If you're sure no naming collisions exist on your system, you can, of course, make aliases (e.g. `alias typeof=bb_typeof`) to shorten function's names; some aliases are already defined in `bing_aliases` file. 
+If you're sure no naming collisions exist on your system, you can, of course, make aliases (e.g. `alias typeof=bb_typeof`) to shorten function's names; some aliases are already defined in `bing_aliases` file.  
   
+>
 Names of variables local to functions all have `bb` prefix followed by capital letter (e.g. `bbParam`), so avoid passing similarly named parameters to minimize problems.
   
 Names of environment variables used are all upper-cased and have `BING_` prefix (e.g. `BING_FUNC`).
   
 #### Positional Parameters
-Positional parameters are divided into options and non-option parameters.  
+Positional parameters are divided into options and operands (non-option parameters).  
 Options are further divided into:  
 * flags (options without arguments)  
 * options that have required argument  
@@ -58,8 +59,8 @@ Options are further divided into:
   
 Options are also divided into short (`-o`) and long options (`--long-option`).  
   
-Non-option parameters can be explicitly separated from options by using double dash `--`; for example, `function -options -- PARAM1 PARAM2` in which case everything after '--' is treated as a non-option parameter, even if it starts with '-' or '--'. Otherwise (i.e. without '--'), **order** of options and non-option parameters is not important (unless specifically noted for a particular function).  
-* If the same option is repeated, the latter will overshadow the former occurrence.  
+Operands can be explicitly separated from options by using double dash `--`; for example, `function -options -- PARAM1 PARAM2` in which case everything after '--' is treated as an operand, even if it starts with '-' or '--'. Otherwise (i.e. without '--'), **order** of options and operands is not important (unless specifically noted for a particular function).  
+* If the same option is repeated, the latter will overshadow the former occurrence.
 * If unrecognized option is supplied, it will be discarded.  
   
 #### Short Options
@@ -82,32 +83,34 @@ A long option normally begins with double dash (--) followed by the long option 
    
 Long options may be **abbreviated**, as long as the abbreviation is 
   *unambiguous*, e.g. `--long` instead of `--long-option`.
-   
     
->     
-NOTE: Important thing to know about this library is that all functions will parse canonically provided parameters (i.e. no compounded short options, no abbreviations of long options) internally, in the body of function itself, which means faster execution. Otherwise `getopt` utility will be called to parse parameters, which may sometimes result in slower function's execution.  
+> 
+NOTE: Important thing to note about this library is that all functions will parse canonically provided parameters (i.e. no compounded short options, no abbreviations of long options) internally, in the body of function itself, which means faster execution. Otherwise `getopt` utility will be called to parse parameters, which may sometimes result in slower function's execution.  
   
-#### Parameters (non-options)
-A parameter to a function can be passed by name or by value.  
+#### Operands
+An operand to a function can be passed by name or by value.  
 * Array variables are always passed by name (without $).  
 * Scalar variables can be passed by name (without $) or by value (with $, as usual).  
   
-As a convenience, instead of passing a variable by value, possibly with quotations (e.g. `function "$var"`) you can just type `function var` to pass it by name. Naturally, a value can also be passed directly (`function "abcd"`), in which case there may be unexpected results if it happens that a variable by that name (variable called `abcd`) already exist. (Ah, the price for typing less).  
+As a convenience, instead of passing a variable by value, possibly with quotations (e.g. `function "$var"`) you can just type `function var` to pass it by name.  
+>
+Naturally, a value can also be passed directly (`function "abcd"`), in which case there may be unexpected results if it happens that a variable by that name (a variable called `abcd`) already exist.  
   
 Since arrays cannot be passed around in bash (nor exported), they are always passed by name (without $). Trying to pass an array with `$array` will only pass its zeroth element (if any) and passing an array as `${array[@]}` could work at the cost of having its indices/keys discarded; still not very practical, especially when two or more arrays need to be passed to a function.  
+
 #### Common options
-These 3 options, in long format, are guaranteed to be accepted in all functions:  
+These 3 options are guaranteed to be accepted in all functions:  
 `--help` show help  
 `--usage` show usage  
 `--version` show version  
-Short options equivalents of above options, `-h`, `-u`, `-V`, are common, but are not to be relied upon as they might've been used for something else entirely.  
+Short-option equivalents of above options, `-h`, `-u` and `-v` (including their capital case form) are frequent, but are not to be relied upon as they might have been used for something else entirely.  
   
-Most functions also accept setting of verbosity level through  
-`-v, --verbosity LEVEL` option, followed by LEVEL option-argument, which is one of these numbers: 0 (quiet), 1(fatal), 2(errors), 3(debug).  
-  
-If a function accepts user supplied name for a variable that will hold function's resulting value, this is always achieved through  
-`-o, --out NAME` option followed by a required argument that must be valid identifier. If the argument is a number 1-9 (inclusive) the output will be send to this file descriptor.
-
+`-v, --verbose`
+Most functions also accept setting of verbosity level via `-v, --verbose LEVEL` option, where optional option-argument LEVEL is: 0 for quiet - no error output, 1 for output of fatal error messages (default level), 2 for extensive informational output, 3 for debugging output; verbosity levels can also be set the traditional way as `-v, -vv, -vvv`, which correspond to levels 1, 2 and 3 respectively.
+   
+`-o, --out`
+If a function accepts user supplied name for a variable that will hold function's resulting value, this is always achieved via `-o, --out NAME` option, followed by required option-argument NAME that must be valid identifier. If the option-argument is a number 1-9 (inclusive) the output will be send to this file descriptor.   
+   
   
 ### List of functions  
 (Some functions encompass functionalities, that might've been split across several functions, as subroutines)  
@@ -140,6 +143,7 @@ Shift the first value of the array off and return it.
   
 * `bb_array_sort`  
 Sort array different ways. Remove duplicated values from an array (make unique).  
+
 * `in_array`  
 Checks if a value (variable or array) exists in an array.  
     
@@ -183,21 +187,20 @@ Pack and squeeze an array.
   
   
 ### Features  
-Implement or check that everything is as described above.  
+Check list of features that are (or need to be) implemented (as described above).  
 `c` completions  
-`d` documentation in comments (of function's file)  
-`h` current --help option  
+`d` documentation and steps inside file (more comments)  
+`h` up to date --help  
 `o` output result to given var or FD  
-`m` man page  
-`n` pass variables by name or value  
-`p` positionals\*  
+`m` man page completed  
+`n` pass scalars also by name   
+`p` positionals (try parsing params before calling `getopt`)
 `s` standalone  
 `t` tests  
+`u` unified option names (as much as possible)   
 `v` verbosity levels  
-`?` option to get parameters from stdin  
-
-\*  parse positional params, but if any left (compounded short options, abbreviated long options) use `getopt`  
-  
+`-` operand to get parameters from stdin  
+    
   
 [c]: #features  "completions"
 [d]: #features  "documentation"
@@ -208,20 +211,37 @@ Implement or check that everything is as described above.
 [p]: #features  "positionals"
 [s]: #features  "standalone"
 [t]: #features  "tests"
+[u]: #features  "unified"
 [v]: #features  "verbosity"
   
   
 ### Definitions
 (used usually in function's comments, help section, etc.)   
 
-**identifier**  Variable's name consisting of alphabetic characters, numbers and underscore char, but 1st char must not be a number. `[[:alpha:]_][[:alnum:]_]+`  
+**name** 
+a word consisting solely of underscores, digits and alphabetics.  
+
+**identifier** 
+a word consisting solely of underscores, digits and alphabetic characters from the POSIX portable character set. First char must not be a digit. 
+`[[:alpha:]_][[:alnum:]_]+`  
+
+**portable character set** 
+POSIX portable character set consists of 8 chars from Control Character Set: NULL, BELL, BACKSPACE, TAB, CARRIAGE RETURN, LINE FEED, VERTICAL TAB, FORM FEED and X characters from ASCII range 32-126.
+
+
 **char**  Any character.  
 **string**  Sequence of characters.  
 **substring**  Sequence of characters that are part of the string.  
-**name**  Portable sequence of characters. `[[:alpha:].-_]+`  
-**filename**  POSIX portable filename, hyphen not 1st char. `[[:alnum:]._][[:alnum:].-_]+`  
-**pathname**  POSIX portable filename, hyphen not 1st char. `[[:alnum:]._/][[:alnum:].-_/]+`  
-**alias**  POSIX portable name of alias. `[[:alnum:].-_/!%,@]`  
+
+**filename**  POSIX portable filename, hyphen not 1st char. 
+`[[:alnum:]._][[:alnum:].-_]+`  
+
+**pathname**  POSIX portable filename, hyphen not 1st char. 
+`[[:alnum:]._/][[:alnum:].-_/]+`  
+
+**alias**  POSIX portable name of alias. 
+`[[:alnum:].-_/!%,@]`  
+
 **var**  Name of scalar or array variable.  
 **scalar**  Name of scalar variable.  
 **array**  Name of array variable.  
