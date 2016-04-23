@@ -59,6 +59,15 @@
 #:      2  Parameter empty
 #=======================================================================
 
+# cut style field ranges:
+#   N    N'th field, counted from 1
+#   N-   from N'th field, to end of line
+#   N-M  from N'th to M'th field (inclusive)
+#   -M   from first to M'th field (inclusive)
+#   -    all fields
+# Multiple fields/ranges can be separated with commas
+
+
 bb_field() {
 #                                                                  ABOUT
 #                                                                  =====
