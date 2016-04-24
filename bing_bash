@@ -1,0 +1,347 @@
+#!/bin/bash sourceme
+#=========================================================================
+#: FILE: bing_bash
+#: PATH: $BING_FUNC/bing_bash
+#: TYPE: include
+#:   NS: shell:bash:mandober:bing-bash:function:bing_bash
+#:  CAT: environment/config/initialize
+#:
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+#: AUTHOR:
+#:      bing-bash by Ivan Ilic <ivanilic1975@gmail.com>
+#:      https://github.com/mandober/bing-bash
+#:      za Ǆ - Use freely at owns risk
+#:      25-Apr-2016 (last revision)
+#:
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+#: NAME:
+#:      bing_bash
+#:
+#: BRIEF: 
+#:      bing-bash configuration and initialization settings.
+#:
+#: DESCRIPTION:
+#:      Configuration for bing-bash function library.Not necessary,
+#:      merely convenient. Initializes various bing-bash env vars.
+#:
+#: DEPENDENCIES:
+#:      Function: bb_load (fauto, fload, fres )
+#:
+#: EXAMPLE:
+#:      
+#:
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+#: SYNOPSIS:
+#:      
+#:
+#: OPTIONS:
+#:      
+#:
+#: OPERANDS:
+#:      
+#:
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+#: STDOUT:
+#:      
+#:
+#: STDERR:
+#:      Error messages.
+#:
+#: RETURN CODE:
+#:      0  success
+#:      1  failure
+#:      2  Positional parameters empty
+#=========================================================================
+
+  # [dir]
+  # BING
+  # BING_FUNC
+  # BING_BIN
+  # BING_TEMP
+
+  # [paths]
+  # BING_MAN
+  # FPATH
+
+  # [env]
+  # BING_BASH
+  # BING_DB
+  # BING_TBL
+
+  # [arrays]
+  # BING_ARRAY
+  # BING_EXPLODED
+  # BING_MERGED
+
+  # [scalars]
+  # BING_VAR
+  # BING_IMPLODED
+
+#                                                                BING VARS
+#=========================================================================
+# Optional environmental variables used mainly for convenience.
+
+#                                                             BING
+#-----------------------------------------------------------------
+ #  BING
+ #    [bing-bash] base directory
+ #
+ export BING="$HOME/bing"
+
+#                                                        BING_FUNC
+#-----------------------------------------------------------------
+ #  BING_FUNC
+ #    [bing-bash] parent functions directory.
+ #    Top most, parent, directory that contain [bing-bash] files 
+ #    with function definitions. Possibly the same as above.
+ #    There could be sub-dirs with functions inside this directory.
+ export BING_FUNC="$HOME/bing/func"
+
+#                                                    BING_BIN/PATH
+#-----------------------------------------------------------------
+ #  BING_BIN
+ #    [bing-bash] bin directory
+ #    Directory containing [bing-bash] executable tools and functions
+ #    that could be executed, aside from being sourced.
+ # export BING_BIN="$BING_FUNC/bin"
+ export PATH=$PATH:$BING_FUNC/bin
+
+#                                                        BING_TEMP
+#-----------------------------------------------------------------
+ #  BING_TEMP
+ #    [bing-bash] temporary directory
+ #    Directory containing temporary[bing-bash] files.
+ export BING_TEMP="$BING_FUNC/temp"
+
+#                                                 BING_MAN/MANPATH
+#-----------------------------------------------------------------
+ #  BING_MAN
+ #    [bing-bash] man directory
+ #    Directory containing [bing-bash] man files.
+ # BING_MAN="$BING_FUNC/man"
+ # export MANPATH="$BING_MAN:$MANPATH"
+ export MANPATH="$BING_FUNC/man:/usr/local/man:/usr/share/man:/usr/man"
+
+#                                                          BING_DB
+#-----------------------------------------------------------------
+ #  BING_DB
+ #    [bing-bash] db file
+ #    Path to sqlite database file:
+ export BING_DB="$BING_FUNC/sys/bb.db"
+ #    Name of table in sqlite db:
+ export BING_TBL=funcs
+
+#                                                       BING_FLAGS
+#-----------------------------------------------------------------
+ #  BING_FLAGS                                               @TODO
+ #    [bing-bash] flags
+ #    Flags that affect bing-bash functions:
+ #    c - use colors
+ #    v - print verbose messages (same as passing -v2 or -vv to a function)
+ #    d - print debug messages (same as passing -v3 or -vvv to a function)
+ #    t - trim input (possible speed penalty)
+ # export BING_FLAGS="color:verbose:debug:trim:timeout=240"
+ export BING_FLAGS="c:v:d:t"
+
+#                                                                    SHOPT
+#=========================================================================
+ shopt -s extglob        # enable extended regular exp
+ shopt -s extquote       # enables $'' and $"" quoting
+ shopt -s globstar       # enable ** matching
+ shopt -u nocasematch    # case sensitivity with regexp
+ shopt -u nocaseglob     # case sensitivity when globbing
+ set +o noglob           # just in case it's unset
+ set +a
+
+ # save current shell options
+ # set +o >| "$BING_TEMP/env_set"
+ # shopt -p >| "$BING_TEMP/env_shopt"
+
+
+#                                                                FUNCTIONS
+#=========================================================================
+ #   FPATH  - colon separated list of function paths
+ #   FFILES - colon separated list of function's FQPN
+ #            (FQPN = fully qualified path name)
+ #
+ #   FNAMES           # f-names
+ #     FuncAuto       # autoload funcs array
+ #     FuncPath       # f-dirs array
+ #     FuncFiles      # func files full paths array
+ #     FuncNames      # f-names array
+ 
+ 
+#                                                     PRELOAD
+#------------------------------------------------------------
+ # always load, at least `bb_load', it's crucial
+ . $BING_FUNC/load
+ . $BING_FUNC/typeof.bash
+
+ # FuncPreload preload funcs array
+ # ALWAYS LOAD these funcs:
+ declare -a FuncPreload=( bb_load bb_typeof )
+
+#                                                       FPATH
+#------------------------------------------------------------
+ # FPATH
+ # is an environment variable, similar to PATH, with
+ # colon-delimited paths to functions directories. Unlike
+ # other shells that support functions autoloading, bash
+ # doesn't use this variable. `bb_load' functions use this
+ # to locate directories with functions (files need to have
+ # .bash extension to be recognized as function files).
+ export FPATH=$BING_FUNC:$BING_FUNC/strings:$BING_FUNC/sys
+
+#                                                       FNAME
+#------------------------------------------------------------
+ # FNAME
+ # colon-separated list of base (stem) names of available 
+ # bing-bash functions (fname without the `bb_' prefix).
+ #
+ # Manual addition are possible, for now all files from
+ # $BING_FUNC folder and subfolders with extension `.bash' 
+ # are included: $BING_FUNC/**/*.bash
+ # (due to this globbing pattern, `globstar' shopt must be enabled)
+ #
+ # FuncFiles - full paths ARRAY
+ # e.g. ( $BING_FUNC/typeof.bash ... )
+ declare -a FuncFiles=( $BING_FUNC/**/*.bash )
+ # Enumerate f-files in $BING_FUNC and its sub-dirs
+
+
+# FFILES - colon separated list of function pathnames
+# e.g. $BING_FUNC/array.bash:$BING_FUNC/array_clone.bash: ...
+FFILES="${FuncFiles[@]}"
+FFILES="${FFILES[@]// /:}"
+FFILES="${FFILES%:}"
+export FFILES
+
+
+# FuncNames - func names with prefix ARRAY
+# e.g. ( bb_typeof bb_array_clone ... )
+declare -a FuncNames
+FuncNames=( "${FuncFiles[@]##*/}" )
+FuncNames=( "${FuncNames[@]%.bash}" )
+FuncNames=( "${FuncNames[@]/#/bb_}" )
+
+# FNAMES - COLON SEPARATED func names
+# e.g. bb_array:bb_array_clone: ...
+FNAMES="${FuncNames[@]}"
+FNAMES="${FNAMES[@]// /:}"
+FNAMES="${FNAMES%:}"
+export FNAMES
+
+
+
+
+#                                                    AUTOLOAD
+#------------------------------------------------------------
+# FuncAutoload autoload funcs array
+declare -a FuncAutoload
+
+# Put here individual functions to be autoloaded:
+# FuncAutoload=( bb_implode bb_explode bb_in_array )
+
+# OR, this will autoload all available funcs:
+FuncAutoload=( "${FuncFiles[@]}" )
+
+
+
+#                                                         SOURCE FUNCTIONS
+#=========================================================================
+
+
+#                                                     PRELOAD
+#------------------------------------------------------------
+# Fully load funcs from FuncPreload array. After sourcing
+# them, they are exported - this differentiates them from
+# functions marked for autoloading.
+for bbFPre in "${!FuncPreload[@]}"; do
+  [[ -r "${FuncPreload[bbFPre]}" ]] && {
+    :
+    # . "${FuncPreload[bbFPre]}" && export -f $bbFPre
+  }
+done
+
+bb_typeof FuncPreload FuncAutoload
+
+
+
+#                                                    AUTOLOAD
+#------------------------------------------------------------
+# autoload all
+# . "$BING_FUNC/load"
+# bb_load --auto
+
+# for bbFAuto in "${FuncAutoload[@]}"; do
+#   for bbFPre in "${FuncPreload[@]}"; do
+#     [[ "$bbFAuto" == "$bbFPre" ]] && 
+#     bb_load --auto $bbFAuto
+#   done
+# done
+
+
+
+# for bbFuncPath in "${BING_FUNCS[@]}"; do
+#   bbFunc=$(bb_load --normalize $bbFuncPath)
+#   bb_load --auto $bbFunc
+#   BING_FF+=( bb_$bbFunc )
+# done
+
+unset bbFuncPath bbFunc
+
+
+# Manually add functions and their paths to assoc array
+  # declare -A BING_FUNCTIONS=(
+  #   [array]="$BING_FUNC/array.bash"
+  #   [array_clone]="$BING_FUNC/array_clone.bash"
+  #   [array_merge]="$BING_FUNC/array_merge.bash"
+  #   [array_convert]="$BING_FUNC/array_convert.bash"
+  #   [array_remove]="$BING_FUNC/array_remove.bash"
+  #   [array_shift]="$BING_FUNC/array_shift.bash"
+  #   [array_sort]="$BING_FUNC/array_sort.bash"
+  #   [array_pop]="$BING_FUNC/array_pop.bash"
+  #   [base]="$BING_FUNC/base.bash"
+  #   [explode]="$BING_FUNC/explode.bash"
+  #   [get]="$BING_FUNC/get.bash"
+  #   [implode]="$BING_FUNC/implode.bash"
+  #   [in_array]="$BING_FUNC/in_array.bash"
+  #   [is]="$BING_FUNC/is.bash"
+  #   [range]="$BING_FUNC/range.bash"
+  #   [stab]="$BING_FUNC/stab.bash"
+  #   [typeof]="$BING_FUNC/typeof.bash"
+  #   [venn]="$BING_FUNC/venn.bash"
+  #   [bb]="$BING_FUNC/bb"
+  #   [load]="$BING_FUNC/load"
+  #   [field]="$BING_FUNC/strings/field.bash"
+  #   [pad]="$BING_FUNC/strings/pad.bash"
+  #   [strpos]="$BING_FUNC/strings/strpos.bash"
+  #   [trim]="$BING_FUNC/strings/trim.bash"
+  #   [prompt]="$BING_FUNC/sys/prompt.bash"
+  # )
+
+
+
+#                                                          DB
+#------------------------------------------------------------
+  # insert functions to db - one time only
+  # if [[ -r "$BING_FUNC/sql" ]]; then
+  # 	. "$BING_FUNC/sql"
+  # 	bb_sql --insert "${FUNCS[@]}"
+  # fi
+
+
+#                                                                  ALIASES
+#=========================================================================
+[[ -r "$BING_FUNC/bing_aliases" ]] && . "$BING_FUNC/bing_aliases"
+
+
+#                                                              COMPLETIONS
+#=========================================================================
+complete -o default -o bashdefault -o nospace -A variable -A function echo
+
+
+
+#                                                              DATA SAMPLE
+#=========================================================================
+[[ -r "$BING_FUNC/bing_samples" ]] && . "$BING_FUNC/bing_samples"
