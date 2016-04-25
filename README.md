@@ -109,11 +109,11 @@ Short-option equivalents of above options, `-h`, `-u` and `-v` (including their 
 Most functions also accept setting of verbosity level via `-v, --verbose LEVEL` option, where optional option-argument LEVEL is: 0 for quiet - no error output, 1 for output of fatal error messages (default level), 2 for extensive informational output, 3 for debugging output; verbosity levels can also be set the traditional way as `-v, -vv, -vvv`, which correspond to levels 1, 2 and 3 respectively.
    
 `-o, --out`
-If a function accepts user supplied name for a variable that will hold function's resulting value, this is always achieved via `-o, --out NAME` option, followed by required option-argument NAME that must be valid identifier. If the option-argument is a number 1-9 (inclusive) the output will be send to this file descriptor.   
+If a function accepts user supplied name for a variable that will hold function's resulting value, this is always achieved via `-o, --out NAME` option, followed by required option-argument NAME that must be valid identifier. If the option-argument is a number 1-9 (inclusive) the output will be sent to this file descriptor.   
    
   
 ### List of functions  
-(Some functions encompass functionalities, that might've been split across several functions, as subroutines)  
+(at the moment, some functions encompass functionalities that perphaps shouldn't've been merged together in a single functions as subroutines)  
   
 * `bb_typeof`   
 Pretty dump arrays and their attributes is its main purpose.  
@@ -121,10 +121,10 @@ Type and qualify given string: identify it as set or unset variable, array, shel
 (feat: [d][] [h][] [o][] [m][] [p][] [s][] [t][])  
   
 * `bb_explode`  
-Convert a string to array by splitting it by substring which can be a single or multi-character substring. Also convert a string to array of individual characters.  
+Convert a string to array by splitting it by substring which can be a single or multi-character substring; convert a string to array of individual characters. Needs "predict a delimiter" feature.   
   
 * `bb_implode`  
-Convert an array to string. Specify wrapping and glue characters.  
+Convert an array to string. Specify wrapping, prefix, suffix and *glue* characters.  
   
 * `bb_array_clone`  
 Clone an array.  
@@ -133,34 +133,31 @@ Clone an array.
 Merge two or more arrays of any type (indexed and/or associative). User can force the type of resulting array and specify merging mode (reindex, skip, overwrite, append).  
   
 * `bb_array_convert`  
-Convert indexed to associative array or vice versa.  
+Convert indexed to associative array or associative to index array, discarding the keys.  
   
 * `bb_array_remove`  
-Remove array elements. Remove element with specified index/key from an array. Remove several elements by specifying them as comma-separated list of integers and/or ranges. Optionally, if name for the resulting array is specified, the original array will be left intact.  
+Remove one or more element by specifying index/key. Remove many elements by specifying comma-separated list of strings (associative) or ranges (mainly for indexed arrays). 
   
 * `bb_array_shift`  
-Shift the first value of the array off and return it.  
+Return the value of the first element by removing it and shifting remaining elements down.  
   
 * `bb_array_sort`  
-Sort array different ways. Remove duplicated values from an array (make unique).  
+Sort array different ways. Remove duplicated values from an array.  
 
 * `in_array`  
-Checks if a value (variable or array) exists in an array.  
+Checks if a value, scalar or array, exists in an array.  
     
 * `bb_range`  
 Generate numeric sequences from list of ranges and individual integers (e.g. 1,4-8,10,15-20,25-30). Specify numbers base and divider, prefix, suffix characters.  
   
 * `bb_venn`  
-Venn diagrams related functions: union, intersection, difference, complement.  
+Scalars, strings, arrays and Venn diagrams: union, intersection, difference, complement.  
   
-* `bb_strpos`  
-Find the position of the first occurrence of a substring in a string.  
-  
+* `bb_load`  
+Load and unload functions. Mark functions for autoloading. Resolve functions path.  
+   
 * `bb_pad`  
 Pad a string by appending char(s) after each character of the string. 
-
-* `bb_load`  
-Source functions. Mark functions for autoloading. Resolve functions path.  
   
 * `bb_trim`  
 Trim leading, trailing and intermediate whitespace.  
@@ -179,27 +176,27 @@ Collect information about variables, their attributes, arrays, variable's length
   
 * `bb_array`  
 Array quick dump.  
-Identify array as indexed, associative, numeric.  
-Return keys, values, empty elements.  
-Remove unset elements.  
-Re-index a sparse array.  
-Pack and squeeze an array.  
-  
+Identify array as associative and indexed.  
+Identify indexed array as numeric, packed, sparse.  
+Return array's keys, values, empty elements, max, min values.  
+Squeeze an array.  
+Pack an array.  
+   
   
 ### Features  
-Check list of features that are (or need to be) implemented (as described above).  
+Or tasks. Check-list of features that are, or need to be, implemented.  
 `c` completions  
-`d` documentation and steps inside file (more comments)  
+`d` documentation, rationale and steps included in comments   
 `h` up to date --help  
 `o` output result to given var or FD  
 `m` man page completed  
-`n` pass scalars also by name   
-`p` positionals (try parsing params before calling `getopt`)
-`s` standalone  
-`t` tests  
-`u` unified option names (as much as possible)   
-`v` verbosity levels  
-`-` operand to get parameters from stdin  
+`n` pass scalars (also) by name (in applicable functions)   
+`p` positionals (parse canonical params before involving `getopt`)  
+`s` standalone function (no deps on any other function)  
+`t` tests provided  
+`u` unified names for options across functions  
+`v` Verbosity levels or TMI  
+`-` possibility provided to get params from stdin  
     
   
 [c]: #features  "completions"
@@ -216,37 +213,26 @@ Check list of features that are (or need to be) implemented (as described above)
   
   
 ### Definitions
-(used usually in function's comments, help section, etc.)   
-
-**name** 
-a word consisting solely of underscores, digits and alphabetics.  
-
-**identifier** 
-a word consisting solely of underscores, digits and alphabetic characters from the POSIX portable character set. First char must not be a digit. 
+(used in comments, help sections, man pages)   
+**identifier**  a word consisting solely of underscores, digits and alphabetic characters from the POSIX portable character set. First char must not be a digit.  
 `[[:alpha:]_][[:alnum:]_]+`  
-
-**portable character set** 
-POSIX portable character set consists of 8 chars from Control Character Set: NULL, BELL, BACKSPACE, TAB, CARRIAGE RETURN, LINE FEED, VERTICAL TAB, FORM FEED and X characters from ASCII range 32-126.
-
-
+**portable character set**  POSIX portable character set consists of 8 chars from Control Character Set: NULL, BELL, BACKSPACE, TAB, CARRIAGE RETURN, LINE FEED, VERTICAL TAB, FORM FEED and X characters from ASCII range 32-126.  
+**FQPN**  Fully qualified path name.  
+**name**  a word consisting solely of underscores, digits and alphabetics.  
 **char**  Any character.  
 **string**  Sequence of characters.  
 **substring**  Sequence of characters that are part of the string.  
-
-**filename**  POSIX portable filename, hyphen not 1st char. 
+**filename**  POSIX portable filename, hyphen not 1st char.  
 `[[:alnum:]._][[:alnum:].-_]+`  
-
-**pathname**  POSIX portable filename, hyphen not 1st char. 
-`[[:alnum:]._/][[:alnum:].-_/]+`  
-
-**alias**  POSIX portable name of alias. 
+**pathname**  POSIX portable filename, hyphen not 1st char.  
+`[[:alnum:]._/][[:alnum:].-_/]+`   
+**alias**  POSIX portable name of alias.  
 `[[:alnum:].-_/!%,@]`  
-
 **var**  Name of scalar or array variable.  
 **scalar**  Name of scalar variable.  
 **array**  Name of array variable.  
 **assoc**  Array whose keys are strings.    
-**indexed**  Array whose indexes are numberic.  
+**indexed**  Array whose indexes are numeric.  
 **packed array**  Indexed array with contiguous indexes that start from 0.  
 **sparse array**  Indexed array with non-contiguous indexes.  
 **whitespace**  Space, tab, vertical tab, new line.  
@@ -254,5 +240,4 @@ POSIX portable character set consists of 8 chars from Control Character Set: NUL
 **argument**  Argument to an option.  
 **required**  Required argument.  
 **optional**  Optional argument.  
-  
   
