@@ -1,20 +1,23 @@
-#!/bin/bash bingmsg
-#=======================================================================
+#!/bin/bash sourceme
+#=========================================================================
 #: FILE: load
 #: PATH: $BING_FUNC/load
 #: TYPE: function
+#:   NS: shell:bash:mandober:bing-bash:function:bb_load
+#:  CAT: functions
 #:
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 #: AUTHOR:
 #:      bing-bash by Ivan Ilic <ivanilic1975@gmail.com>
 #:      https://github.com/mandober/bing-bash
 #:      za Ǆ - Use freely at owns risk
-#:      26-Mar-2016 (last revision)
+#:      25-Apr-2016 (last revision)
 #:
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-#: NAME: 
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+#: NAME:
 #:      bb_load
 #:
-#: BRIEF: 
+#: BRIEF:
 #:      Manage functions.
 #:
 #: DESCRIPTION:
@@ -32,15 +35,15 @@
 #:        be unset.
 #:
 #: DEPENDENCIES:
-#:      functions: bb_err, bb_explode, bb_is
-#:      environment variables: FPATH
+#:      Env. variables: FPATH
+#:      Functions: 
 #:
 #: EXAMPLE:
 #:      bb_load bb_explode implode $BING/func/err
 #:      bb_load --auto bb_explode implode $BING/func/err
 #:      bb_load --resolve bb_explode implode
 #:
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 #: SYNOPSIS:
 #:      bb_load --SUB FNAME...
 #:
@@ -61,7 +64,7 @@
 #:      FNAME <string>
 #:      Name of function(s).
 #:
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 #: STDOUT:
 #:      Output function paths when using --resolve
 #:
@@ -69,38 +72,46 @@
 #:      Error messages, usage
 #:
 #: RETURN CODE:
-#:      0  great success
-#:      1  miserable failure
-#:      2  Positional parameters empty
-#:      7  FPATH not set
-#:      9  Parameter empty
-#=======================================================================
-# $BING_FUNC/load
+#:      0  success
+#:      1  failure
+#:      2  Positional parameter empty
+#:      3  FPATH not set
+#:      4  Invalid function name or path
+#=========================================================================
 bb_load() {
 
-#                                                                  ABOUT
-#                                                                  =====
+#                                                                    ABOUT
+#-------------------------------------------------------------------------
  local -r bbapp="${FUNCNAME[0]}"
- local -r bbnfo="[bing-bash] $bbapp v.0.30"
+ local -r bbnfo="[bing-bash] $bbapp v.0.31"
  local -r usage="USAGE: $bbapp --ACTION FNAME"
 
-#                                                               PRECHECK
-#                                                               ========
-  if [[ $# -eq 0 ]]; then
-    printf "\e[2m%s: %s\e[0m\n" "$bbapp" "Parameter empty" >&2
-    printf "%s\n" "$usage" >&2
-    return 9
-  fi
+#                                                                 PRECHECK
+#-------------------------------------------------------------------------
+ local bbT=0
+ # bbT=1 -> stdout/stderr available
+ [[ -t 1 || -p /dev/stdout ]] && local bbT=1
+ # if nor args print usage
+ if (($#==0)); then
+    ((bbT==1)) && {
+      # @OUTPUT to stderr if interactive shell
+      printf "\e[2m%s: %s\e[0m\n" "$bbapp" "Positional parameter empty" >&2
+      printf "%s\n" "$usage" >&2
+    }
+    return 2
+ fi
 
-  if [[ -z "$FPATH" ]]; then
-    printf "\e[2m%s: %s\e[0m\n" "$bbapp" "FPATH not set" >&2
-    printf "%s\n" "FPATH is an environment variable, similar to PATH," >&2
-    printf "%s\n" "that contains paths to functions' directories." >&2
-    return 9
-  fi
+ if [[ -z "$FPATH" ]]; then
+   printf "\e[2m%s: %s\e[0m\n" "$bbapp" "FPATH not set" >&2
 
-#                                                                   HELP
-#                                                                   ====
+   echo "\e[2mFPATH is an environment variable, similar to PATH,
+ that contains paths to directories with functions.\e[0m" >&2
+ 
+   return 3
+ fi
+
+#                                                                     HELP
+#-------------------------------------------------------------------------
  [[ $1 =~ ^(--usage)$ ]] && { printf "%s\n" "$usage"; return 0; }
  [[ $1 =~ ^(--version)$ ]] && { printf "%s\n" "$bbnfo"; return 0; }
  [[ $1 =~ ^(--help)$ ]] && {
@@ -112,6 +123,7 @@ bb_load() {
 	  path by seraching FPATH, etc.
 	OPTIONS:
 	  -a, --auto        Mark function for autoloading.
+
 	  -h, --help        Show program help.
 	  -u, --usage       Show program usage.
 	  -v, --version     Show program version.
@@ -119,80 +131,180 @@ bb_load() {
 	return 0
  }
 
-#                                                                    SET
-#                                                                    ===
+#                                                                      SET
+#-------------------------------------------------------------------------
  shopt -s extglob extquote; shopt -u nocasematch; set -o noglob
  trap "set +o noglob" RETURN ERR SIGHUP SIGINT SIGTERM
 
 
-#                                                                PROCESS
-#                                                                =======
-case $1 in
+#                                                                    CHECK
+#=========================================================================
+local bbOpt
+# first param must be an option:
+bbOpt="$1"
+shift
 
+[[ -p "$1" ]] && {
+  # NORMALIZE fnames, down to stem, e.g. `typeof'
+  local bbFunc
+  local bbF=""
+  local bbTrack=0
+  # list all operands i.e. fnames
+  for bbFunc; do
+    ((++bbTrack))
+    # parameters (function names) can only contain: alnums and ._-
+    [[ ! "$bbFunc" =~ [[:alnum:]\._\/-]+ ]] && return 4
+    # STRIP FOLDERS
+    bbFunc="${bbFunc##*/}"
+    # STRIP EXTENSION
+    bbFunc="${bbFunc%.bash}"
+    # STRIP `bb_' PREFIX
+    bbFunc="${bbFunc#bb_}"
+    # return function's name
+    (($# != bbTrack)) && printf "%s " "$bbFunc" || printf "%s" "$bbFunc"
+  done
+  # make params unique in case they aren't
+  bbFunc="$(printf "%s\n" $bbF | sort -u)"
+  # set params back as positionals
+  set -- $bbFunc
+}
+
+
+# loaded funcs
+# local FLOADED
+# FLOADED=( $(declare -F | cut -f3 -d' ') )
+
+
+#                                                                     SUBS
+#-------------------------------------------------------------------------
+case $bbOpt in
+
+#                                                                NORMALIZE
+#=========================================================================
+-n|--normalize)
+  #
+  #  USAGE: 
+  #      bb_load -n|--normalize FNAME ...
+  #
+  #  DESCRIPTION: 
+  #      Normalize each function name given as parameter.
+  #      down to stem, e.g. `typeof'
+  #
+  #  EXAMPLES: 
+  #      bb_load -n bb_typeof               #-> typeof
+  #      bb_load -n $BING_FUNC/typeof.bash  #-> typeof
+  #
+  local bbFunc
+  local bbFTemp=""
+  # local bbTrack=0
+
+  # if no param, normalize all
+  [[ -z "$1" ]] && set -- "${FuncFiles[@]}"
+
+  # list all operands
+  for bbFunc; do
+    # ((++bbTrack))
+    # parameters (function names) can only contain: alnums and ._-
+    [[ ! "$bbFunc" =~ [[:alnum:]\._\/-]+ ]] && return 4
+    # STRIP FOLDERS
+    bbFunc="${bbFunc##*/}"
+    # STRIP EXTENSION
+    bbFunc="${bbFunc%.bash}"
+    # STRIP `bb_' PREFIX
+    bbFunc="${bbFunc#bb_}"
+    # return function's name
+    # (($# != bbTrack)) && printf "%s " "$bbFunc" || printf "%s" "$bbFunc"
+    bbFTemp+="$bbFunc "
+  done
+
+  # make params unique in case they aren't
+  printf "%s\n" $bbFTemp | sort -u
+
+  # bbFunc="$(printf "%s\n" $bbFTemp | sort -u)"
+  # set params back as positionals
+  # set -- $bbFunc
+
+  return 0
+;;
+
+#                                                                 AUTOLOAD
+#=========================================================================
 -a|--auto)
   #
   #  USAGE: 
-  #      bb_load --auto FNAME ...
+  #      bb_load -a|--auto FNAME ...
   #
   #  DESCRIPTION: 
-  #      Mark function for autoloading: use eval to make substitute 
+  #      Mark functions for autoloading: use eval to make substitute 
   #      function with the same name as the real function that will
   #      be sourced the first time the function is called. 
   #        (this autoload solution is based on the autoload.v3, ksh 
   #        like autoloader, by Mark Kennedy mtk@ny.ubs.com found in 
   #        bash src, in functions' examples directory).
   #      Pass one or more functions by:
+  #       - name of the function (bb_range) or its alias (range)
+  #       - filename only, with extension (range.bash) or not (range)
   #       - full path with filename ($BING_FUNC/range.bash)
-  #       - filename only, with or without extension (range)
-  #       - name of the function (bb_range)
   #       - any mix of the above
   #
   #  EXAMPLE:
-  #      bb_load --auto explode implode
-  #      bb_load --auto bb_explode bb_implode 
+  #      bb_load --auto explode
+  #      bb_load --auto implode range venn typeof
+  #      bb_load --auto bb_explode implode 
   #      bb_load --auto $BING_FUNC/implode.bash $BING_FUNC/explode.bash
   #
-  shift
-  local bbFunc bbFuncPath bbFuncName
+  local bbFunc bbFuncPath bbStem
 
+  # if no param, autoload all functions
+  [[ -z "$1" ]] && set -- ${FuncFiles[@]}
+
+  # list all params (passed functions)
   for bbFunc; do
-    # parameters can only contain: alnum and ./_-
-    [[ ! "$bbFunc" =~ [[:alnum:]\.\/_-]+ ]] && return 2
+    # e.g. bbFunc=$BING_FUNC/typeof.bash
 
-    # Strip input down to filename (e.g. `explode'):
-    # strip parent folders if given
-    bbFunc="${bbFunc##*/}"
-    # strip extension if given
-    bbFunc="${bbFunc%.bash}"
-    # strip bb_ prefix if given
-    bbFunc="${bbFunc#bb_}"
+    # normalize each function e.g. `typeof'
+    bbStem="bb_$(bb_load --normalize $bbFunc)"
 
-    # Now, construct function's name (by adding `bb_' prefix)
-    bbFuncName="bb_${bbFunc}"
-    # fully qualified path ($BING_FUNC/explode.bash)
-    bbFuncPath="${BING_FUNC}/${bbFunc}.bash"
-    # check existance of the path
-    [[ -r '$bbFuncPath' ]] && return 1
+    # construct function's name (by adding `bb_' prefix)
+    # bbFuncBB="bb_${bbStem}"
 
-    eval $bbFuncName '() {
+    # resolve functions path
+    bbFuncPath=$(bb_load --resolve $bbStem)
+
+    # construct stand-in function
+    # when the definition is sourced, the func is exported
+    eval $bbFuncBB '() {
       if [[ -r '$bbFuncPath' ]]; then
         . '$bbFuncPath'
-        '$bbFuncName' "$@"
+        export -f '$bbFuncBB'
+        '$bbFuncBB' "$@"
         return $?
       else
         return 1
       fi
     }'
   done
+
   return 0
 ;;
 
-
--r|--res|--resolve)
+#                                                                  RESOLVE
+#=========================================================================
+-r|--resolve)
   #
   #  USAGE: 
   #      bb_load --resolve FNAME ...
   #
+  #  INPUT:
+  #      any form of func name, or if empty, all funcs from
+  #      FFILES - colon separated list of function pathnames
+  #      
+  #  OUTPUT: 
+  #      space separated list of FQPN
+  #      
+  #  DEPENDENCIES: 
+  #      FFILES - colon separated list of function pathnames
+  #      
   #  DESCRIPTION: 
   #      Return full path for each function passed as parameter 
   #      by searching FPATH. Function can be passed by its name
@@ -201,147 +313,186 @@ case $1 in
   #      function's name prefix).
   #
   #  EXAMPLE:
-  #      bb_load --resolve bb_err explode implode
+  #      bb_load --resolve bb_explode implode
   #
-  shift
-  local bbFPATH bbFunc bbFuncFile bbPath bbFuncPath bbMiss
-	local bbLoaded=""
-	bb_explode FPATH -d ':' bbFPATH
-  
+  local bbFPath bbFunc bbStem
+	local bbResolved=""
+
+  # if no param, resolve all
+  [[ -z "$1" ]] && {
+    printf "%s\n" ${FFILES//:/ }
+    return 0
+  }
+
   # Iterate through functions given as param, and for each function
   # go through each path in FPATH: assemble path+function pair, check
-  # each for existance, put matches in bbLoaded array.
-	for bbFunc in "$@"; do
-    # strip possible prefix, add extension
-    bbFuncFile="${bbFunc#bb_}.bash"
-		for bbPath in "${bbFPATH[@]}"; do
+  # each for existance, put matches in bbResolved.
+	for bbFunc; do
+    # normalize name
+    bbStem="$(bb_load --normalize $bbFunc)"
+
+		for bbFPath in ${FPATH//:/ }; do
+
       # assemble path+function pair
-			bbFuncPath="${bbPath}/${bbFuncFile}"
-			if [[ -r "$bbFuncPath" ]]; then
-				bbLoaded+="$bbFuncPath":
+			if [[ -r "$bbFPath/$bbStem.bash" ]]; then
+				bbResolved+="$bbFPath/$bbStem.bash "
 				break
 			fi
 		done
 	done
 
-  bbLoaded="${bbLoaded%?}"
-  printf "%s\n" "${bbLoaded}"
+  bbResolved="${bbResolved% }"
+  printf "%s" "${bbResolved}"
 
-
-	# [[ $# -eq ${#bbLoaded[@]} ]] && return 0
-  # bbMiss=$(( $# - ${#bbLoaded[@]} ))
-	# printf "%d function(s) weren't found" "$bbMiss" >&2
-	# return 1
+  return 0
 ;;
 
-
+#                                                                   UNLOAD
+#=========================================================================
 -u|--unload)
   #
   #  USAGE: 
-  #      bb_load --unload FNAME ...
+  #      bb_load -u|--unload FNAME ...
   #
   #  DESCRIPTION: 
   #      Unload each function given as parameter.
   #
-  shift
-  local bbFunc bbLoaded bbCount
-  bbLoaded=0
-  bbCount=$#
+  local bbFunc
+  local bbLoaded=0
 
+  # if no param, unload all
+  [[ -z "$1" ]] && {
+    local FLOADED=( $(declare -F | cut -f3 -d' ') )
+    set -- ${FLOADED[@]}
+  }
+
+  # list all params (passed functions)
   for bbFunc; do
-    [[ -z "$bbFunc" ]] && return 1
-    unset -f "$bbFunc"
-    (( ++bbLoaded ))
+    if [[ $bbFunc != "bb_load" ]]; then
+      unset -f "$bbFunc" && (( ++bbLoaded ))
+    fi
   done
 
-  [[ $bbCount -ne $bbLoaded ]] && return 2
+  (($# != bbLoaded)) && {
+    printf "%s\n" "Some functions have not been unset" >&2
+    return 2
+  }
+
   return 0
 ;;
 
-
--f--force)
+#                                                                   EXPORT
+#=========================================================================
+-x|--export)
   #
   #  USAGE: 
-  #      bb_load --force FNAME ...
+  #      bb_load -x|--export FNAME ...
   #
   #  DESCRIPTION: 
-  #      Load each functions given as parameter (with/out the prefix)
-  #      without checking if it is already available.
+  #      Export each function given as parameter.
   #
-  local bbFunc bbPath bbFuncPath bbPaths bbLoaded bbCount
-  bbLoaded=0
-  bbCount=$#
+  local bbFunc
+  local bbLoaded=0
 
-  # list functions
-  for bbFunc in "$@"; do
-      # list functions' paths
-      [[ -z "$FPATH" ]] && { bb_err 35; return 35; }
-      
-      IFS=: read -a bbPaths <<< "$FPATH"
+  # if no param, export all
+  [[ -z "$1" ]] && set -- ${FuncNames[@]}
 
-      for bbPath in "${bbPaths[@]}"; do
-        # strip bb_ prefix
-        bbFunc="${bbFunc#bb_}"
-        # assemble path
-        bbFuncPath="${bbPath}/${bbFunc}.bash"
-        # check if exists (path + func name)
-        if [[ -r "$bbFuncPath" ]]; then
-          . "$bbFuncPath"
-          export -f "bb_${bbFunc}"
-          (( ++bbLoaded ))
-        fi
-      done
+  # list params
+  for bbFunc; do
+    export -f "$bbFunc" && (( ++bbLoaded ))
   done
 
-  [[ $bbCount -ne $bbLoaded ]] && return 1
+  (($# != bbLoaded)) && {
+    printf "%s\n" "Some functions have not been exported" >&2
+    return 2
+  }
+
   return 0
 ;;
 
+#                                                                    LISTS
+#=========================================================================
+  #
+  #  USAGE: 
+  #      bb_load -l[sbfa]
+  #
+  #  DESCRIPTION: 
+  #      List functions
+  #
+  --list|-l|-ls) 
+      # list *ALL* loaded functions
+      printf "%s:\n" "Loaded functions" >&2
+      local FLOADED=( $(declare -F | cut -f3 -d' ') )
 
+      for bbFunc in "${FLOADED[@]}"; do
+        printf "%s" "$bbFunc"
+        local bbResolved=$(bb_load --resolve $bbFunc)
+        [[ -n $bbResolved ]] && printf " (%s)\n" "$bbResolved" || printf '\n'
+
+      done
+  ;;
+
+	-lb) # list loaded bing-bash functions
+     declare -F | egrep --color=never 'bb_'
+     ;;
+
+	-lf) # list fully loaded bing-bash functions
+     declare -F | egrep ' -fx ' | egrep --color=never 'bb_'
+     ;;
+
+	-la) # list autoloaded bing-bash functions
+     declare -F | egrep ' -f ' | egrep --color=never 'bb_'
+     ;;
+
+	-ln) # list not loaded bing-bash functions
+       
+       # all funcs: "${BING_FF[@]}"
+       
+       # loaded funcs: 
+       declare -a bbLoaded
+       bbLoaded=( $(declare -F | egrep --color=never 'bb_' | cut -f3 -d' ') )
+
+       # difference
+       bb_venn -v3 BING_FF -c bbLoaded
+    ;;
+
+
+#                                                                     LOAD
+#=========================================================================
 *)
   #
   #  USAGE:
   #      bb_load FNAME ...
   #
   #  DESCRIPTION: 
-  #      Source each function given as parameter.
+  #      Fully load and export each function given as parameter.
   #
-  local bbFunc bbPath bbFuncPath bbPaths bbLoaded bbCount
+  local bbFunc bbPath bbFuncPath bbPaths
+  local bbLoaded=0
+
+  # if no param, load all functions
+  [[ -z "$1" ]] && set -- ${FuncNames[@]}
   
-  bbLoaded=0
-  bbCount=$#
-
   # list functions
-  for bbFunc in "$@"; do
-    # check if the function is already available
-    # if ! declare -F "$bbFunc" &>/dev/null; then
-      # list functions' paths
-      [[ -z "$FPATH" ]] && { bb_err 35; return 35; }
-
-      IFS=: read -a bbPaths <<< "$FPATH"
-
-      for bbPath in "${bbPaths[@]}"; do
-        # strip bb_ prefix
-        bbFunc="${bbFunc#bb_}"
-        # assemble path
-        bbFuncPath="${bbPath}/${bbFunc}.bash"
-        # check if exists (path + func name)
-        if [[ -r "$bbFuncPath" ]]; then
-          . "$bbFuncPath"
-          export -f "bb_${bbFunc}"
-          (( ++bbLoaded ))
-        fi
-      done
-    # fi
+  for bbFunc; do
+    # resolve functions path
+    bbFuncPath=$(bb_load --resolve $bbFunc)
+    # source and export
+    . "$bbFuncPath"
+    export -f "bb_${bbFunc}" && (( ++bbLoaded ))
   done
 
-  [[ $bbCount -ne $bbLoaded ]] && return 1
-  return 0
+  (($# != bbLoaded)) && {
+    printf "%s\n" "Some functions have not been unloaded" >&2
+    return 2
+  }
 
+  return 0
 ;;
 
 esac
 
 
 return 0
+
 } # $BING_FUNC/load
