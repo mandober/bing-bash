@@ -47,7 +47,7 @@
 <li><a href="#positional-parameters">Positional parameters</a></li>
 <li><a href="#short-options">Short options</a></li>
 <li><a href="#long-options">Long options</a></li>
-<li><a href="#parameters-non-options">Parameters</a></li>
+<li><a href="#operands">Operands</a></li>
 </ul>
 </li>
 <li><a href="#list-of-functions">List of functions</a></li>
@@ -57,7 +57,7 @@
 <h3>
 <a id="about" class="anchor" href="#about" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>About</h3>
 
-<p>Library of bash functions comprising routines for dealing with variables, arrays, strings, symbols table, etc.  </p>
+<p>Library of bash functions comprising routines for dealing with variables, arrays, strings, functions, symbols table, etc.  </p>
 
 <h3>
 <a id="quick-start" class="anchor" href="#quick-start" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Quick Start</h3>
@@ -90,16 +90,18 @@ Apart from few, all functions are standalone, they don't depend on any other fun
 
 <p>Names of all functions are prefixed with <code>bb_</code> as an attempt to pseudo-namespace them so they won't collide with other eponymous tools, scripts and functions. On the other hand, files that define these functions are named without such prefix, with a <code>.bash</code> extension added. This makes it easy to separate files that contain functions from other files; the exceptions to this is <code>load</code> file that has no extension (because it contains autoloading function code).  </p>
 
-<p>If you're sure no naming collisions exist on your system, you can, of course, make aliases (e.g. <code>alias typeof=bb_typeof</code>) to shorten function's names; some aliases are already defined in <code>bing_aliases</code> file. </p>
+<p>If you're sure no naming collisions exist on your system, you can, of course, make aliases (e.g. <code>alias typeof=bb_typeof</code>) to shorten function's names; some aliases are already defined in <code>bing_aliases</code> file.  </p>
 
+<blockquote>
 <p>Names of variables local to functions all have <code>bb</code> prefix followed by capital letter (e.g. <code>bbParam</code>), so avoid passing similarly named parameters to minimize problems.</p>
+</blockquote>
 
 <p>Names of environment variables used are all upper-cased and have <code>BING_</code> prefix (e.g. <code>BING_FUNC</code>).</p>
 
 <h4>
 <a id="positional-parameters" class="anchor" href="#positional-parameters" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Positional Parameters</h4>
 
-<p>Positional parameters are divided into options and non-option parameters.<br>
+<p>Positional parameters are divided into options and operands (non-option parameters).<br>
 Options are further divided into:  </p>
 
 <ul>
@@ -113,11 +115,10 @@ Options are further divided into:  </p>
 
 <p>Options are also divided into short (<code>-o</code>) and long options (<code>--long-option</code>).  </p>
 
-<p>Non-option parameters can be explicitly separated from options by using double dash <code>--</code>; for example, <code>function -options -- PARAM1 PARAM2</code> in which case everything after '--' is treated as a non-option parameter, even if it starts with '-' or '--'. Otherwise (i.e. without '--'), <strong>order</strong> of options and non-option parameters is not important (unless specifically noted for a particular function).  </p>
+<p>Operands can be explicitly separated from options by using double dash <code>--</code>; for example, <code>function -options -- PARAM1 PARAM2</code> in which case everything after '--' is treated as an operand, even if it starts with '-' or '--'. Otherwise (i.e. without '--'), <strong>order</strong> of options and operands is not important (unless specifically noted for a particular function).  </p>
 
 <ul>
-<li>If the same option is repeated, the latter will overshadow the former occurrence.<br>
-</li>
+<li>If the same option is repeated, the latter will overshadow the former occurrence.</li>
 <li>If unrecognized option is supplied, it will be discarded.<br>
 </li>
 </ul>
@@ -171,13 +172,13 @@ Options are further divided into:  </p>
   <em>unambiguous</em>, e.g. <code>--long</code> instead of <code>--long-option</code>.</p>
 
 <blockquote>
-<p>NOTE: Important thing to know about this library is that all functions will parse canonically provided parameters (i.e. no compounded short options, no abbreviations of long options) internally, in the body of function itself, which means faster execution. Otherwise <code>getopt</code> utility will be called to parse parameters, which may sometimes result in slower function's execution.  </p>
+<p>NOTE: Important thing to note about this library is that all functions will parse canonically provided parameters (i.e. no compounded short options, no abbreviations of long options) internally, in the body of function itself, which means faster execution. Otherwise <code>getopt</code> utility will be called to parse parameters, which may sometimes result in slower function's execution.  </p>
 </blockquote>
 
 <h4>
-<a id="parameters-non-options" class="anchor" href="#parameters-non-options" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Parameters (non-options)</h4>
+<a id="operands" class="anchor" href="#operands" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Operands</h4>
 
-<p>A parameter to a function can be passed by name or by value.  </p>
+<p>An operand to a function can be passed by name or by value.  </p>
 
 <ul>
 <li>Array variables are always passed by name (without $).<br>
@@ -186,29 +187,33 @@ Options are further divided into:  </p>
 </li>
 </ul>
 
-<p>As a convenience, instead of passing a variable by value, possibly with quotations (e.g. <code>function "$var"</code>) you can just type <code>function var</code> to pass it by name. Naturally, a value can also be passed directly (<code>function "abcd"</code>), in which case there may be unexpected results if it happens that a variable by that name (variable called <code>abcd</code>) already exist. (Ah, the price for typing less).  </p>
+<p>As a convenience, instead of passing a variable by value, possibly with quotations (e.g. <code>function "$var"</code>) you can just type <code>function var</code> to pass it by name.  </p>
+
+<blockquote>
+<p>Naturally, a value can also be passed directly (<code>function "abcd"</code>), in which case there may be unexpected results if it happens that a variable by that name (a variable called <code>abcd</code>) already exist.  </p>
+</blockquote>
 
 <p>Since arrays cannot be passed around in bash (nor exported), they are always passed by name (without $). Trying to pass an array with <code>$array</code> will only pass its zeroth element (if any) and passing an array as <code>${array[@]}</code> could work at the cost of having its indices/keys discarded; still not very practical, especially when two or more arrays need to be passed to a function.  </p>
 
 <h4>
 <a id="common-options" class="anchor" href="#common-options" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Common options</h4>
 
-<p>These 3 options, in long format, are guaranteed to be accepted in all functions:<br>
+<p>These 3 options are guaranteed to be accepted in all functions:<br>
 <code>--help</code> show help<br>
 <code>--usage</code> show usage<br>
 <code>--version</code> show version<br>
-Short options equivalents of above options, <code>-h</code>, <code>-u</code>, <code>-V</code>, are common, but are not to be relied upon as they might've been used for something else entirely.  </p>
+Short-option equivalents of above options, <code>-h</code>, <code>-u</code> and <code>-v</code> (including their capital case form) are frequent, but are not to be relied upon as they might have been used for something else entirely.  </p>
 
-<p>Most functions also accept setting of verbosity level through<br>
-<code>-v, --verbosity LEVEL</code> option, followed by LEVEL option-argument, which is one of these numbers: 0 (quiet), 1(fatal), 2(errors), 3(debug).  </p>
+<p><code>-v, --verbose</code>
+Most functions also accept setting of verbosity level via <code>-v, --verbose LEVEL</code> option, where optional option-argument LEVEL is: 0 for quiet - no error output, 1 for output of fatal error messages (default level), 2 for extensive informational output, 3 for debugging output; verbosity levels can also be set the traditional way as <code>-v, -vv, -vvv</code>, which correspond to levels 1, 2 and 3 respectively.</p>
 
-<p>If a function accepts user supplied name for a variable that will hold function's resulting value, this is always achieved through<br>
-<code>-o, --out NAME</code> option followed by a required argument that must be valid identifier. If the argument is a number 1-9 (inclusive) the output will be send to this file descriptor.</p>
+<p><code>-o, --out</code>
+If a function accepts user supplied name for a variable that will hold function's resulting value, this is always achieved via <code>-o, --out NAME</code> option, followed by required option-argument NAME that must be valid identifier. If the option-argument is a number 1-9 (inclusive) the output will be sent to this file descriptor.   </p>
 
 <h3>
 <a id="list-of-functions" class="anchor" href="#list-of-functions" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>List of functions</h3>
 
-<p>(Some functions encompass functionalities, that might've been split across several functions, as subroutines)  </p>
+<p>(at the moment, some functions encompass functionalities that perphaps shouldn't've been merged together in a single functions as subroutines)  </p>
 
 <ul>
 <li><p><code>bb_typeof</code><br>
@@ -216,33 +221,31 @@ Pretty dump arrays and their attributes is its main purpose.<br>
 Type and qualify given string: identify it as set or unset variable, array, shell keyword, etc. With <code>-t</code> option, only the type, as a single word is returned: unset, variable, indexed, associative; also those returned by type builin: alias, keyword, function, builtin or file.<br>
 (feat: <a href="#features" title="documentation">d</a> <a href="#features" title="help">h</a> <a href="#features" title="output">o</a> <a href="#features" title="man">m</a> <a href="#features" title="positionals">p</a> <a href="#features" title="standalone">s</a> <a href="#features" title="tests">t</a>)  </p></li>
 <li><p><code>bb_explode</code><br>
-Convert a string to array by splitting it by substring which can be a single or multi-character substring. Also convert a string to array of individual characters.  </p></li>
+Convert a string to array by splitting it by substring which can be a single or multi-character substring; convert a string to array of individual characters. Needs "predict a delimiter" feature.   </p></li>
 <li><p><code>bb_implode</code><br>
-Convert an array to string. Specify wrapping and glue characters.  </p></li>
+Convert an array to string. Specify wrapping, prefix, suffix and <em>glue</em> characters.  </p></li>
 <li><p><code>bb_array_clone</code><br>
 Clone an array.  </p></li>
 <li><p><code>bb_array_merge</code><br>
 Merge two or more arrays of any type (indexed and/or associative). User can force the type of resulting array and specify merging mode (reindex, skip, overwrite, append).  </p></li>
 <li><p><code>bb_array_convert</code><br>
-Convert indexed to associative array or vice versa.  </p></li>
+Convert indexed to associative array or associative to index array, discarding the keys.  </p></li>
 <li><p><code>bb_array_remove</code><br>
-Remove array elements. Remove element with specified index/key from an array. Remove several elements by specifying them as comma-separated list of integers and/or ranges. Optionally, if name for the resulting array is specified, the original array will be left intact.  </p></li>
+Remove one or more element by specifying index/key. Remove many elements by specifying comma-separated list of strings (associative) or ranges (mainly for indexed arrays). </p></li>
 <li><p><code>bb_array_shift</code><br>
-Shift the first value of the array off and return it.  </p></li>
+Return the value of the first element by removing it and shifting remaining elements down.  </p></li>
 <li><p><code>bb_array_sort</code><br>
-Sort array different ways. Remove duplicated values from an array (make unique).  </p></li>
+Sort array different ways. Remove duplicated values from an array.  </p></li>
 <li><p><code>in_array</code><br>
-Checks if a value (variable or array) exists in an array.  </p></li>
+Checks if a value, scalar or array, exists in an array.  </p></li>
 <li><p><code>bb_range</code><br>
 Generate numeric sequences from list of ranges and individual integers (e.g. 1,4-8,10,15-20,25-30). Specify numbers base and divider, prefix, suffix characters.  </p></li>
 <li><p><code>bb_venn</code><br>
-Venn diagrams related functions: union, intersection, difference, complement.  </p></li>
-<li><p><code>bb_strpos</code><br>
-Find the position of the first occurrence of a substring in a string.  </p></li>
+Scalars, strings, arrays and Venn diagrams: union, intersection, difference, complement.  </p></li>
+<li><p><code>bb_load</code><br>
+Load and unload functions. Mark functions for autoloading. Resolve functions path.  </p></li>
 <li><p><code>bb_pad</code><br>
 Pad a string by appending char(s) after each character of the string. </p></li>
-<li><p><code>bb_load</code><br>
-Source functions. Mark functions for autoloading. Resolve functions path.  </p></li>
 <li><p><code>bb_trim</code><br>
 Trim leading, trailing and intermediate whitespace.  </p></li>
 <li><p><code>bb_to</code><br>
@@ -255,49 +258,53 @@ Pattern matching subroutines: qualify string as alphabetic, alpha-numeric, etc.;
 Collect information about variables, their attributes, arrays, variable's length and type, etc.  </p></li>
 <li><p><code>bb_array</code><br>
 Array quick dump.<br>
-Identify array as indexed, associative, numeric.<br>
-Return keys, values, empty elements.<br>
-Remove unset elements.<br>
-Re-index a sparse array.<br>
-Pack and squeeze an array.  </p></li>
+Identify array as associative and indexed.<br>
+Identify indexed array as numeric, packed, sparse.<br>
+Return array's keys, values, empty elements, max, min values.<br>
+Squeeze an array.<br>
+Pack an array.  </p></li>
 </ul>
 
 <h3>
 <a id="features" class="anchor" href="#features" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Features</h3>
 
-<p>Implement or check that everything is as described above.<br>
+<p>Or tasks. Check-list of features that are, or need to be, implemented.<br>
 <code>c</code> completions<br>
-<code>d</code> documentation in comments (of function's file)<br>
-<code>h</code> current --help option<br>
+<code>d</code> documentation, rationale and steps included in comments<br>
+<code>h</code> up to date --help<br>
 <code>o</code> output result to given var or FD<br>
-<code>m</code> man page<br>
-<code>n</code> pass variables by name or value<br>
-<code>p</code> positionals*<br>
-<code>s</code> standalone<br>
-<code>t</code> tests<br>
-<code>v</code> verbosity levels<br>
-<code>?</code> option to get parameters from stdin  </p>
-
-<p>*  parse positional params, but if any left (compounded short options, abbreviated long options) use <code>getopt</code>  </p>
+<code>m</code> man page completed<br>
+<code>n</code> pass scalars (also) by name (in applicable functions)<br>
+<code>p</code> positionals (parse canonical params before involving <code>getopt</code>)<br>
+<code>s</code> standalone function (no deps on any other function)<br>
+<code>t</code> tests provided<br>
+<code>u</code> unified names for options across functions<br>
+<code>v</code> Verbosity levels or TMI<br>
+<code>-</code> possibility provided to get params from stdin  </p>
 
 <h3>
 <a id="definitions" class="anchor" href="#definitions" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Definitions</h3>
 
-<p>(used usually in function's comments, help section, etc.)   </p>
-
-<p><strong>identifier</strong>  Variable's name consisting of alphabetic characters, numbers and underscore char, but 1st char must not be a number. <code>[[:alpha:]_][[:alnum:]_]+</code><br>
+<p>(used in comments, help sections, man pages)<br>
+<strong>identifier</strong>  a word consisting solely of underscores, digits and alphabetic characters from the POSIX portable character set. First char must not be a digit.<br>
+<code>[[:alpha:]_][[:alnum:]_]+</code><br>
+<strong>portable character set</strong>  POSIX portable character set consists of 8 chars from Control Character Set: NULL, BELL, BACKSPACE, TAB, CARRIAGE RETURN, LINE FEED, VERTICAL TAB, FORM FEED and X characters from ASCII range 32-126.<br>
+<strong>FQPN</strong>  Fully qualified path name.<br>
+<strong>name</strong>  a word consisting solely of underscores, digits and alphabetics.<br>
 <strong>char</strong>  Any character.<br>
 <strong>string</strong>  Sequence of characters.<br>
 <strong>substring</strong>  Sequence of characters that are part of the string.<br>
-<strong>name</strong>  Portable sequence of characters. <code>[[:alpha:].-_]+</code><br>
-<strong>filename</strong>  POSIX portable filename, hyphen not 1st char. <code>[[:alnum:]._][[:alnum:].-_]+</code><br>
-<strong>pathname</strong>  POSIX portable filename, hyphen not 1st char. <code>[[:alnum:]._/][[:alnum:].-_/]+</code><br>
-<strong>alias</strong>  POSIX portable name of alias. <code>[[:alnum:].-_/!%,@]</code><br>
+<strong>filename</strong>  POSIX portable filename, hyphen not 1st char.<br>
+<code>[[:alnum:]._][[:alnum:].-_]+</code><br>
+<strong>pathname</strong>  POSIX portable filename, hyphen not 1st char.<br>
+<code>[[:alnum:]._/][[:alnum:].-_/]+</code><br>
+<strong>alias</strong>  POSIX portable name of alias.<br>
+<code>[[:alnum:].-_/!%,@]</code><br>
 <strong>var</strong>  Name of scalar or array variable.<br>
 <strong>scalar</strong>  Name of scalar variable.<br>
 <strong>array</strong>  Name of array variable.<br>
 <strong>assoc</strong>  Array whose keys are strings.<br>
-<strong>indexed</strong>  Array whose indexes are numberic.<br>
+<strong>indexed</strong>  Array whose indexes are numeric.<br>
 <strong>packed array</strong>  Indexed array with contiguous indexes that start from 0.<br>
 <strong>sparse array</strong>  Indexed array with non-contiguous indexes.<br>
 <strong>whitespace</strong>  Space, tab, vertical tab, new line.<br>
