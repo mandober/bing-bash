@@ -1,0 +1,2 @@
+#!/bin/bash
+printf "[\e[33;1mbing-bash\e[0m] \e[37;1mThis file needs to be sourced.\e[0m\n" >&2

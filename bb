@@ -18,7 +18,7 @@
 #:      bb
 #:
 #: BRIEF:
-#:      Functions dispatcher.
+#:      Function dispatcher.
 #:
 #: DESCRIPTION:
 #:      Source and call the appropriate function and pass arguments to it.
@@ -102,10 +102,8 @@ bb () {
  trap "set +o noglob" RETURN ERR SIGHUP SIGINT SIGTERM
 
 # `bb' will load the passed function
-# pass through the args and UNLOAD the function
-# Or set this to 1 for `bb' to unload it, but 
-# to mark it as autoloadable
-# 
+# pass through the args and... then what?
+# leave it alone, unload it or make it autoloadable?
 
 #                                                                  PROCESS
 #=========================================================================
@@ -114,22 +112,38 @@ local bbReturn
 bbFunc="${1#bb_}"
 shift
 
+
+
 case $bbFunc in
 
+#                                BING-BASH ENV
+#---------------------------------------------
+env) bingenv;;
+
+#                               BING-BASH CONF
+#---------------------------------------------
+list) bingenv --list;;
+
+
+#                          FUNCTION DISPATCHER
+#---------------------------------------------
 $bbFunc)
+  local bbFPath
+  
+  # check allowed chars
+  [[ ! "$bbFunc" =~ [[:alnum:]\._-]+ ]] && return 4
 
-  # TODO
   # resolve function's file path
-  bb_load -r $bbFunc
+  bbFPath="$(bb_load --resolve $bbFunc)"
 
-  # if function file doesn't exist or no read permissions
-  if [[ ! -r "$BING_FUNC/$bbFunc.bash" ]]; then
+  # if no such file
+  if [[ ! -r "$bbFPath" ]]; then
     echo "No such file or no read permissions"
     return 1
   fi
 
   # source the function
-  . "$BING_FUNC/$bbFunc.bash"
+  . "$bbFPath"
 
   # pass through the args
   bb_$bbFunc "$@"
@@ -137,15 +151,20 @@ $bbFunc)
   # catch function's return code
   bbReturn=$?
 
-  # unset the function
-  unset -f bb_$bbFunc
+  # What now? Should the function
+  # be left alone, unloaded or
+  # reverted to autoloadable state?
 
-  # TODO
-  # convert function to autoloadable
+  # unset the function
+  # unset -f bb_$bbFunc
+
+  # revert function to autoloadable state
+  bb_load --auto $bbFunc
 
   # return catched code
   return $bbReturn
 ;;
+
 
 *) return 2;;
 
