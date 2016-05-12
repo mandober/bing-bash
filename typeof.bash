@@ -1,95 +1,97 @@
-#!/bin/bash bingmsg
-#=========================================================================
-#: FILE: typeof.bash
-#: PATH: $BING_FUNC/typeof.bash
-#: TYPE: function
-#:   NS: shell:bash:mandober:bing-bash:function:bb_typeof
-#:  CAT: variables
-#:
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-#: AUTHOR:
-#:      bing-bash by Ivan Ilic <ivanilic1975@gmail.com>
-#:      https://github.com/mandober/bing-bash
-#:      za Ǆ - Use freely at owns risk
-#:      8-Apr-2016 (last revision)
-#:
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-#: NAME:
-#:      bb_typeof
-#:
-#: BRIEF:
-#:      Variables typing and dumping.
-#:
-#: DESCRIPTION:
-#:      Started as a function mostly used to pretty dump array to the
-#:      screen, became a function to type and qualify names passes to
-#:      it. Still, when used with variable gives info about it such as
-#:      its value and attributes. Variable are passed by name (no $).
-#:      With -t option, only the type, as a single word is returned.
-#:
-#:      Types returned are: unset variable, variable, indexed array,
-#:      associative array; also the types returned by `type` builin:
-#:      alias, keyword, function, builtin or file.
-#:
-#: DEPENDENCIES:
-#:      none
-#:
-#: EXAMPLE:
-#:      bb_typeof -t BASH_ALIASES   # outputs: `associative'
-#:      bb_typeof BASH_VERSINFO     # dumps array BASH_VERSINFO
-#:
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-#: SYNOPSIS:
-#:      bb_typeof [-t] NAME ...
-#:
-#: OPTIONS:
-#:      -t, --type <flag>
-#:      Return the type, as single word. 
-#:
-#: PARAMETERS:
-#:      NAME <string>
-#:      bare word, name, identifier, variable, array, etc.
-#:
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-#: STDOUT:
-#:      Type, value and attributes of the parameter.
-#:      With -t option prints type as a single word.
-#:
-#: STDERR:
-#:      Error messages.
-#:
-#: RETURN STATUS:
-#:      0  great success
-#:      1  miserable failure
-#:      2  Parameter empty
+#!/bin/bash sourceme
+#                                                                       ID
+#-------------------------------------------------------------------------
+#    FILE: $BING/func/typeof.bash
+#    TYPE: function
+#     CAT: helpers
+#      NS: shell:bash:mandober:bing-bash:bb_typeof
+#                                                                  PROJECT
+#-------------------------------------------------------------------------
+#   TITLE: bing-bash - Bash Functions Library
+#  AUTHOR: Ivan Ilic <ivanilic1975@gmail.com>
+#    SITE: https://github.com/mandober/bing-bash
+# LICENSE: GPLv3
+#    DATE: 12-May-2016 (latest revision)
+#                                                                  DETAILS
+#-------------------------------------------------------------------------
+#  NAME:
+#       bb_typeof - Variables typing and dumping
+# 
+#  SYNOPSIS:
+#       bb_typeof [-t] NAME ...
+# 
+#  DESCRIPTION:
+#       Started as a function mostly used to pretty dump array to the
+#       screen, became a function to type and qualify names passes to
+#       it. Still, when used with variable gives info about it such as
+#       its value and attributes. Variable are passed by name (no $).
+#       With -t option, only the type, as a single word is returned.
+#       Types returned are: unset variable, variable, indexed array,
+#       associative array; also the types returned by `type` builin:
+#       alias, keyword, function, builtin or file.
+# 
+#  OPTIONS:
+#       -t, --type <flag>
+#       Return the type, as single word. 
+# 
+#  OPERANDS:
+#       NAME <string>
+#       bare word, name, identifier, variable, array, etc.
+#                                                                   OUTPUT
+#-------------------------------------------------------------------------
+#  STDOUT:
+#       Type, value and attributes of the parameter.
+#       With -t option prints type as a single word.
+# 
+#  STDERR:
+#       Error messages.
+# 
+#  ENVIRONMENT:
+#       none
+#
+#  RETURN CODE:
+#       0  success
+#       1  failure
+#       2  Parameter empty
+#                                                                     INFO
+#-------------------------------------------------------------------------
+#  DEPENDENCIES:
+#       none
+#
+#  SEE ALSO:
+#       type (builtin)
+#
+#  NOTES:
+#       Best used when sourced. It can be executed as well, but in
+#       that case it will run in its own, separate, environment, so
+#       current environment varables won't be available unless exported
+#       (and arrays can't be exported).
+#
+#  EXAMPLES:
+#       bb_typeof -t BASH_ALIASES              # outputs: `associative'
+#       bb_typeof BASH_VERSINFO                # dumps array BASH_VERSINFO
+#       bb_typeof PATH SHELLOPTS BASHOPTS LS_COLORS
+# 
 #=========================================================================
 bb_typeof() {
 #                                                                    ABOUT
 #-------------------------------------------------------------------------
  local bbapp="${FUNCNAME[0]}"
- local bbnfo="[bing-bash] $bbapp v.0.51"
+ local bbnfo="[bing-bash] $bbapp v.0.53"
  local usage="USAGE: $bbapp [-t] NAME ..."
 
 #                                                                 PRECHECK
 #-------------------------------------------------------------------------
- local bbT=0
- # bbT=1 -> stdout/stderr available
- [[ -t 1 || -p /dev/stdout ]] && local bbT=1
- # if nor args print usage
  if (($#==0)); then
-    ((bbT==1)) && {
-      # @OUTPUT to stderr if interactive shell
-      printf "\e[2m%s: %s\e[0m\n" "$bbapp" "Positional parameter empty" >&2
-      printf "%s\n" "$usage" >&2
-    }
+    printf "\e[2m%s: %s\e[0m\n" "$bbapp" "Positional parameter empty" >&2
+    printf "%s\n" "$usage" >&2
     return 2
  fi
-
 
 #                                                                     HELP
 #-------------------------------------------------------------------------
  [[ $1 =~ ^(-u|--usage)$ ]] && { printf "%s\n" "$usage"; return 0; }
- [[ $1 =~ ^(--version)$ ]] && { printf "%s\n" "$bbnfo"; return 0; }
+ [[ $1 =~ ^(-v|--version)$ ]] && { printf "%s\n" "$bbnfo"; return 0; }
  [[ $1 =~ ^(-h|--help)$ ]] && {
   printf "\e[7m%s\e[0m\n" "$bbnfo"
   printf "\e[1m%s\e[0m\n" "$usage"
@@ -117,16 +119,17 @@ bb_typeof() {
 	EXAMPLES:
 	   $bbapp -t BASH_ALIASES
 	   $bbapp BASH_VERSINFO
+	   $bbapp PATH SHELLOPTS BASHOPTS LS_COLORS
 	EOFF
 	return 0
  }
 
 #                                                                      SET
 #-------------------------------------------------------------------------
- shopt -s extglob 		# Enable extended regular expressions
- shopt -s extquote		# Enables $'' and $"" quoting
- shopt -u nocasematch 	# regexp case-sensitivity
- set -o noglob   		# Disable globbing (set -f). re-enable:
+ shopt -s extglob         # Enable extended regular expressions
+ shopt -s extquote        # Enables $'' and $"" quoting
+ shopt -u nocasematch     # regexp case-sensitivity
+ set -o noglob            # Disable globbing (set -f).
  trap "set +o noglob" RETURN ERR SIGHUP SIGINT SIGTERM
 
 
@@ -134,37 +137,32 @@ bb_typeof() {
 #=========================================================================
 local bbIn=""       # input param
 local bbType=0      # Type flag: 0=extensive 1=single word output
-local bbV=1         # verbosity level (0|1|2|3)  -v, --verbose
 
 while (( $# > 0 )); do
   case $1 in
-
-        -v|--verbose) bbV="${2?}"; shift 2;;
-    -v=*|--verbose=*) bbV="${1#*=}"; shift;;
-                 -v*) bbV="${1#??}"; shift;;
 
     -t|--type) bbType=1; shift;;
 
     --) shift; bbIn+="$@"; set --;;
 
-    -*) 
+    -*)
         # test getopt version
         getopt -T
         (($? != 4)) && {
           cat <<-EOFF >&2
 					Your version of getopt cannot be used to normalize the suplied
-					options. Please try again, but supply normalized options (i.e. 
-					no componded short options, no abbreviated long options).
+					options. Please try again, but supply normalized options: no
+					componded short options and no abbreviated long options.
 					EOFF
           return 7
         }
 
         local bbGetopt=$(getopt -quo -v:t -l verbose:,type -- "$@")
-        echo "\"$bbGetopt\""
+        # echo "\"$bbGetopt\""
         bbGetopt="${bbGetopt# }"
         bbGetopt="${bbGetopt// -- / }"
         bbGetopt="${bbGetopt/% --/}"
-        echo "\"$bbGetopt\""
+        # echo "\"$bbGetopt\""
         eval set -- "$bbGetopt"
     ;;
 
@@ -172,39 +170,10 @@ while (( $# > 0 )); do
   esac
 done
 
-#                                        VERBOSE I
-# ------------------------------------------------
-((bbV>2)) && {
-  echo
-  echo "PRECHECK:"
-  echo "In: \"$bbIn\""
-  echo "Verbosity: \"$bbV\""
-  echo "Type: \"$bbType\""
-  echo
-} >&2
 
 #                                         DEFAULTS
 # ------------------------------------------------
 bbIn="${bbIn% }"
-
-case $bbV in
-  [0-3]) bbV=$bbV;;  # -v0-3
-     "") bbV=1;;     # -v
-      v) bbV=2;;     # -vv
-     vv) bbV=3;;     # -vvv
-      *) bbV=1;;     # -v?
-esac
-
-#                                       VERBOSE II
-# ------------------------------------------------
-((bbV>1)) && {
-  echo "ASSIGN:"
-  echo "In: \"$bbIn\""
-  echo "Verbosity: \"$bbV\""
-  echo "Type: \"$bbType\""
-  echo
-} >&2
-
 
 # return operands to $@
 eval set -- "$bbIn"
@@ -215,7 +184,7 @@ bbIn=""
 # list opernads
 for bbIn; do
 
-#                                                                     TYPE
+#                                                             TYPE BUILTIN
 #=========================================================================
 # As a convenience, first check NAME with bash's `type -t` builtin.
 # This will type NAME as: alias, keyword, function, builtin, file.
@@ -224,7 +193,13 @@ local bbDeclare
 bbDeclare="$(type -t "$bbIn" 2>/dev/null)"
 
 if [[ -n "$bbDeclare" ]]; then
-  printf "%s\n" "$bbDeclare"
+    if (( bbType == 1 )); then
+      printf "%s\n" "$bbDeclare"
+    else
+      printf " \e[2m%s\e[0m %s\n" "Name:" "$bbIn"
+      printf " \e[2m%s\e[0m %s\n" "Type:" "$bbDeclare"
+    fi
+
 else
   #                                                              UNSET VAR
   #=======================================================================
@@ -238,7 +213,12 @@ else
   # assign `decalare -p NAME' to bbDeclare. 
   # If assignment is empty then NAME is unset (non-set) variable.
   if ! bbDeclare="$(declare -p "$bbIn" 2>/dev/null)"; then
-    printf "%s\n" "unset"
+    if (( bbType == 1 )); then
+      printf "%s\n" "unset"
+    else
+      printf " \e[2m%s\e[0m %s\n" "Name:" "$bbIn"
+      printf " \e[2m%s\e[0m %s\n" "Type:" "unset"
+    fi
   fi
 
 fi
@@ -272,8 +252,9 @@ case ${bbDeclare[1]} in
     bbMax=$(( bbCurr > bbMax ? bbCurr : bbMax ))
   done
 
-  printf " Name: %s\n" "$bbIn"
-  printf " Type: indexed array [%s]\n" "${#bbArrayRef[@]}"
+  printf " \e[2m%s\e[0m %s\n" "Name:" "$bbIn"
+  printf " \e[2m%s\e[0m " "Type:"
+  printf "indexed array [%s]\n" "${#bbArrayRef[@]}"
 
   # title
   printf "\e[2m%s. %7s %-*s %5s\e[0m\n" \
@@ -308,8 +289,9 @@ case ${bbDeclare[1]} in
   done
   (( bbMaxK += 2 ))
 
-  printf "Name: %s\n" "$bbIn"
-  printf "Type: associative array %s\n" "[${#bbArrayRef[@]}]"
+  printf " \e[2m%s\e[0m %s\n" "Name:" "$bbIn"
+  printf " \e[2m%s\e[0m " "Type:"
+  printf "associative array %s\n" "[${#bbArrayRef[@]}]"
 
   # title
   printf "\e[2m%s. %*s %-*s %5s\e[0m\n" \
@@ -341,7 +323,7 @@ case ${bbDeclare[1]} in
       printf "\e[2m%s\e[0m\n" "Value:"
       printf "       %s\n" ${bbValue//:/ }
     else
-      printf " Type: variable\n"
+      printf " \e[2m%s\e[0m %s\n" "Type:" "variable"
       printf "Value: %s \e[2m[%s]\e[0m\n" "$bbValue" "${#bbValue}"
     fi
  ;;&
@@ -349,17 +331,18 @@ case ${bbDeclare[1]} in
 #                                                               ATTRIBUTES
 #=========================================================================
 # remaining attributes
- *[linuxcrt]*) printf "\e[2m%s\e[0m\n" "Attributes:";;&
-  *i*) printf "       integer "      ;;&
-  *r*) printf "       readonly "     ;;&
-  *x*) printf "       export "       ;;&
-  *l*) printf "       lowercasing "  ;;&
-  *c*) printf "       capitalizing " ;;&
-  *u*) printf "       uppercasing "  ;;&
-  *n*) printf "       reference "    ;;&
-  *t*) printf "       trace "        ;;&
-  *[linuxcrt]*) printf "\n\n";;
+ *[linuxcrt]*) printf "Attributes:\n";;&
+  *i*) printf "integer "      ;;&
+  *r*) printf "readonly "     ;;&
+  *x*) printf "export "       ;;&
+  *l*) printf "lowercasing "  ;;&
+  *c*) printf "capitalizing " ;;&
+  *u*) printf "uppercasing "  ;;&
+  *n*) printf "reference "    ;;&
+  *t*) printf "trace "        ;;&
+  *[linuxcrt]*) printf "\n";;
 esac
+printf "\n"
 
 
 done # end list opernads
